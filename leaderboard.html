@@ -4,13 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Classificação — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="dashboard.html" class="navbar-brand">
-      <span class="brand-mark">BM</span>
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb3').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb3" style="display:none">BM</span>
       A Bola Maya
     </a>
     <div class="navbar-nav">
@@ -20,6 +25,10 @@
       <a href="lobby.html">Salas</a>
     </div>
     <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <div class="avatar" id="navAvatar">?</div>
       <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
     </div>
@@ -43,6 +52,7 @@
 <script src="js/api.js"></script>
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
 <script>
 let user, globalData = [];
 
@@ -88,7 +98,7 @@ async function switchTab(tab, btn) {
 
 function renderTable(rows) {
   if (!rows.length) {
-    document.getElementById('lbContent').innerHTML = '<div class="card"><p class="muted text-center" style="padding:24px">Ainda sem jogadores.</p></div>';
+    document.getElementById('lbContent').innerHTML = '<div class="card"><p class="muted text-center" style="padding:28px">Ainda sem jogadores.</p></div>';
     return;
   }
   document.getElementById('lbContent').innerHTML = `
@@ -96,12 +106,12 @@ function renderTable(rows) {
       <table class="lb-table">
         <thead><tr><th>#</th><th>Utilizador</th><th title="Previsões feitas">Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
         <tbody>${rows.map((u, i) => `
-          <tr class="${u.id === user.id ? 'me' : ''}">
+          <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
             <td>
               <strong>${u.display_name || u.username}</strong>
               <br><span class="lb-sub">@${u.username}</span>
-              ${u.id === user.id ? ' <span class="badge badge-red" style="font-size:.65rem">Tu</span>' : ''}
+              ${u.id === user.id ? ' <span class="badge badge-red" style="font-size:.62rem">Tu</span>' : ''}
             </td>
             <td>${u.predictions_made}</td>
             <td>${u.match_points}</td>

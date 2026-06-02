@@ -4,18 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A Bola Maya — Mundial 2026</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="serverWarning" style="display:none;position:fixed;top:0;left:0;right:0;background:#e63946;color:#fff;text-align:center;padding:10px 16px;font-size:.9rem;font-weight:600;z-index:999">
+<div id="serverWarning" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--wc-red);color:#fff;text-align:center;padding:10px 16px;font-size:.9rem;font-weight:600;z-index:999">
   Abre <strong>http://localhost:3000</strong> — não abras o ficheiro diretamente no browser.
-  Corre <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:4px">npm start</code> primeiro.
+  Corre <code style="background:rgba(0,0,0,.25);padding:2px 6px;border-radius:4px">npm start</code> primeiro.
 </div>
 
 <div class="auth-wrap">
   <div class="auth-card">
     <div class="auth-brand">
-      <div class="brand-logo">BM</div>
+      <div class="auth-bee-wrap">
+        <img src="img/logo.png" alt="A Bola Maya" class="auth-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('authLogoFallback').style.display='flex'">
+      </div>
+      <div class="brand-logo" id="authLogoFallback" style="display:none">BM</div>
       <h1>A Bola Maya</h1>
       <p>Bolão do Mundial 2026</p>
     </div>
@@ -65,6 +70,7 @@
 </div>
 
 <script src="js/api.js"></script>
+<script src="js/theme.js"></script>
 <script>
 if (location.protocol === 'file:' || location.port !== '3000') {
   document.getElementById('serverWarning').style.display = '';
@@ -88,7 +94,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
   if (!email || !pass) { errEl.textContent = 'Preenche todos os campos.'; errEl.style.display = ''; return; }
-
   btn.disabled = true; btn.textContent = 'A entrar...';
   try {
     const { token } = await API.post('/auth/login', { email, password: pass });
@@ -115,7 +120,6 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
   const errEl    = document.getElementById('regError');
   errEl.style.display = 'none';
   if (!username || !email || !pass) { errEl.textContent = 'Preenche os campos obrigatórios.'; errEl.style.display = ''; return; }
-
   btn.disabled = true; btn.textContent = 'A criar conta...';
   try {
     const { token } = await API.post('/auth/register', { username, display_name: display, email, password: pass });
