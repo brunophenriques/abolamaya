@@ -36,7 +36,9 @@
 </nav>
 
 <main class="container" style="padding-bottom:48px">
-  <div class="page-header">
+  <div class="page-header" style="position:relative;overflow:hidden">
+    <img src="img/trophy.png"      alt="" class="header-trophy trophy-dark"  aria-hidden="true" onerror="this.style.display='none'">
+    <img src="img/trophyblack.png" alt="" class="header-trophy trophy-light" aria-hidden="true" onerror="this.style.display='none'">
     <h2 id="welcomeMsg">Olá!</h2>
     <p>Mundial FIFA 2026 · Fase de Grupos · 11 Jun – 27 Jun</p>
   </div>
@@ -129,7 +131,7 @@ function rankBadge(i) {
       : `<span class="muted small">${count}/6</span>`;
     const card = document.createElement('a');
     card.href = `predict.html?group=${g}`;
-    card.className = `group-card${done ? ' done' : ''}`;
+    card.className = `group-card gc-${g}${done ? ' done' : ''}`;
     card.innerHTML = `
       <div class="group-card-header">
         <span class="group-label">${GROUP_LABELS[g]}</span>${statusHtml}

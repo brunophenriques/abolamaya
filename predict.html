@@ -50,18 +50,18 @@
   <div class="filter-bar" id="filterBar" style="display:none">
     <button class="filter-btn active" onclick="setFilter(null, this)">Todos</button>
     <span style="width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0"></span>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('A',this)">A</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('B',this)">B</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('C',this)">C</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('D',this)">D</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('E',this)">E</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('F',this)">F</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('G',this)">G</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('H',this)">H</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('I',this)">I</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('J',this)">J</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('K',this)">K</button>
-    <button class="filter-btn filter-btn-group" onclick="setFilter('L',this)">L</button>
+    <button class="filter-btn filter-btn-group gc-A" onclick="setFilter('A',this)">A</button>
+    <button class="filter-btn filter-btn-group gc-B" onclick="setFilter('B',this)">B</button>
+    <button class="filter-btn filter-btn-group gc-C" onclick="setFilter('C',this)">C</button>
+    <button class="filter-btn filter-btn-group gc-D" onclick="setFilter('D',this)">D</button>
+    <button class="filter-btn filter-btn-group gc-E" onclick="setFilter('E',this)">E</button>
+    <button class="filter-btn filter-btn-group gc-F" onclick="setFilter('F',this)">F</button>
+    <button class="filter-btn filter-btn-group gc-G" onclick="setFilter('G',this)">G</button>
+    <button class="filter-btn filter-btn-group gc-H" onclick="setFilter('H',this)">H</button>
+    <button class="filter-btn filter-btn-group gc-I" onclick="setFilter('I',this)">I</button>
+    <button class="filter-btn filter-btn-group gc-J" onclick="setFilter('J',this)">J</button>
+    <button class="filter-btn filter-btn-group gc-K" onclick="setFilter('K',this)">K</button>
+    <button class="filter-btn filter-btn-group gc-L" onclick="setFilter('L',this)">L</button>
   </div>
 
   <!-- Schedule by day -->
@@ -231,6 +231,10 @@ function renderGroupStandings() {
   const groups    = activeFilter ? [activeFilter] : ALL_GROUPS;
 
   header.textContent = activeFilter ? `Tabela — ${GROUP_LABELS[activeFilter]}` : 'Tabelas dos Grupos';
+  // Tint the schedule section with the active group colour
+  const scheduleEl = document.getElementById('matchSchedule');
+  scheduleEl.style.setProperty('--active-gc',
+    activeFilter ? `var(--gc-${activeFilter})` : 'var(--border)');
 
   container.className = activeFilter ? '' : 'groups-standings-grid';
   container.innerHTML = groups.map(g => `
