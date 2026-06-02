@@ -9,7 +9,10 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <a href="dashboard.html" class="navbar-brand">
+      <span class="brand-mark">BM</span>
+      A Bola Maya
+    </a>
     <div class="navbar-nav">
       <a href="dashboard.html">Início</a>
       <a href="predict.html">Previsões</a>
@@ -42,6 +45,11 @@
 <script src="js/auth.js"></script>
 <script>
 let user, globalData = [];
+
+function rankBadge(i) {
+  if (i < 3) return `<span class="rank-badge rank-${i+1}">${i+1}</span>`;
+  return String(i + 1);
+}
 
 (async () => {
   user = await requireAuth();
@@ -79,7 +87,6 @@ async function switchTab(tab, btn) {
 }
 
 function renderTable(rows) {
-  const medals = ['🥇','🥈','🥉'];
   if (!rows.length) {
     document.getElementById('lbContent').innerHTML = '<div class="card"><p class="muted text-center" style="padding:24px">Ainda sem jogadores.</p></div>';
     return;
@@ -90,11 +97,11 @@ function renderTable(rows) {
         <thead><tr><th>#</th><th>Utilizador</th><th title="Previsões feitas">Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
         <tbody>${rows.map((u, i) => `
           <tr class="${u.id === user.id ? 'me' : ''}">
-            <td class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${medals[i] || i+1}</td>
+            <td>${rankBadge(i)}</td>
             <td>
               <strong>${u.display_name || u.username}</strong>
               <br><span class="lb-sub">@${u.username}</span>
-              ${u.id === user.id ? ' <span class="badge badge-green" style="font-size:.68rem">Tu</span>' : ''}
+              ${u.id === user.id ? ' <span class="badge badge-red" style="font-size:.65rem">Tu</span>' : ''}
             </td>
             <td>${u.predictions_made}</td>
             <td>${u.match_points}</td>

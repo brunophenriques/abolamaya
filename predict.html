@@ -9,7 +9,10 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <a href="dashboard.html" class="navbar-brand">
+      <span class="brand-mark">BM</span>
+      A Bola Maya
+    </a>
     <div class="navbar-nav">
       <a href="dashboard.html">Início</a>
       <a href="predict.html" class="active always">Previsões</a>
@@ -29,9 +32,9 @@
       <h2>As tuas previsões</h2>
       <p>Prevê o marcador de cada jogo. A tabela de grupo é calculada automaticamente.</p>
     </div>
-    <div id="lockedBanner" class="locked-banner" style="display:none">🔒 Previsões encerradas.</div>
+    <div id="lockedBanner" class="locked-banner" style="display:none">Previsões encerradas.</div>
     <div id="countdownWrap" class="countdown" style="display:none">
-      ⏱ Encerram em <strong id="countdownVal"></strong> — não te esqueças de guardar!
+      Encerram em <strong id="countdownVal"></strong> — não te esqueças de guardar!
     </div>
   </div>
 
@@ -85,7 +88,7 @@ function buildSidebar() {
   document.getElementById('groupList').innerHTML = ALL_GROUPS.map(g => `
     <div class="group-list-item ${savedGroups.has(g) ? 'saved' : ''}" id="sidebar-${g}" onclick="selectGroup('${g}')">
       <span>${GROUP_LABELS[g]}</span>
-      <span class="check">${savedGroups.has(g) ? '✅' : ''}</span>
+      <span class="check">${savedGroups.has(g) ? '✓' : ''}</span>
     </div>`).join('');
 }
 
@@ -109,10 +112,11 @@ function renderGroupPanel(g) {
     <div class="card">
       <div class="card-title">
         ${GROUP_LABELS[g]}
-        ${savedGroups.has(g) ? '<span class="badge badge-green">✅ Guardado</span>' : '<span class="badge badge-muted">Não guardado</span>'}
+        &nbsp;
+        ${savedGroups.has(g) ? '<span class="badge badge-green">Guardado</span>' : '<span class="badge badge-muted">Não guardado</span>'}
       </div>
       ${matches.map(m => renderMatchRow(m, localPreds[m.id])).join('')}
-      ${!locked ? `<div class="mt-16"><button class="btn btn-primary" id="saveBtn-${g}" onclick="saveGroup('${g}')">💾 Guardar ${GROUP_LABELS[g]}</button></div>` : ''}
+      ${!locked ? `<div class="mt-16"><button class="btn btn-primary" id="saveBtn-${g}" onclick="saveGroup('${g}')">Guardar ${GROUP_LABELS[g]}</button></div>` : ''}
     </div>
     <div class="card mt-12">
       <div class="card-title">Tabela prevista — ${GROUP_LABELS[g]}</div>
@@ -132,7 +136,6 @@ function renderGroupPanel(g) {
 
 function renderMatchRow(m, pred) {
   const hv = pred.home_score, av = pred.away_score;
-  // date not used directly — formatMatchMeta used below
   if (locked) return `
     <div class="match-row">
       <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
@@ -188,7 +191,7 @@ async function saveGroup(g) {
     buildSidebar();
     document.getElementById(`sidebar-${g}`)?.classList.add('active');
     selectGroup(g);
-    showToast(`${GROUP_LABELS[g]} guardado! ✅`);
+    showToast(`${GROUP_LABELS[g]} guardado!`);
   } catch (e) {
     showToast(e.message, 'error');
   }

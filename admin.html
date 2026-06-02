@@ -9,11 +9,14 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <a href="dashboard.html" class="navbar-brand">
+      <span class="brand-mark">BM</span>
+      A Bola Maya
+    </a>
     <div class="navbar-nav">
       <a href="dashboard.html">Início</a>
       <a href="leaderboard.html">Classificação</a>
-      <a href="admin.html" class="active">⚙️ Admin</a>
+      <a href="admin.html" class="active">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
@@ -23,7 +26,7 @@
 
 <main class="container">
   <div class="page-header">
-    <h2>⚙️ Painel de Admin</h2>
+    <h2>Painel de Admin</h2>
     <p>Introduz resultados reais e calcula pontos automaticamente.</p>
   </div>
   <div id="adminContent"><div class="loading">A verificar permissões...</div></div>
@@ -41,11 +44,10 @@ let user, allMatches = [], groupMatches = {};
   if (!user) return;
   if (!user.is_admin) {
     document.getElementById('adminContent').innerHTML = `
-      <div class="card text-center" style="padding:40px">
-        <p style="font-size:2rem">🚫</p>
-        <p class="fw-bold mt-8">Acesso negado</p>
+      <div class="card text-center" style="padding:48px">
+        <p style="font-size:2rem;font-weight:800;color:var(--red);letter-spacing:-.03em">Acesso negado</p>
         <p class="muted small mt-8">Para te tornar admin, corre no terminal:<br>
-        <code style="background:var(--bg);padding:4px 8px;border-radius:4px">node server/make-admin.js ${user.username}</code><br>
+        <code style="background:var(--bg);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:6px">node server/make-admin.js ${user.username}</code><br>
         e recarrega a página.</p>
       </div>`;
     return;
@@ -89,7 +91,7 @@ function renderPanel() {
           <div class="flex-between">
             <div class="card-title" style="margin-bottom:0">${GROUP_LABELS[g]}</div>
             <div class="flex gap-8">
-              ${done ? '<span class="badge badge-green">✅ Completo</span>' : `<span class="badge badge-muted">${finished}/6</span>`}
+              ${done ? '<span class="badge badge-green">Completo</span>' : `<span class="badge badge-muted">${finished}/6</span>`}
               <button class="btn btn-primary btn-sm" onclick="calcGroup('${g}')" ${done ? '' : 'disabled'}>Calcular pontos</button>
             </div>
           </div>
@@ -114,7 +116,7 @@ function renderAdminMatch(m) {
   const hv = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
   const av = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
   const badge = m.status === 'finished'
-    ? '<span class="badge badge-green">✅</span>'
+    ? '<span class="badge badge-green">Concluído</span>'
     : '<span class="badge badge-muted">Agendado</span>';
 
   return `
@@ -140,23 +142,21 @@ async function saveResult(id) {
   if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador inválido.', 'error'); return; }
   try {
     await API.post('/admin/result', { match_id: id, home_score: h, away_score: a });
-    // Update local state
     const idx = allMatches.findIndex(m => m.id === id);
     if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].status = 'finished'; }
     const gid = allMatches[idx]?.group_id;
     if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
     renderPanel();
-    // Restore active tab
     document.getElementById('tabGroups').style.display = 'none';
     document.getElementById('tabMatches').style.display = '';
-    showToast(`Resultado guardado (${h}–${a}) e pontos calculados! ✅`);
+    showToast(`Resultado guardado (${h}–${a})!`);
   } catch (e) { showToast(e.message, 'error'); }
 }
 
 async function calcGroup(g) {
   try {
     const r = await API.post(`/admin/group/${g}/points`);
-    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores! ✅`);
+    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores!`);
   } catch (e) { showToast(e.message, 'error'); }
 }
 

@@ -7,15 +7,15 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="serverWarning" style="display:none;position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;text-align:center;padding:10px 16px;font-size:.9rem;font-weight:600;z-index:999">
-  ⚠️ Abre <strong>http://localhost:3000</strong> — não abras o ficheiro diretamente no browser.
+<div id="serverWarning" style="display:none;position:fixed;top:0;left:0;right:0;background:#e63946;color:#fff;text-align:center;padding:10px 16px;font-size:.9rem;font-weight:600;z-index:999">
+  Abre <strong>http://localhost:3000</strong> — não abras o ficheiro diretamente no browser.
   Corre <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:4px">npm start</code> primeiro.
 </div>
 
 <div class="auth-wrap">
   <div class="auth-card">
     <div class="auth-brand">
-      <div class="ball">⚽</div>
+      <div class="brand-logo">BM</div>
       <h1>A Bola Maya</h1>
       <p>Bolão do Mundial 2026</p>
     </div>
@@ -66,15 +66,12 @@
 
 <script src="js/api.js"></script>
 <script>
-// Show warning if not running through the Node.js server
 if (location.protocol === 'file:' || location.port !== '3000') {
   document.getElementById('serverWarning').style.display = '';
 }
 
-// Redirect if already logged in
 if (localStorage.getItem('abm_token')) window.location.href = 'dashboard.html';
 
-// Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -84,7 +81,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Login
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const btn   = document.getElementById('loginBtn');
   const email = document.getElementById('loginEmail').value.trim();
@@ -95,7 +91,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
   btn.disabled = true; btn.textContent = 'A entrar...';
   try {
-    const { token, user } = await API.post('/auth/login', { email, password: pass });
+    const { token } = await API.post('/auth/login', { email, password: pass });
     localStorage.setItem('abm_token', token);
     window.location.href = 'dashboard.html';
   } catch (e) {
@@ -110,7 +106,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   })
 );
 
-// Register
 document.getElementById('registerBtn').addEventListener('click', async () => {
   const btn      = document.getElementById('registerBtn');
   const username = document.getElementById('regUsername').value.trim();

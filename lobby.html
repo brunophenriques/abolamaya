@@ -9,7 +9,10 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <a href="dashboard.html" class="navbar-brand">
+      <span class="brand-mark">BM</span>
+      A Bola Maya
+    </a>
     <div class="navbar-nav">
       <a href="dashboard.html">Início</a>
       <a href="predict.html">Previsões</a>
@@ -31,7 +34,7 @@
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px" class="cj-grid">
     <div class="card">
-      <div class="card-title">🏟️ Criar sala</div>
+      <div class="card-title">Criar sala</div>
       <div class="form-group">
         <label>Nome da sala</label>
         <input type="text" id="lobbyName" class="input" placeholder="ex: Turma do Zé">
@@ -39,7 +42,7 @@
       <button class="btn btn-primary btn-full" onclick="createLobby()">Criar</button>
     </div>
     <div class="card">
-      <div class="card-title">🔗 Entrar com código</div>
+      <div class="card-title">Entrar com código</div>
       <div class="form-group">
         <label>Código de convite</label>
         <input type="text" id="joinCode" class="input" placeholder="ex: ABC123" maxlength="6"
@@ -53,12 +56,12 @@
 </main>
 
 <!-- Modal -->
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow:auto;padding:24px 16px">
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;overflow:auto;padding:24px 16px">
   <div style="max-width:640px;margin:0 auto">
     <div class="card">
       <div class="flex-between mb-16">
         <h3 id="modalTitle" class="fw-bold"></h3>
-        <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()" style="font-size:1rem;padding:4px 10px">&times;</button>
       </div>
       <p class="muted small mb-8">Código: <span id="modalCode" class="lobby-code" onclick="copyCode(this)"></span></p>
       <hr class="divider">
@@ -77,6 +80,11 @@
 <script src="js/auth.js"></script>
 <script>
 let user;
+
+function rankBadge(i) {
+  if (i < 3) return `<span class="rank-badge rank-${i+1}">${i+1}</span>`;
+  return String(i + 1);
+}
 
 (async () => {
   user = await requireAuth();
@@ -111,7 +119,7 @@ async function createLobby() {
   try {
     await API.post('/lobbies', { name });
     document.getElementById('lobbyName').value = '';
-    showToast('Sala criada! ✅');
+    showToast('Sala criada!');
     await loadLobbies();
   } catch (e) { showToast(e.message, 'error'); }
 }
@@ -122,7 +130,7 @@ async function joinLobby() {
   try {
     await API.post('/lobbies/join', { code });
     document.getElementById('joinCode').value = '';
-    showToast('Entraste na sala! ✅');
+    showToast('Entraste na sala!');
     await loadLobbies();
   } catch (e) { showToast(e.message, 'error'); }
 }
@@ -141,13 +149,12 @@ async function openLobby(id, name, code) {
   document.getElementById('leaveBtn').onclick = () => leaveLobby(id);
 
   const rows = await API.get(`/leaderboard/lobby/${id}`);
-  const medals = ['🥇','🥈','🥉'];
   document.getElementById('modalLb').innerHTML = rows && rows.length ? `
     <table class="lb-table">
       <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
-      <tbody>${rows.map((u,i) => `
+      <tbody>${rows.map((u, i) => `
         <tr class="${u.id === user.id ? 'me' : ''}">
-          <td>${medals[i] || i+1}</td><td>${u.display_name || u.username}</td>
+          <td>${rankBadge(i)}</td><td>${u.display_name || u.username}</td>
           <td>${u.match_points}</td><td>${u.group_points}</td>
           <td class="lb-pts">${u.total_points}</td>
         </tr>`).join('')}

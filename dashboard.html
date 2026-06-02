@@ -9,7 +9,10 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <a href="dashboard.html" class="navbar-brand">
+      <span class="brand-mark">BM</span>
+      A Bola Maya
+    </a>
     <div class="navbar-nav">
       <a href="dashboard.html" class="active always">Início</a>
       <a href="predict.html" class="always">Previsões</a>
@@ -30,10 +33,10 @@
   </div>
 
   <div id="countdownWrap" class="countdown" style="display:none">
-    ⏱ Previsões encerram em <strong id="countdownVal"></strong>
+    Previsões encerram em <strong id="countdownVal"></strong>
   </div>
   <div id="lockedBanner" class="locked-banner" style="display:none">
-    🔒 Previsões encerradas — boa sorte!
+    Previsões encerradas — boa sorte!
   </div>
 
   <div class="stats-row">
@@ -44,7 +47,7 @@
 
   <div class="flex-between mb-8">
     <h3 class="fw-bold">Os teus grupos</h3>
-    <a href="predict.html" class="btn btn-primary btn-sm">✏️ Previsões</a>
+    <a href="predict.html" class="btn btn-primary btn-sm">Previsões</a>
   </div>
   <div class="group-grid" id="groupGrid"><div class="loading">A carregar...</div></div>
 
@@ -60,6 +63,11 @@
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
 <script>
+function rankBadge(i) {
+  if (i < 3) return `<span class="rank-badge rank-${i+1}">${i+1}</span>`;
+  return String(i + 1);
+}
+
 (async () => {
   const user = await requireAuth();
   if (!user) return;
@@ -75,7 +83,6 @@
     document.getElementById('lockedBanner').style.display = '';
   }
 
-  // Load leaderboard to get my points
   const [lb, matches, preds] = await Promise.all([
     API.get('/leaderboard'),
     API.get('/matches'),
@@ -87,7 +94,6 @@
   document.getElementById('statMatch').textContent = me ? me.match_points : 0;
   document.getElementById('statGroup').textContent = me ? me.group_points : 0;
 
-  // Build group → teams + predictions map
   const predSet = new Set((preds || []).map(p => p.match_id));
   const groups = {};
   for (const m of matches || []) {
@@ -102,10 +108,10 @@
   for (const g of ALL_GROUPS) {
     const info = groups[g];
     if (!info) continue;
-    const done = info.ids.every(id => predSet.has(id));
+    const done  = info.ids.every(id => predSet.has(id));
     const count = info.ids.filter(id => predSet.has(id)).length;
     const statusHtml = done
-      ? '<span class="group-check">✅</span>'
+      ? '<span class="group-check">✓</span>'
       : `<span class="muted small">${count}/6</span>`;
 
     const card = document.createElement('a');
@@ -121,16 +127,14 @@
     grid.appendChild(card);
   }
 
-  // Mini leaderboard
   const top = (lb || []).slice(0, 5);
-  const medals = ['🥇','🥈','🥉'];
   document.getElementById('miniLeaderboard').innerHTML = top.length ? `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
         <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
-        <tbody>${top.map((u,i) => `
+        <tbody>${top.map((u, i) => `
           <tr class="${u.id === user.id ? 'me' : ''}">
-            <td>${medals[i] || i+1}</td>
+            <td>${rankBadge(i)}</td>
             <td><strong>${u.display_name || u.username}</strong><br><span class="lb-sub">@${u.username}</span></td>
             <td>${u.match_points}</td><td>${u.group_points}</td>
             <td class="lb-pts">${u.total_points}</td>
