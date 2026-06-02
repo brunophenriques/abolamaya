@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — A Bola Maya</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="active always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h2 id="welcomeMsg">Olá!</h2>
+    <p>Mundial FIFA 2026 · Fase de Grupos · 11 Jun – 27 Jun</p>
+  </div>
+
+  <div id="countdownWrap" class="countdown" style="display:none">
+    ⏱ Previsões encerram em <strong id="countdownVal"></strong>
+  </div>
+  <div id="lockedBanner" class="locked-banner" style="display:none">
+    🔒 Previsões encerradas — boa sorte!
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-value" id="statMatch">—</div><div class="stat-label">Pts Jogos</div></div>
+    <div class="stat-card"><div class="stat-value" id="statGroup">—</div><div class="stat-label">Pts Grupos</div></div>
+  </div>
+
+  <div class="flex-between mb-8">
+    <h3 class="fw-bold">Os teus grupos</h3>
+    <a href="predict.html" class="btn btn-primary btn-sm">✏️ Previsões</a>
+  </div>
+  <div class="group-grid" id="groupGrid"><div class="loading">A carregar...</div></div>
+
+  <hr class="divider">
+  <div class="flex-between mb-8">
+    <h3 class="fw-bold">Top 5 global</h3>
+    <a href="leaderboard.html" class="btn btn-ghost btn-sm">Ver tudo</a>
+  </div>
+  <div id="miniLeaderboard"><div class="loading">A carregar...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+(async () => {
+  const user = await requireAuth();
+  if (!user) return;
+
+  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+  document.getElementById('welcomeMsg').textContent = `Olá, ${user.display_name || user.username}!`;
+
+  const timer = timeUntilDeadline();
+  if (timer) {
+    document.getElementById('countdownWrap').style.display = '';
+    document.getElementById('countdownVal').textContent = timer;
+  } else {
+    document.getElementById('lockedBanner').style.display = '';
+  }
+
+  // Load leaderboard to get my points
+  const [lb, matches, preds] = await Promise.all([
+    API.get('/leaderboard'),
+    API.get('/matches'),
+    API.get('/matches/predictions'),
+  ]);
+
+  const me = (lb || []).find(u => u.id === user.id);
+  document.getElementById('statTotal').textContent = me ? me.total_points : 0;
+  document.getElementById('statMatch').textContent = me ? me.match_points : 0;
+  document.getElementById('statGroup').textContent = me ? me.group_points : 0;
+
+  // Build group → teams + predictions map
+  const predSet = new Set((preds || []).map(p => p.match_id));
+  const groups = {};
+  for (const m of matches || []) {
+    if (!groups[m.group_id]) groups[m.group_id] = { teams: new Set(), ids: [] };
+    groups[m.group_id].teams.add(m.home_team);
+    groups[m.group_id].teams.add(m.away_team);
+    groups[m.group_id].ids.push(m.id);
+  }
+
+  const grid = document.getElementById('groupGrid');
+  grid.innerHTML = '';
+  for (const g of ALL_GROUPS) {
+    const info = groups[g];
+    if (!info) continue;
+    const done = info.ids.every(id => predSet.has(id));
+    const count = info.ids.filter(id => predSet.has(id)).length;
+    const statusHtml = done
+      ? '<span class="group-check">✅</span>'
+      : `<span class="muted small">${count}/6</span>`;
+
+    const card = document.createElement('a');
+    card.href = `predict.html?group=${g}`;
+    card.className = `group-card${done ? ' done' : ''}`;
+    card.innerHTML = `
+      <div class="group-card-header">
+        <span class="group-label">${GROUP_LABELS[g]}</span>${statusHtml}
+      </div>
+      <div class="group-teams">
+        ${[...info.teams].map(t => `<span class="group-team">${t}</span>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  }
+
+  // Mini leaderboard
+  const top = (lb || []).slice(0, 5);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('miniLeaderboard').innerHTML = top.length ? `
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="lb-table">
+        <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
+        <tbody>${top.map((u,i) => `
+          <tr class="${u.id === user.id ? 'me' : ''}">
+            <td>${medals[i] || i+1}</td>
+            <td><strong>${u.display_name || u.username}</strong><br><span class="lb-sub">@${u.username}</span></td>
+            <td>${u.match_points}</td><td>${u.group_points}</td>
+            <td class="lb-pts">${u.total_points}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : '<p class="muted small">Sem dados ainda.</p>';
+})();
+</script>
+</body>
+</html>

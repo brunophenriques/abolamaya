@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Previsões — A Bola Maya</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <div class="navbar-nav">
+      <a href="dashboard.html">Início</a>
+      <a href="predict.html" class="active always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+    <div class="page-header">
+      <h2>As tuas previsões</h2>
+      <p>Prevê o marcador de cada jogo. A tabela de grupo é calculada automaticamente.</p>
+    </div>
+    <div id="lockedBanner" class="locked-banner" style="display:none">🔒 Previsões encerradas.</div>
+    <div id="countdownWrap" class="countdown" style="display:none">
+      ⏱ Encerram em <strong id="countdownVal"></strong> — não te esqueças de guardar!
+    </div>
+  </div>
+
+  <div class="container-wide" style="padding-bottom:48px">
+    <div class="predict-layout">
+      <div class="group-list" id="groupList"></div>
+      <div id="groupPanel"><div class="loading">Seleciona um grupo.</div></div>
+    </div>
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/scoring.js"></script>
+<script>
+let user, allMatches = {}, groupMatches = {}, userPreds = {}, savedGroups = new Set();
+const locked = isPredictionLocked();
+
+(async () => {
+  user = await requireAuth();
+  if (!user) return;
+  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+
+  if (locked) {
+    document.getElementById('lockedBanner').style.display = '';
+  } else {
+    const t = timeUntilDeadline();
+    if (t) { document.getElementById('countdownWrap').style.display = ''; document.getElementById('countdownVal').textContent = t; }
+  }
+
+  const [matches, preds] = await Promise.all([API.get('/matches'), API.get('/matches/predictions')]);
+  for (const m of matches || []) {
+    allMatches[m.id] = m;
+    if (!groupMatches[m.group_id]) groupMatches[m.group_id] = [];
+    groupMatches[m.group_id].push(m);
+  }
+  for (const p of preds || []) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
+
+  for (const g of ALL_GROUPS) {
+    const ms = groupMatches[g] || [];
+    if (ms.length === 6 && ms.every(m => userPreds[m.id] !== undefined)) savedGroups.add(g);
+  }
+
+  buildSidebar();
+  const g = new URLSearchParams(location.search).get('group');
+  selectGroup(g && ALL_GROUPS.includes(g.toUpperCase()) ? g.toUpperCase() : 'A');
+})();
+
+function buildSidebar() {
+  document.getElementById('groupList').innerHTML = ALL_GROUPS.map(g => `
+    <div class="group-list-item ${savedGroups.has(g) ? 'saved' : ''}" id="sidebar-${g}" onclick="selectGroup('${g}')">
+      <span>${GROUP_LABELS[g]}</span>
+      <span class="check">${savedGroups.has(g) ? '✅' : ''}</span>
+    </div>`).join('');
+}
+
+function selectGroup(g) {
+  document.querySelectorAll('.group-list-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`sidebar-${g}`)?.classList.add('active');
+  renderGroupPanel(g);
+  history.replaceState(null, '', `?group=${g}`);
+}
+
+function renderGroupPanel(g) {
+  const matches = groupMatches[g] || [];
+  const localPreds = {};
+  for (const m of matches) {
+    localPreds[m.id] = userPreds[m.id]
+      ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score) }
+      : { home_score: '', away_score: '' };
+  }
+
+  document.getElementById('groupPanel').innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        ${GROUP_LABELS[g]}
+        ${savedGroups.has(g) ? '<span class="badge badge-green">✅ Guardado</span>' : '<span class="badge badge-muted">Não guardado</span>'}
+      </div>
+      ${matches.map(m => renderMatchRow(m, localPreds[m.id])).join('')}
+      ${!locked ? `<div class="mt-16"><button class="btn btn-primary" id="saveBtn-${g}" onclick="saveGroup('${g}')">💾 Guardar ${GROUP_LABELS[g]}</button></div>` : ''}
+    </div>
+    <div class="card mt-12">
+      <div class="card-title">Tabela prevista — ${GROUP_LABELS[g]}</div>
+      <div id="standings-${g}"></div>
+    </div>`;
+
+  matches.forEach(m => {
+    ['home','away'].forEach(side => {
+      document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
+        localPreds[m.id][`${side}_score`] = e.target.value;
+        refreshStandings(g, matches, localPreds);
+      });
+    });
+  });
+  refreshStandings(g, matches, localPreds);
+}
+
+function renderMatchRow(m, pred) {
+  const hv = pred.home_score, av = pred.away_score;
+  // date not used directly — formatMatchMeta used below
+  if (locked) return `
+    <div class="match-row">
+      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+      <div class="score-box"><span class="match-actual-score">${hv !== '' ? hv : '?'} : ${av !== '' ? av : '?'}</span></div>
+      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+    </div>
+    <div class="match-meta">${formatMatchMeta(m)}</div>`;
+
+  return `
+    <div class="match-row">
+      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+      <div class="score-box">
+        <input type="number" min="0" max="20" id="score-home-${m.id}" class="score-input" value="${hv}" placeholder="0">
+        <span class="score-sep">:</span>
+        <input type="number" min="0" max="20" id="score-away-${m.id}" class="score-input" value="${av}" placeholder="0">
+      </div>
+      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+    </div>
+    <div class="match-meta">${formatMatchMeta(m)}</div>`;
+}
+
+function refreshStandings(g, matches, localPreds) {
+  const predsForCalc = {};
+  for (const m of matches) {
+    const p = localPreds[m.id];
+    if (p.home_score !== '' && p.away_score !== '') {
+      predsForCalc[m.id] = { home_score: parseInt(p.home_score), away_score: parseInt(p.away_score) };
+    }
+  }
+  renderStandingsTable(calcStandings(matches, predsForCalc), document.getElementById(`standings-${g}`));
+}
+
+async function saveGroup(g) {
+  const matches = groupMatches[g] || [];
+  const btn = document.getElementById(`saveBtn-${g}`);
+  const predictions = [];
+
+  for (const m of matches) {
+    const h = parseInt(document.getElementById(`score-home-${m.id}`)?.value);
+    const a = parseInt(document.getElementById(`score-away-${m.id}`)?.value);
+    if (isNaN(h) || isNaN(a) || h < 0 || a < 0) {
+      showToast(`Preenche todos os marcadores do ${GROUP_LABELS[g]}.`, 'error');
+      return;
+    }
+    predictions.push({ match_id: m.id, home_score: h, away_score: a });
+  }
+
+  setLoading(btn, true);
+  try {
+    await API.post('/matches/predictions', { predictions });
+    for (const p of predictions) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
+    savedGroups.add(g);
+    buildSidebar();
+    document.getElementById(`sidebar-${g}`)?.classList.add('active');
+    selectGroup(g);
+    showToast(`${GROUP_LABELS[g]} guardado! ✅`);
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+  setLoading(btn, false);
+}
+</script>
+</body>
+</html>

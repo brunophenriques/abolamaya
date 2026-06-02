@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salas — A Bola Maya</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <div class="navbar-nav">
+      <a href="dashboard.html">Início</a>
+      <a href="predict.html">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html" class="active always">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h2>As tuas salas</h2>
+    <p>Joga contra os teus amigos numa sala privada.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px" class="cj-grid">
+    <div class="card">
+      <div class="card-title">🏟️ Criar sala</div>
+      <div class="form-group">
+        <label>Nome da sala</label>
+        <input type="text" id="lobbyName" class="input" placeholder="ex: Turma do Zé">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="createLobby()">Criar</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🔗 Entrar com código</div>
+      <div class="form-group">
+        <label>Código de convite</label>
+        <input type="text" id="joinCode" class="input" placeholder="ex: ABC123" maxlength="6"
+          style="text-transform:uppercase;letter-spacing:.1em;font-family:monospace;font-size:1.1rem">
+      </div>
+      <button class="btn btn-gold btn-full" onclick="joinLobby()">Entrar</button>
+    </div>
+  </div>
+
+  <div id="lobbyList"><div class="loading">A carregar...</div></div>
+</main>
+
+<!-- Modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;overflow:auto;padding:24px 16px">
+  <div style="max-width:640px;margin:0 auto">
+    <div class="card">
+      <div class="flex-between mb-16">
+        <h3 id="modalTitle" class="fw-bold"></h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+      </div>
+      <p class="muted small mb-8">Código: <span id="modalCode" class="lobby-code" onclick="copyCode(this)"></span></p>
+      <hr class="divider">
+      <h4 class="fw-bold mb-8">Classificação da sala</h4>
+      <div id="modalLb"><div class="loading">A carregar...</div></div>
+      <hr class="divider">
+      <button class="btn btn-danger btn-sm" id="leaveBtn">Sair da sala</button>
+    </div>
+  </div>
+</div>
+
+<style>@media(max-width:500px){.cj-grid{grid-template-columns:1fr!important}}</style>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+let user;
+
+(async () => {
+  user = await requireAuth();
+  if (!user) return;
+  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+  await loadLobbies();
+})();
+
+async function loadLobbies() {
+  const lobbies = await API.get('/lobbies');
+  const el = document.getElementById('lobbyList');
+  if (!lobbies || !lobbies.length) {
+    el.innerHTML = '<div class="card text-center" style="padding:32px"><p class="muted">Ainda não estás em nenhuma sala.</p></div>';
+    return;
+  }
+  el.innerHTML = lobbies.map(lb => `
+    <div class="lobby-card">
+      <div class="lobby-header">
+        <span class="lobby-name">${lb.name}</span>
+        <span class="lobby-code" onclick="copyCode(this)" title="Clica para copiar">${lb.invite_code}</span>
+      </div>
+      <div class="flex gap-8 mt-8">
+        <button class="btn btn-ghost btn-sm" onclick="openLobby(${lb.id},'${lb.name}','${lb.invite_code}')">Ver classificação</button>
+        ${lb.created_by === user.id ? `<button class="btn btn-danger btn-sm" onclick="deleteLobby(${lb.id})">Eliminar</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+async function createLobby() {
+  const name = document.getElementById('lobbyName').value.trim();
+  if (!name) { showToast('Dá um nome à sala.', 'error'); return; }
+  try {
+    await API.post('/lobbies', { name });
+    document.getElementById('lobbyName').value = '';
+    showToast('Sala criada! ✅');
+    await loadLobbies();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function joinLobby() {
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if (code.length < 4) { showToast('Código inválido.', 'error'); return; }
+  try {
+    await API.post('/lobbies/join', { code });
+    document.getElementById('joinCode').value = '';
+    showToast('Entraste na sala! ✅');
+    await loadLobbies();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteLobby(id) {
+  if (!confirm('Eliminar esta sala?')) return;
+  await API.delete(`/lobbies/${id}`);
+  showToast('Sala eliminada.');
+  await loadLobbies();
+}
+
+async function openLobby(id, name, code) {
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modalCode').textContent  = code;
+  document.getElementById('modal').style.display    = '';
+  document.getElementById('leaveBtn').onclick = () => leaveLobby(id);
+
+  const rows = await API.get(`/leaderboard/lobby/${id}`);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('modalLb').innerHTML = rows && rows.length ? `
+    <table class="lb-table">
+      <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
+      <tbody>${rows.map((u,i) => `
+        <tr class="${u.id === user.id ? 'me' : ''}">
+          <td>${medals[i] || i+1}</td><td>${u.display_name || u.username}</td>
+          <td>${u.match_points}</td><td>${u.group_points}</td>
+          <td class="lb-pts">${u.total_points}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : '<p class="muted">Sem dados ainda.</p>';
+}
+
+async function leaveLobby(id) {
+  if (!confirm('Sair da sala?')) return;
+  await API.post(`/lobbies/${id}/leave`);
+  closeModal();
+  showToast('Saíste da sala.');
+  await loadLobbies();
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function copyCode(el) { navigator.clipboard.writeText(el.textContent).then(() => showToast('Código copiado!')); }
+</script>
+</body>
+</html>

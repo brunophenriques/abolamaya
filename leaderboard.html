@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classificação — A Bola Maya</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <div class="navbar-nav">
+      <a href="dashboard.html">Início</a>
+      <a href="predict.html">Previsões</a>
+      <a href="leaderboard.html" class="active always">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h2>Classificação</h2>
+    <p>Mundial 2026 · Fase de Grupos</p>
+  </div>
+
+  <div class="tabs" id="lbTabs">
+    <button class="tab-btn active" onclick="switchTab('global', this)">Global</button>
+    <span id="lobbyTabs" style="display:contents"></span>
+  </div>
+
+  <div id="lbContent"><div class="loading">A carregar...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+let user, globalData = [];
+
+(async () => {
+  user = await requireAuth();
+  if (!user) return;
+  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+
+  const [lb, lobbies] = await Promise.all([API.get('/leaderboard'), API.get('/lobbies')]);
+  globalData = lb || [];
+
+  const lobbyTabsEl = document.getElementById('lobbyTabs');
+  for (const lb of lobbies || []) {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = lb.name;
+    btn.onclick = () => switchTab(lb.id, btn);
+    lobbyTabsEl.appendChild(btn);
+  }
+
+  renderTable(globalData);
+})();
+
+async function switchTab(tab, btn) {
+  document.querySelectorAll('#lbTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lbContent').innerHTML = '<div class="loading">A carregar...</div>';
+  if (tab === 'global') {
+    renderTable(globalData);
+  } else {
+    try {
+      renderTable(await API.get(`/leaderboard/lobby/${tab}`));
+    } catch (e) {
+      document.getElementById('lbContent').innerHTML = `<p class="muted">${e.message}</p>`;
+    }
+  }
+}
+
+function renderTable(rows) {
+  const medals = ['🥇','🥈','🥉'];
+  if (!rows.length) {
+    document.getElementById('lbContent').innerHTML = '<div class="card"><p class="muted text-center" style="padding:24px">Ainda sem jogadores.</p></div>';
+    return;
+  }
+  document.getElementById('lbContent').innerHTML = `
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="lb-table">
+        <thead><tr><th>#</th><th>Utilizador</th><th title="Previsões feitas">Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
+        <tbody>${rows.map((u, i) => `
+          <tr class="${u.id === user.id ? 'me' : ''}">
+            <td class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${medals[i] || i+1}</td>
+            <td>
+              <strong>${u.display_name || u.username}</strong>
+              <br><span class="lb-sub">@${u.username}</span>
+              ${u.id === user.id ? ' <span class="badge badge-green" style="font-size:.68rem">Tu</span>' : ''}
+            </td>
+            <td>${u.predictions_made}</td>
+            <td>${u.match_points}</td>
+            <td>${u.group_points}</td>
+            <td class="lb-pts">${u.total_points}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small mt-8 text-center">1 pt resultado · 3 pts marcador exato · 1–4 pts classificação de grupo</p>`;
+}
+</script>
+</body>
+</html>

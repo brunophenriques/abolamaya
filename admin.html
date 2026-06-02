@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — A Bola Maya</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">⚽ A Bola Maya</a>
+    <div class="navbar-nav">
+      <a href="dashboard.html">Início</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="admin.html" class="active">⚙️ Admin</a>
+    </div>
+    <div class="navbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h2>⚙️ Painel de Admin</h2>
+    <p>Introduz resultados reais e calcula pontos automaticamente.</p>
+  </div>
+  <div id="adminContent"><div class="loading">A verificar permissões...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/scoring.js"></script>
+<script>
+let user, allMatches = [], groupMatches = {};
+
+(async () => {
+  user = await requireAuth();
+  if (!user) return;
+  if (!user.is_admin) {
+    document.getElementById('adminContent').innerHTML = `
+      <div class="card text-center" style="padding:40px">
+        <p style="font-size:2rem">🚫</p>
+        <p class="fw-bold mt-8">Acesso negado</p>
+        <p class="muted small mt-8">Para te tornar admin, corre no terminal:<br>
+        <code style="background:var(--bg);padding:4px 8px;border-radius:4px">node server/make-admin.js ${user.username}</code><br>
+        e recarrega a página.</p>
+      </div>`;
+    return;
+  }
+
+  allMatches = await API.get('/matches') || [];
+  for (const m of allMatches) {
+    if (!groupMatches[m.group_id]) groupMatches[m.group_id] = [];
+    groupMatches[m.group_id].push(m);
+  }
+  renderPanel();
+})();
+
+function renderPanel() {
+  const byDate = {};
+  for (const m of allMatches) {
+    if (!byDate[m.match_date]) byDate[m.match_date] = [];
+    byDate[m.match_date].push(m);
+  }
+
+  document.getElementById('adminContent').innerHTML = `
+    <div class="tabs" id="adminTabs">
+      <button class="tab-btn active" onclick="switchTab('matches',this)">Resultados</button>
+      <button class="tab-btn"        onclick="switchTab('groups',this)">Pontos de Grupos</button>
+    </div>
+
+    <div id="tabMatches">
+      ${Object.entries(byDate).map(([date, ms]) => `
+        <div class="card mt-12">
+          <div class="card-title">${formatDate(date)}</div>
+          ${ms.map(renderAdminMatch).join('')}
+        </div>`).join('')}
+    </div>
+
+    <div id="tabGroups" style="display:none">
+      ${ALL_GROUPS.map(g => {
+        const ms = groupMatches[g] || [];
+        const finished = ms.filter(m => m.status === 'finished').length;
+        const done = finished === 6;
+        return `<div class="card mt-12">
+          <div class="flex-between">
+            <div class="card-title" style="margin-bottom:0">${GROUP_LABELS[g]}</div>
+            <div class="flex gap-8">
+              ${done ? '<span class="badge badge-green">✅ Completo</span>' : `<span class="badge badge-muted">${finished}/6</span>`}
+              <button class="btn btn-primary btn-sm" onclick="calcGroup('${g}')" ${done ? '' : 'disabled'}>Calcular pontos</button>
+            </div>
+          </div>
+          ${done ? renderActualStandings(g) : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderActualStandings(g) {
+  const ms = groupMatches[g] || [];
+  const predsMap = {};
+  for (const m of ms) predsMap[m.id] = { home_score: m.home_score, away_score: m.away_score };
+  const standings = calcStandings(ms, predsMap);
+  const el = document.createElement('div');
+  el.className = 'mt-12';
+  renderStandingsTable(standings, el);
+  return el.innerHTML;
+}
+
+function renderAdminMatch(m) {
+  const hv = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
+  const av = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
+  const badge = m.status === 'finished'
+    ? '<span class="badge badge-green">✅</span>'
+    : '<span class="badge badge-muted">Agendado</span>';
+
+  return `
+    <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
+      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+      <div class="score-box">
+        <input type="number" min="0" max="20" id="ah-${m.id}" class="score-input" value="${hv}" placeholder="—">
+        <span class="score-sep">:</span>
+        <input type="number" min="0" max="20" id="aa-${m.id}" class="score-input" value="${av}" placeholder="—">
+      </div>
+      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+      <div class="flex gap-8" style="flex-shrink:0">
+        ${badge}
+        <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
+      </div>
+    </div>
+    <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>`;
+}
+
+async function saveResult(id) {
+  const h = parseInt(document.getElementById(`ah-${id}`)?.value);
+  const a = parseInt(document.getElementById(`aa-${id}`)?.value);
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador inválido.', 'error'); return; }
+  try {
+    await API.post('/admin/result', { match_id: id, home_score: h, away_score: a });
+    // Update local state
+    const idx = allMatches.findIndex(m => m.id === id);
+    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].status = 'finished'; }
+    const gid = allMatches[idx]?.group_id;
+    if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
+    renderPanel();
+    // Restore active tab
+    document.getElementById('tabGroups').style.display = 'none';
+    document.getElementById('tabMatches').style.display = '';
+    showToast(`Resultado guardado (${h}–${a}) e pontos calculados! ✅`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function calcGroup(g) {
+  try {
+    const r = await API.post(`/admin/group/${g}/points`);
+    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores! ✅`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('#adminTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabMatches').style.display = tab === 'matches' ? '' : 'none';
+  document.getElementById('tabGroups').style.display  = tab === 'groups'  ? '' : 'none';
+}
+</script>
+</body>
+</html>

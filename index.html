@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Bola Maya — Mundial 2026</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="serverWarning" style="display:none;position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;text-align:center;padding:10px 16px;font-size:.9rem;font-weight:600;z-index:999">
+  ⚠️ Abre <strong>http://localhost:3000</strong> — não abras o ficheiro diretamente no browser.
+  Corre <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:4px">npm start</code> primeiro.
+</div>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="ball">⚽</div>
+      <h1>A Bola Maya</h1>
+      <p>Bolão do Mundial 2026</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login">Entrar</button>
+      <button class="tab-btn" data-tab="register">Criar Conta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="tabLogin">
+      <div id="loginError" class="error-msg" style="display:none"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" class="input" placeholder="o.teu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" id="loginPassword" class="input" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button id="loginBtn" class="btn btn-primary btn-full btn-lg">Entrar</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tabRegister" style="display:none">
+      <div id="regError" class="error-msg" style="display:none"></div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="regUsername" class="input" placeholder="ex: pedrolindo99" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Nome a apresentar</label>
+        <input type="text" id="regDisplay" class="input" placeholder="ex: Pedro Silva">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" class="input" placeholder="o.teu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" id="regPassword" class="input" placeholder="mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <button id="registerBtn" class="btn btn-primary btn-full btn-lg">Criar Conta</button>
+    </div>
+  </div>
+  <p class="muted mt-12 small">Mundial 2026 · Fase de Grupos · 11 Jun – 27 Jun</p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+// Show warning if not running through the Node.js server
+if (location.protocol === 'file:' || location.port !== '3000') {
+  document.getElementById('serverWarning').style.display = '';
+}
+
+// Redirect if already logged in
+if (localStorage.getItem('abm_token')) window.location.href = 'dashboard.html';
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tabLogin').style.display    = btn.dataset.tab === 'login'    ? '' : 'none';
+    document.getElementById('tabRegister').style.display = btn.dataset.tab === 'register' ? '' : 'none';
+  });
+});
+
+// Login
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const btn   = document.getElementById('loginBtn');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Preenche todos os campos.'; errEl.style.display = ''; return; }
+
+  btn.disabled = true; btn.textContent = 'A entrar...';
+  try {
+    const { token, user } = await API.post('/auth/login', { email, password: pass });
+    localStorage.setItem('abm_token', token);
+    window.location.href = 'dashboard.html';
+  } catch (e) {
+    errEl.textContent = e.message; errEl.style.display = '';
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+});
+
+['loginEmail','loginPassword'].forEach(id =>
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  })
+);
+
+// Register
+document.getElementById('registerBtn').addEventListener('click', async () => {
+  const btn      = document.getElementById('registerBtn');
+  const username = document.getElementById('regUsername').value.trim();
+  const display  = document.getElementById('regDisplay').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const pass     = document.getElementById('regPassword').value;
+  const errEl    = document.getElementById('regError');
+  errEl.style.display = 'none';
+  if (!username || !email || !pass) { errEl.textContent = 'Preenche os campos obrigatórios.'; errEl.style.display = ''; return; }
+
+  btn.disabled = true; btn.textContent = 'A criar conta...';
+  try {
+    const { token } = await API.post('/auth/register', { username, display_name: display, email, password: pass });
+    localStorage.setItem('abm_token', token);
+    window.location.href = 'dashboard.html';
+  } catch (e) {
+    errEl.textContent = e.message; errEl.style.display = '';
+    btn.disabled = false; btn.textContent = 'Criar Conta';
+  }
+});
+</script>
+</body>
+</html>

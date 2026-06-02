@@ -1,0 +1,7 @@
+Para arrancar:
+
+
+# No terminal, na pasta abolamaya:
+npm install
+npm start
+# Depois abre: http://localhost:3000
