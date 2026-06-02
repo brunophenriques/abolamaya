@@ -46,9 +46,9 @@ function compareStandings(predicted, actual) {
   return pts;
 }
 
-// Render a standings table into a container element
+// Render a compact standings table (7 cols) into a container element
 function renderStandingsTable(teams, container) {
-  if (!teams.length) { container.innerHTML = '<p class="muted">Insere resultados para ver a tabela.</p>'; return; }
+  if (!teams.length) { container.innerHTML = '<p class="muted" style="font-size:.82rem;padding:8px 0">Insere resultados para ver a tabela.</p>'; return; }
   const rows = teams.map((t, i) => `
     <tr>
       <td class="pos">${i+1}</td>
@@ -57,19 +57,12 @@ function renderStandingsTable(teams, container) {
       <td>${t.w}</td>
       <td>${t.d}</td>
       <td>${t.l}</td>
-      <td>${t.gf}</td>
-      <td>${t.ga}</td>
-      <td>${t.gf - t.ga}</td>
       <td class="pts-cell">${t.pts}</td>
     </tr>`).join('');
   container.innerHTML = `
     <table class="standings-table">
       <thead>
-        <tr>
-          <th>#</th><th>Equipa</th><th>J</th>
-          <th>V</th><th>E</th><th>D</th>
-          <th>GM</th><th>GS</th><th>DG</th><th>Pts</th>
-        </tr>
+        <tr><th>#</th><th>Equipa</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Pts</th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>`;

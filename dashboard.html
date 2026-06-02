@@ -35,7 +35,7 @@
   </div>
 </nav>
 
-<main class="container">
+<main class="container" style="padding-bottom:48px">
   <div class="page-header">
     <h2 id="welcomeMsg">Olá!</h2>
     <p>Mundial FIFA 2026 · Fase de Grupos · 11 Jun – 27 Jun</p>
@@ -48,21 +48,24 @@
     Previsões encerradas — boa sorte!
   </div>
 
+  <!-- Stats -->
   <div class="stats-row">
     <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total</div></div>
     <div class="stat-card"><div class="stat-value" id="statMatch">—</div><div class="stat-label">Pts Jogos</div></div>
     <div class="stat-card"><div class="stat-value" id="statGroup">—</div><div class="stat-label">Pts Grupos</div></div>
   </div>
 
+  <!-- Groups -->
   <div class="flex-between mb-8">
     <h3 class="fw-bold">Os teus grupos</h3>
     <a href="predict.html" class="btn btn-primary btn-sm">Previsões</a>
   </div>
   <div class="group-grid" id="groupGrid"><div class="loading">A carregar...</div></div>
 
-  <hr class="divider">
-  <div class="flex-between mb-8">
-    <h3 class="fw-bold">Top 5 global</h3>
+  <!-- Mini leaderboard -->
+  <hr class="divider" style="margin-top:28px">
+  <div class="flex-between mb-16">
+    <h3 class="fw-bold">Classificação global</h3>
     <a href="leaderboard.html" class="btn btn-ghost btn-sm">Ver tudo</a>
   </div>
   <div id="miniLeaderboard"><div class="loading">A carregar...</div></div>
@@ -104,6 +107,7 @@ function rankBadge(i) {
   document.getElementById('statMatch').textContent = me ? me.match_points : 0;
   document.getElementById('statGroup').textContent = me ? me.group_points : 0;
 
+  // Group grid
   const predSet = new Set((preds || []).map(p => p.match_id));
   const groups = {};
   for (const m of matches || []) {
@@ -123,7 +127,6 @@ function rankBadge(i) {
     const statusHtml = done
       ? '<span class="group-check">✓</span>'
       : `<span class="muted small">${count}/6</span>`;
-
     const card = document.createElement('a');
     card.href = `predict.html?group=${g}`;
     card.className = `group-card${done ? ' done' : ''}`;
@@ -137,21 +140,30 @@ function rankBadge(i) {
     grid.appendChild(card);
   }
 
-  const top = (lb || []).slice(0, 5);
+  // Mini leaderboard (top 10)
+  const top = (lb || []).slice(0, 10);
+  const myRank = (lb || []).findIndex(u => u.id === user.id) + 1;
   document.getElementById('miniLeaderboard').innerHTML = top.length ? `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
-        <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th>Utilizador</th><th>Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
         <tbody>${top.map((u, i) => `
-          <tr class="${u.id === user.id ? 'me' : ''} rank-row-${i < 3 ? i+1 : ''}">
+          <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
-            <td><strong>${u.display_name || u.username}</strong><br><span class="lb-sub">@${u.username}</span></td>
-            <td>${u.match_points}</td><td>${u.group_points}</td>
+            <td>
+              <strong>${u.display_name || u.username}</strong>
+              <br><span class="lb-sub">@${u.username}</span>
+              ${u.id === user.id ? ` <span class="badge badge-red" style="font-size:.62rem">Tu</span>` : ''}
+            </td>
+            <td>${u.predictions_made}</td>
+            <td>${u.match_points}</td>
+            <td>${u.group_points}</td>
             <td class="lb-pts">${u.total_points}</td>
           </tr>`).join('')}
         </tbody>
       </table>
-    </div>` : '<p class="muted small">Sem dados ainda.</p>';
+      ${myRank > 10 ? `<div style="padding:10px 14px;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted)">A tua posição: <strong class="text-primary">#${myRank}</strong></div>` : ''}
+    </div>` : '<div class="card text-center" style="padding:32px"><p class="muted">Ainda sem dados.</p></div>';
 })();
 </script>
 </body>

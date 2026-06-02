@@ -7,7 +7,7 @@
   <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="has-save-bar">
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="dashboard.html" class="navbar-brand">
@@ -35,25 +35,50 @@
   </div>
 </nav>
 
-<main>
-  <div class="container">
-    <div class="page-header">
-      <h2>As tuas previsões</h2>
-      <p>Prevê o marcador de cada jogo. A tabela de grupo é calculada automaticamente.</p>
-    </div>
-    <div id="lockedBanner" class="locked-banner" style="display:none">Previsões encerradas.</div>
-    <div id="countdownWrap" class="countdown" style="display:none">
-      Encerram em <strong id="countdownVal"></strong> — não te esqueças de guardar!
-    </div>
+<main class="container">
+  <div class="page-header">
+    <h2>Previsões</h2>
+    <p>Prevê o marcador de todos os jogos. As tabelas de grupo actualizam em tempo real.</p>
   </div>
 
-  <div class="container-wide" style="padding-bottom:48px">
-    <div class="predict-layout">
-      <div class="group-list" id="groupList"></div>
-      <div id="groupPanel"><div class="loading">Seleciona um grupo.</div></div>
-    </div>
+  <div id="lockedBanner" class="locked-banner" style="display:none">Previsões encerradas.</div>
+  <div id="countdownWrap" class="countdown" style="display:none">
+    Encerram em <strong id="countdownVal"></strong>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar" id="filterBar" style="display:none">
+    <button class="filter-btn active" onclick="setFilter(null, this)">Todos</button>
+    <span style="width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0"></span>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('A',this)">A</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('B',this)">B</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('C',this)">C</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('D',this)">D</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('E',this)">E</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('F',this)">F</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('G',this)">G</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('H',this)">H</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('I',this)">I</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('J',this)">J</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('K',this)">K</button>
+    <button class="filter-btn filter-btn-group" onclick="setFilter('L',this)">L</button>
+  </div>
+
+  <!-- Schedule by day -->
+  <div id="matchSchedule"><div class="loading">A carregar jogos...</div></div>
+
+  <!-- Group standings (updated live) -->
+  <div id="groupsSection" style="display:none">
+    <div class="match-day-header" style="margin-top:32px" id="standingsHeader">Tabelas dos Grupos</div>
+    <div id="groupStandings"></div>
   </div>
 </main>
+
+<!-- Sticky save bar (hidden when locked) -->
+<div class="save-bar" id="saveBar" style="display:none">
+  <span class="save-bar-info" id="saveInfo">0 de 72 preenchidas</span>
+  <button class="btn btn-primary" id="saveAllBtn" onclick="saveAll()">Guardar previsões</button>
+</div>
 
 <script src="js/api.js"></script>
 <script src="js/config.js"></script>
@@ -61,8 +86,14 @@
 <script src="js/scoring.js"></script>
 <script src="js/theme.js"></script>
 <script>
-let user, allMatches = {}, groupMatches = {}, userPreds = {}, savedGroups = new Set();
 const locked = isPredictionLocked();
+let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {};
+let activeFilter = null; // null = all, 'A'-'L' = specific group
+
+function formatDateLong(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+}
 
 (async () => {
   user = await requireAuth();
@@ -74,131 +105,192 @@ const locked = isPredictionLocked();
   } else {
     const t = timeUntilDeadline();
     if (t) { document.getElementById('countdownWrap').style.display = ''; document.getElementById('countdownVal').textContent = t; }
+    document.getElementById('saveBar').style.display = '';
   }
 
   const [matches, preds] = await Promise.all([API.get('/matches'), API.get('/matches/predictions')]);
-  for (const m of matches || []) {
-    allMatches[m.id] = m;
-    if (!groupMatches[m.group_id]) groupMatches[m.group_id] = [];
-    groupMatches[m.group_id].push(m);
+
+  allMatchesList = matches || [];
+  for (const m of allMatchesList) {
+    if (!groupMatchesMap[m.group_id]) groupMatchesMap[m.group_id] = [];
+    groupMatchesMap[m.group_id].push(m);
   }
-  for (const p of preds || []) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
-
-  for (const g of ALL_GROUPS) {
-    const ms = groupMatches[g] || [];
-    if (ms.length === 6 && ms.every(m => userPreds[m.id] !== undefined)) savedGroups.add(g);
+  for (const p of preds || []) {
+    userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
   }
-
-  buildSidebar();
-  const g = new URLSearchParams(location.search).get('group');
-  selectGroup(g && ALL_GROUPS.includes(g.toUpperCase()) ? g.toUpperCase() : 'A');
-})();
-
-function buildSidebar() {
-  document.getElementById('groupList').innerHTML = ALL_GROUPS.map(g => `
-    <div class="group-list-item ${savedGroups.has(g) ? 'saved' : ''}" id="sidebar-${g}" onclick="selectGroup('${g}')">
-      <span>${GROUP_LABELS[g]}</span>
-      <span class="check">${savedGroups.has(g) ? '✓' : ''}</span>
-    </div>`).join('');
-}
-
-function selectGroup(g) {
-  document.querySelectorAll('.group-list-item').forEach(el => el.classList.remove('active'));
-  document.getElementById(`sidebar-${g}`)?.classList.add('active');
-  renderGroupPanel(g);
-  history.replaceState(null, '', `?group=${g}`);
-}
-
-function renderGroupPanel(g) {
-  const matches = groupMatches[g] || [];
-  const localPreds = {};
-  for (const m of matches) {
+  for (const m of allMatchesList) {
     localPreds[m.id] = userPreds[m.id]
       ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score) }
       : { home_score: '', away_score: '' };
   }
 
-  document.getElementById('groupPanel').innerHTML = `
-    <div class="card">
-      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
-        <span>${GROUP_LABELS[g]}</span>
-        ${savedGroups.has(g) ? '<span class="badge badge-green">Guardado</span>' : '<span class="badge badge-muted">Não guardado</span>'}
+  document.getElementById('filterBar').style.display = '';
+
+  // Open to a specific group if coming from dashboard
+  const qg = new URLSearchParams(location.search).get('group');
+  if (qg && ALL_GROUPS.includes(qg.toUpperCase())) {
+    const btn = [...document.querySelectorAll('.filter-btn-group')]
+      .find(b => b.textContent.trim() === qg.toUpperCase());
+    if (btn) setFilter(qg.toUpperCase(), btn);
+  } else {
+    renderSchedule();
+    renderGroupStandings();
+  }
+  updateSaveBar();
+})();
+
+function setFilter(group, btn) {
+  activeFilter = group;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSchedule();
+  renderGroupStandings();
+  // Update URL so back-navigation works
+  history.replaceState(null, '', group ? `?group=${group}` : '?');
+}
+
+function renderSchedule() {
+  const matches = activeFilter
+    ? allMatchesList.filter(m => m.group_id === activeFilter)
+    : allMatchesList;
+
+  const byDate = {};
+  for (const m of matches) {
+    if (!byDate[m.match_date]) byDate[m.match_date] = [];
+    byDate[m.match_date].push(m);
+  }
+
+  const scheduleEl = document.getElementById('matchSchedule');
+  scheduleEl.innerHTML = '';
+
+  for (const date of Object.keys(byDate).sort()) {
+    const ms = byDate[date];
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'match-day';
+    dayEl.innerHTML = `
+      <div class="match-day-header">${formatDateLong(date)}</div>
+      <div class="card">
+        ${ms.map(m => renderMatchRow(m)).join('')}
+      </div>`;
+    scheduleEl.appendChild(dayEl);
+
+    if (!locked) {
+      for (const m of ms) {
+        ['home','away'].forEach(side => {
+          document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
+            localPreds[m.id][`${side}_score`] = e.target.value;
+            updateGroupStandings(m.group_id);
+            updateSaveBar();
+          });
+        });
+      }
+    }
+  }
+}
+
+function renderMatchRow(m) {
+  const p = localPreds[m.id] || { home_score: '', away_score: '' };
+  const meta = `<span class="match-group-chip">${GROUP_LABELS[m.group_id]}</span> ${m.match_time} (PT) · ${m.venue}`;
+
+  if (locked) return `
+    <div class="match-block">
+      <div class="match-row">
+        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="score-box"><span class="match-actual-score">${p.home_score !== '' ? p.home_score : '—'} : ${p.away_score !== '' ? p.away_score : '—'}</span></div>
+        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
       </div>
-      ${matches.map(m => renderMatchRow(m, localPreds[m.id])).join('')}
-      ${!locked ? `<div class="mt-16"><button class="btn btn-primary" id="saveBtn-${g}" onclick="saveGroup('${g}')">Guardar ${GROUP_LABELS[g]}</button></div>` : ''}
-    </div>
-    <div class="card mt-12">
-      <div class="card-title">Tabela prevista — ${GROUP_LABELS[g]}</div>
-      <div id="standings-${g}"></div>
+      <div class="match-meta">${meta}</div>
     </div>`;
 
-  matches.forEach(m => {
-    ['home','away'].forEach(side => {
-      document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
-        localPreds[m.id][`${side}_score`] = e.target.value;
-        refreshStandings(g, matches, localPreds);
-      });
-    });
-  });
-  refreshStandings(g, matches, localPreds);
-}
-
-function renderMatchRow(m, pred) {
-  const hv = pred.home_score, av = pred.away_score;
-  if (locked) return `
-    <div class="match-row">
-      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
-      <div class="score-box"><span class="match-actual-score">${hv !== '' ? hv : '?'} : ${av !== '' ? av : '?'}</span></div>
-      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
-    </div>
-    <div class="match-meta">${formatMatchMeta(m)}</div>`;
+  const isSaved = userPreds[m.id] !== undefined
+    && String(userPreds[m.id].home_score) === p.home_score
+    && String(userPreds[m.id].away_score) === p.away_score
+    && p.home_score !== '';
 
   return `
-    <div class="match-row">
-      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
-      <div class="score-box">
-        <input type="number" min="0" max="20" id="score-home-${m.id}" class="score-input" value="${hv}" placeholder="0">
-        <span class="score-sep">:</span>
-        <input type="number" min="0" max="20" id="score-away-${m.id}" class="score-input" value="${av}" placeholder="0">
+    <div class="match-block">
+      <div class="match-row">
+        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="score-box" style="position:relative">
+          <input type="number" min="0" max="20" id="score-home-${m.id}" class="score-input" value="${p.home_score}" placeholder="0">
+          <span class="score-sep">:</span>
+          <input type="number" min="0" max="20" id="score-away-${m.id}" class="score-input" value="${p.away_score}" placeholder="0">
+          ${isSaved ? `<span style="position:absolute;right:-22px;color:var(--green);font-size:.75rem;font-weight:700">✓</span>` : ''}
+        </div>
+        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
       </div>
-      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
-    </div>
-    <div class="match-meta">${formatMatchMeta(m)}</div>`;
+      <div class="match-meta">${meta}</div>
+    </div>`;
 }
 
-function refreshStandings(g, matches, localPreds) {
+function renderGroupStandings() {
+  const section   = document.getElementById('groupsSection');
+  const container = document.getElementById('groupStandings');
+  const header    = document.getElementById('standingsHeader');
+  const groups    = activeFilter ? [activeFilter] : ALL_GROUPS;
+
+  header.textContent = activeFilter ? `Tabela — ${GROUP_LABELS[activeFilter]}` : 'Tabelas dos Grupos';
+
+  container.className = activeFilter ? '' : 'groups-standings-grid';
+  container.innerHTML = groups.map(g => `
+    <div class="card">
+      <div class="card-title">${GROUP_LABELS[g]}</div>
+      <div id="standings-${g}"></div>
+    </div>`).join('');
+  groups.forEach(g => updateGroupStandings(g));
+  section.style.display = '';
+}
+
+function updateGroupStandings(groupId) {
+  const el = document.getElementById(`standings-${groupId}`);
+  if (!el) return;
+  const matches = groupMatchesMap[groupId] || [];
   const predsForCalc = {};
   for (const m of matches) {
     const p = localPreds[m.id];
-    if (p.home_score !== '' && p.away_score !== '') {
+    if (p && p.home_score !== '' && p.away_score !== '') {
       predsForCalc[m.id] = { home_score: parseInt(p.home_score), away_score: parseInt(p.away_score) };
     }
   }
-  renderStandingsTable(calcStandings(matches, predsForCalc), document.getElementById(`standings-${g}`));
+  renderStandingsTable(calcStandings(matches, predsForCalc), el);
 }
 
-async function saveGroup(g) {
-  const matches = groupMatches[g] || [];
-  const btn = document.getElementById(`saveBtn-${g}`);
+function updateSaveBar() {
+  let filled = 0, unsaved = 0;
+  for (const m of allMatchesList) {
+    const p = localPreds[m.id];
+    if (!p || p.home_score === '' || p.away_score === '') continue;
+    filled++;
+    const saved = userPreds[m.id] !== undefined
+      && String(userPreds[m.id].home_score) === p.home_score
+      && String(userPreds[m.id].away_score) === p.away_score;
+    if (!saved) unsaved++;
+  }
+  document.getElementById('saveInfo').innerHTML =
+    `<strong>${filled}</strong> de 72 preenchidas${unsaved > 0 ? ` · <span style="color:var(--gold)">${unsaved} por guardar</span>` : ''}`;
+  document.getElementById('saveAllBtn').disabled = unsaved === 0 && filled > 0;
+}
+
+async function saveAll() {
+  const btn = document.getElementById('saveAllBtn');
   const predictions = [];
-  for (const m of matches) {
-    const h = parseInt(document.getElementById(`score-home-${m.id}`)?.value);
-    const a = parseInt(document.getElementById(`score-away-${m.id}`)?.value);
-    if (isNaN(h) || isNaN(a) || h < 0 || a < 0) {
-      showToast(`Preenche todos os marcadores do ${GROUP_LABELS[g]}.`, 'error');
-      return;
-    }
+  for (const m of allMatchesList) {
+    const p = localPreds[m.id];
+    if (!p || p.home_score === '' || p.away_score === '') continue;
+    const h = parseInt(p.home_score), a = parseInt(p.away_score);
+    if (isNaN(h) || isNaN(a) || h < 0 || a < 0) continue;
     predictions.push({ match_id: m.id, home_score: h, away_score: a });
   }
+  if (!predictions.length) { showToast('Preenche pelo menos um marcador.', 'error'); return; }
+
   setLoading(btn, true);
   try {
     await API.post('/matches/predictions', { predictions });
     for (const p of predictions) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
-    savedGroups.add(g);
-    buildSidebar();
-    document.getElementById(`sidebar-${g}`)?.classList.add('active');
-    selectGroup(g);
-    showToast(`${GROUP_LABELS[g]} guardado!`);
+    showToast(`${predictions.length} previsão${predictions.length !== 1 ? 'ões' : ''} guardada${predictions.length !== 1 ? 's' : ''}!`);
+    renderSchedule();
+    updateSaveBar();
   } catch (e) {
     showToast(e.message, 'error');
   }

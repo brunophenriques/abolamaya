@@ -129,20 +129,22 @@ function renderAdminMatch(m) {
     : '<span class="badge badge-muted">Agendado</span>';
 
   return `
-    <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
-      <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
-      <div class="score-box">
-        <input type="number" min="0" max="20" id="ah-${m.id}" class="score-input" value="${hv}" placeholder="—">
-        <span class="score-sep">:</span>
-        <input type="number" min="0" max="20" id="aa-${m.id}" class="score-input" value="${av}" placeholder="—">
+    <div class="match-block">
+      <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
+        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="score-box">
+          <input type="number" min="0" max="20" id="ah-${m.id}" class="score-input" value="${hv}" placeholder="—">
+          <span class="score-sep">:</span>
+          <input type="number" min="0" max="20" id="aa-${m.id}" class="score-input" value="${av}" placeholder="—">
+        </div>
+        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+        <div class="flex gap-8" style="flex-shrink:0">
+          ${badge}
+          <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
+        </div>
       </div>
-      <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
-      <div class="flex gap-8" style="flex-shrink:0">
-        ${badge}
-        <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
-      </div>
-    </div>
-    <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>`;
+      <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+    </div>`;
 }
 
 async function saveResult(id) {
