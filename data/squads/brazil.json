@@ -1,0 +1,37 @@
+{
+  "name": "Brazil",
+  "flag": "🇧🇷",
+  "group": "C",
+  "manager": "Carlo Ancelotti",
+  "players": [
+    { "number": 1,  "name": "Alisson",           "pos": "GR",  "club": "Liverpool",          "born": "1992-10-02" },
+    { "number": 12, "name": "Weverton",           "pos": "GR",  "club": "Palmeiras",          "born": "1987-12-13" },
+    { "number": 23, "name": "Ederson",            "pos": "GR",  "club": "Manchester City",    "born": "1993-08-17" },
+
+    { "number": 2,  "name": "Wesley",             "pos": "DEF", "club": "Flamengo",           "born": "2003-11-26" },
+    { "number": 3,  "name": "Gabriel Magalhães",  "pos": "DEF", "club": "Arsenal",            "born": "1997-12-19" },
+    { "number": 4,  "name": "Marquinhos",         "pos": "DEF", "club": "PSG",                "born": "1994-05-14" },
+    { "number": 6,  "name": "Alex Sandro",        "pos": "DEF", "club": "Atlético Mineiro",   "born": "1991-01-26" },
+    { "number": 13, "name": "Danilo",             "pos": "DEF", "club": "Flamengo",           "born": "1991-07-29" },
+    { "number": 14, "name": "Bremer",             "pos": "DEF", "club": "Juventus",           "born": "1997-03-18" },
+    { "number": 15, "name": "Léo Pereira",        "pos": "DEF", "club": "Flamengo",           "born": "1996-05-25" },
+    { "number": 16, "name": "Douglas Santos",     "pos": "DEF", "club": "Flamengo",           "born": "1994-02-24" },
+    { "number": 24, "name": "Ibañez",             "pos": "DEF", "club": "Al-Ahli",            "born": "1998-12-01" },
+
+    { "number": 5,  "name": "Casemiro",           "pos": "MED", "club": "Manchester United",  "born": "1992-02-23" },
+    { "number": 8,  "name": "Bruno Guimarães",    "pos": "MED", "club": "Newcastle",          "born": "1997-11-16" },
+    { "number": 17, "name": "Fabinho",            "pos": "MED", "club": "Al-Ittihad",         "born": "1993-10-23" },
+    { "number": 18, "name": "Danilo Santos",      "pos": "MED", "club": "Fluminense",         "born": "2002-12-07" },
+    { "number": 20, "name": "Lucas Paquetá",      "pos": "MED", "club": "West Ham",           "born": "1997-08-27" },
+
+    { "number": 7,  "name": "Vinicius Jr.",       "pos": "AV",  "club": "Real Madrid",        "born": "2000-07-12" },
+    { "number": 9,  "name": "Matheus Cunha",      "pos": "AV",  "club": "Wolverhampton",      "born": "2000-05-27" },
+    { "number": 10, "name": "Neymar Jr.",         "pos": "AV",  "club": "Al-Hilal",           "born": "1992-02-05" },
+    { "number": 11, "name": "Raphinha",           "pos": "AV",  "club": "Barcelona",          "born": "1996-12-14" },
+    { "number": 19, "name": "Endrick",            "pos": "AV",  "club": "Real Madrid",        "born": "2006-07-21" },
+    { "number": 21, "name": "Luiz Henrique",      "pos": "AV",  "club": "Botafogo",           "born": "2000-10-10" },
+    { "number": 22, "name": "Gabriel Martinelli", "pos": "AV",  "club": "Arsenal",            "born": "2001-06-18" },
+    { "number": 25, "name": "Igor Thiago",        "pos": "AV",  "club": "Club Brugge",        "born": "2002-02-28" },
+    { "number": 26, "name": "Rayan",              "pos": "AV",  "club": "Flamengo",           "born": "2006-01-19" }
+  ]
+}

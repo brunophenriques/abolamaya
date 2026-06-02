@@ -78,6 +78,10 @@
 <script src="js/auth.js"></script>
 <script src="js/theme.js"></script>
 <script>
+function teamSlug(name) {
+  return name.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'-');
+}
+
 function rankBadge(i) {
   if (i < 3) return `<span class="rank-badge rank-${i+1}">${i+1}</span>`;
   return String(i + 1);
@@ -137,7 +141,7 @@ function rankBadge(i) {
         <span class="group-label">${GROUP_LABELS[g]}</span>${statusHtml}
       </div>
       <div class="group-teams">
-        ${[...info.teams].map(t => `<span class="group-team">${t}</span>`).join('')}
+        ${[...info.teams].map(t => `<a href="team.html?team=${teamSlug(t)}" class="group-team team-link" onclick="event.stopPropagation()">${t}</a>`).join('')}
       </div>`;
     grid.appendChild(card);
   }

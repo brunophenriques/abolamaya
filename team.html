@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleção — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nbt').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nbt" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div id="teamContent"><div class="loading">A carregar seleção...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+// Slugify a team name to match JSON filenames and folder names
+function teamSlug(name) {
+  return name
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+function calcAge(born) {
+  if (!born) return '';
+  const d = new Date(born), now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  if (now < new Date(now.getFullYear(), d.getMonth(), d.getDate())) age--;
+  return age;
+}
+
+const POS_LABELS = { GR: 'Guarda-Redes', DEF: 'Defesas', MED: 'Médios', AV: 'Avançados' };
+const POS_ORDER  = ['GR', 'DEF', 'MED', 'AV'];
+
+// Group colour class per group (matches the CSS gc-X system)
+const GROUP_COLOR_CLASS = {
+  A:'gc-A', B:'gc-B', C:'gc-C', D:'gc-D', E:'gc-E', F:'gc-F',
+  G:'gc-G', H:'gc-H', I:'gc-I', J:'gc-J', K:'gc-K', L:'gc-L',
+};
+
+(async () => {
+  const user = await requireAuth();
+  if (!user) return;
+  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
+
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('team');
+  if (!slug) { renderError('Nenhuma seleção especificada.'); return; }
+
+  let squad;
+  try {
+    const res = await fetch(`data/squads/${slug}.json`);
+    if (!res.ok) throw new Error('Ficheiro não encontrado');
+    squad = await res.json();
+  } catch {
+    renderError(`Dados da seleção "${slug}" ainda não disponíveis.<br><span class="muted small">Adiciona <code>data/squads/${slug}.json</code> para activar esta página.</span>`);
+    return;
+  }
+
+  renderSquad(squad, slug);
+})();
+
+function renderError(msg) {
+  document.getElementById('teamContent').innerHTML = `
+    <div class="card text-center" style="padding:48px;margin-top:24px">
+      <p style="font-size:1.4rem;font-weight:700;margin-bottom:12px">Seleção não disponível</p>
+      <p class="muted">${msg}</p>
+      <a href="javascript:history.back()" class="btn btn-ghost btn-sm" style="margin-top:16px">Voltar</a>
+    </div>`;
+}
+
+function renderSquad(squad, slug) {
+  const gcClass = GROUP_COLOR_CLASS[squad.group] || '';
+  document.title = `${squad.name} — A Bola Maya`;
+
+  // Group players by position
+  const byPos = { GR:[], DEF:[], MED:[], AV:[] };
+  for (const p of squad.players || []) byPos[p.pos]?.push(p);
+
+  document.getElementById('teamContent').innerHTML = `
+    <!-- Header -->
+    <div class="squad-header ${gcClass}">
+      <img src="img/trophy.png"      class="squad-trophy trophy-dark"  aria-hidden="true" onerror="this.style.display='none'">
+      <img src="img/trophyblack.png" class="squad-trophy trophy-light" aria-hidden="true" onerror="this.style.display='none'">
+      <div class="squad-flag">${squad.flag}</div>
+      <div class="squad-info">
+        <h1>${squad.name}</h1>
+        <div class="squad-meta">
+          <span class="badge ${gcClass.replace('gc-','badge-')||'badge-muted'}" style="font-size:.72rem">Grupo ${squad.group}</span>
+          <a href="predict.html?group=${squad.group}" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 10px">Ver jogos</a>
+        </div>
+        <div class="squad-manager">Treinador: <strong>${squad.manager || '—'}</strong></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <p class="muted small">${squad.players?.length || 0} convocados</p>
+      <a href="javascript:history.back()" class="btn btn-ghost btn-sm">Voltar</a>
+    </div>
+
+    <!-- Players by position -->
+    ${POS_ORDER.filter(pos => byPos[pos].length > 0).map(pos => `
+      <div class="position-section ${gcClass}">
+        <div class="position-label">${POS_LABELS[pos]} (${byPos[pos].length})</div>
+        <div class="player-grid">
+          ${byPos[pos].sort((a,b) => a.number - b.number).map(p => renderPlayerCard(p, slug, gcClass)).join('')}
+        </div>
+      </div>`).join('')}`;
+}
+
+function renderPlayerCard(p, slug, gcClass) {
+  const age    = calcAge(p.born);
+  const photo  = `img/squads/${slug}/${teamSlug(p.name)}.jpg`;
+  const imgEl  = `<img src="${photo}" alt="${p.name}" class="player-photo"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                  <div class="player-photo-placeholder" style="display:none">${p.number}</div>`;
+
+  return `
+    <div class="player-card">
+      <div class="player-photo-wrap">
+        ${imgEl}
+        <span class="player-number-badge ${gcClass}">${p.number}</span>
+      </div>
+      <div class="player-info">
+        <div class="player-name" title="${p.name}">${p.name}</div>
+        <div class="player-club">${p.club}${age ? ` · ${age} anos` : ''}</div>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>

@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "nodemon server/index.js"
+    "dev": "nodemon server/index.js",
+    "optimize-squads": "node scripts/optimize-squads.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -14,6 +15,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "sharp": "^0.33.5"
   }
 }

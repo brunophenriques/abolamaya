@@ -88,7 +88,14 @@
 <script>
 const locked = isPredictionLocked();
 let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {};
-let activeFilter = null; // null = all, 'A'-'L' = specific group
+let activeFilter = null;
+
+function teamSlug(name) {
+  return name.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'-');
+}
+function teamLink(name, flag) {
+  return `<a href="team.html?team=${teamSlug(name)}" class="team-link" title="Ver seleção">${flag}&nbsp;${name}</a>`;
+}
 
 function formatDateLong(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -196,9 +203,9 @@ function renderMatchRow(m) {
   if (locked) return `
     <div class="match-block">
       <div class="match-row">
-        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="team-home"><span class="team-name-text">${teamLink(m.home_team, m.home_flag)}</span></div>
         <div class="score-box"><span class="match-actual-score">${p.home_score !== '' ? p.home_score : '—'} : ${p.away_score !== '' ? p.away_score : '—'}</span></div>
-        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+        <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
       <div class="match-meta">${meta}</div>
     </div>`;
@@ -211,14 +218,14 @@ function renderMatchRow(m) {
   return `
     <div class="match-block">
       <div class="match-row">
-        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="team-home"><span class="team-name-text">${teamLink(m.home_team, m.home_flag)}</span></div>
         <div class="score-box" style="position:relative">
           <input type="number" min="0" max="20" id="score-home-${m.id}" class="score-input" value="${p.home_score}" placeholder="0">
           <span class="score-sep">:</span>
           <input type="number" min="0" max="20" id="score-away-${m.id}" class="score-input" value="${p.away_score}" placeholder="0">
           ${isSaved ? `<span style="position:absolute;right:-22px;color:var(--green);font-size:.75rem;font-weight:700">✓</span>` : ''}
         </div>
-        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+        <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
       <div class="match-meta">${meta}</div>
     </div>`;
