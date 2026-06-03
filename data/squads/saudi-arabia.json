@@ -1,0 +1,59 @@
+{
+  "name": "Saudi Arabia",
+  "flag": "🇸🇦",
+  "group": "H",
+  "manager": "Georgios Donis",
+  "players": [
+    { "number": 1, "name": "Nawaf Alaqidi", "pos": "GR", "club": "Al Nassr", "born": "2000-05-10" },
+
+    { "number": 2, "name": "Ali Majrashi", "pos": "DEF", "club": "Al Ahli", "born": "1999-10-02" },
+
+    { "number": 3, "name": "Ali Lajami", "pos": "DEF", "club": "Al Hilal", "born": "1996-04-24" },
+
+    { "number": 4, "name": "Abdulelah Al Amri", "pos": "DEF", "club": "Al Nassr", "born": "1997-01-15" },
+
+    { "number": 5, "name": "Hassan Al Tambakti", "pos": "DEF", "club": "Al Hilal", "born": "1999-02-09" },
+
+    { "number": 6, "name": "Nasser Al Dawsari", "pos": "MED", "club": "Al Hilal", "born": "1998-12-19" },
+
+    { "number": 7, "name": "Musab Al Juwayr", "pos": "MED", "club": "Al Qadsiah", "born": "2003-06-20" },
+
+    { "number": 8, "name": "Aiman Yahya", "pos": "AV", "club": "Al Nassr", "born": "2001-05-14" },
+
+    { "number": 9, "name": "Feras Al Brikan", "pos": "AV", "club": "Al Ahli", "born": "2000-05-14" },
+
+    { "number": 10, "name": "Salem Al Dawsari", "pos": "AV", "club": "Al Hilal", "born": "1991-08-19" },
+
+    { "number": 11, "name": "Saleh Al Shehri", "pos": "AV", "club": "Al Ittihad", "born": "1993-11-01" },
+
+    { "number": 12, "name": "Saud Abdulhamid", "pos": "DEF", "club": "RC Lens", "born": "1999-07-18" },
+
+    { "number": 13, "name": "Nawaf Bu Washl", "pos": "DEF", "club": "Al Nassr", "born": "1999-09-16" },
+
+    { "number": 14, "name": "Hassan Kadesh", "pos": "DEF", "club": "Al Ittihad", "born": "1992-09-26" },
+
+    { "number": 15, "name": "Abdullah Al Khaibari", "pos": "MED", "club": "Al Nassr", "born": "1996-08-16" },
+
+    { "number": 16, "name": "Ziyad Al Johani", "pos": "MED", "club": "Al Ahli", "born": "2001-11-11" },
+
+    { "number": 17, "name": "Khalid Al Ghannam", "pos": "AV", "club": "Al Ettifaq", "born": "2000-11-08" },
+
+    { "number": 18, "name": "Ala Al Hajji", "pos": "MED", "club": "Neom SC", "born": "1995-12-03" },
+
+    { "number": 19, "name": "Abdullah Al Hamddan", "pos": "AV", "club": "Al Nassr", "born": "1999-07-13" },
+
+    { "number": 20, "name": "Sultan Mandash", "pos": "AV", "club": "Al Hilal", "born": "1994-10-17" },
+
+    { "number": 21, "name": "Mohammed Al Owais", "pos": "GR", "club": "Al Ula", "born": "1991-10-10" },
+
+    { "number": 22, "name": "Ahmed Al Kassar", "pos": "GR", "club": "Al Qadsiah", "born": "1991-05-08" },
+
+    { "number": 23, "name": "Mohamed Kanno", "pos": "MED", "club": "Al Hilal", "born": "1994-09-22" },
+
+    { "number": 24, "name": "Moteb Al Harbi", "pos": "DEF", "club": "Al Hilal", "born": "2000-02-20" },
+
+    { "number": 25, "name": "Jehad Thikri", "pos": "DEF", "club": "Al Qadsiah", "born": "2001-07-21" },
+
+    { "number": 26, "name": "Mohammed Abu Alshamat", "pos": "DEF", "club": "Al Qadsiah", "born": "2002-08-11" }
+  ]
+}

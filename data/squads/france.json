@@ -1,0 +1,59 @@
+{
+  "name": "France",
+  "flag": "🇫🇷",
+  "group": "I",
+  "manager": "Didier Deschamps",
+  "players": [
+    { "number": 1, "name": "Brice Samba", "pos": "GR", "club": "Rennes", "born": "1994-04-25" },
+
+    { "number": 2, "name": "Malo Gusto", "pos": "DEF", "club": "Chelsea", "born": "2003-05-19" },
+
+    { "number": 3, "name": "Lucas Digne", "pos": "DEF", "club": "Aston Villa", "born": "1993-07-20" },
+
+    { "number": 4, "name": "Dayot Upamecano", "pos": "DEF", "club": "Bayern Munich", "born": "1998-10-27" },
+
+    { "number": 5, "name": "Jules Koundé", "pos": "DEF", "club": "Barcelona", "born": "1998-11-12" },
+
+    { "number": 6, "name": "Manu Koné", "pos": "MED", "club": "AS Roma", "born": "2001-05-17" },
+
+    { "number": 7, "name": "Ousmane Dembélé", "pos": "AV", "club": "Paris Saint-Germain", "born": "1997-05-15" },
+
+    { "number": 8, "name": "Aurélien Tchouaméni", "pos": "MED", "club": "Real Madrid", "born": "2000-01-27" },
+
+    { "number": 9, "name": "Marcus Thuram", "pos": "AV", "club": "Inter Milan", "born": "1997-08-06" },
+
+    { "number": 10, "name": "Kylian Mbappé", "pos": "AV", "club": "Real Madrid", "born": "1998-12-20" },
+
+    { "number": 11, "name": "Michael Olise", "pos": "AV", "club": "Bayern Munich", "born": "2001-12-12" },
+
+    { "number": 12, "name": "Bradley Barcola", "pos": "AV", "club": "Paris Saint-Germain", "born": "2002-09-02" },
+
+    { "number": 13, "name": "N'Golo Kanté", "pos": "MED", "club": "Fenerbahçe", "born": "1991-03-29" },
+
+    { "number": 14, "name": "Adrien Rabiot", "pos": "MED", "club": "AC Milan", "born": "1995-04-03" },
+
+    { "number": 15, "name": "Ibrahima Konaté", "pos": "DEF", "club": "Liverpool", "born": "1999-05-25" },
+
+    { "number": 16, "name": "Mike Maignan", "pos": "GR", "club": "AC Milan", "born": "1995-07-03" },
+
+    { "number": 17, "name": "William Saliba", "pos": "DEF", "club": "Arsenal", "born": "2001-03-24" },
+
+    { "number": 18, "name": "Warren Zaïre-Emery", "pos": "MED", "club": "Paris Saint-Germain", "born": "2006-03-08" },
+
+    { "number": 19, "name": "Theo Hernández", "pos": "DEF", "club": "Al Hilal", "born": "1997-10-06" },
+
+    { "number": 20, "name": "Désiré Doué", "pos": "AV", "club": "Paris Saint-Germain", "born": "2005-06-03" },
+
+    { "number": 21, "name": "Lucas Hernández", "pos": "DEF", "club": "Paris Saint-Germain", "born": "1996-02-14" },
+
+    { "number": 22, "name": "Jean-Philippe Mateta", "pos": "AV", "club": "Crystal Palace", "born": "1997-06-28" },
+
+    { "number": 23, "name": "Robin Risser", "pos": "GR", "club": "RC Lens", "born": "2004-12-02" },
+
+    { "number": 24, "name": "Rayan Cherki", "pos": "MED", "club": "Manchester City", "born": "2003-08-17" },
+
+    { "number": 25, "name": "Maghnes Akliouche", "pos": "MED", "club": "AS Monaco", "born": "2002-02-25" },
+
+    { "number": 26, "name": "Maxence Lacroix", "pos": "DEF", "club": "Crystal Palace", "born": "2000-04-06" }
+  ]
+}

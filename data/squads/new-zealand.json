@@ -1,0 +1,59 @@
+{
+  "name": "New Zealand",
+  "flag": "🇳🇿",
+  "group": "G",
+  "manager": "Darren Bazeley",
+  "players": [
+    { "number": 1, "name": "Max Crocombe", "pos": "GR", "club": "Millwall", "born": "1993-08-12" },
+
+    { "number": 2, "name": "Tim Payne", "pos": "DEF", "club": "Wellington Phoenix", "born": "1994-01-10" },
+
+    { "number": 3, "name": "Francis de Vries", "pos": "DEF", "club": "Auckland FC", "born": "1994-11-28" },
+
+    { "number": 4, "name": "Tyler Bindon", "pos": "DEF", "club": "Sheffield United", "born": "2005-01-27" },
+
+    { "number": 5, "name": "Michael Boxall", "pos": "DEF", "club": "Minnesota United", "born": "1988-08-18" },
+
+    { "number": 6, "name": "Joe Bell", "pos": "MED", "club": "Viking", "born": "1999-04-27" },
+
+    { "number": 7, "name": "Matthew Garbett", "pos": "MED", "club": "Peterborough United", "born": "2002-04-13" },
+
+    { "number": 8, "name": "Marko Stamenić", "pos": "MED", "club": "Swansea City", "born": "2002-02-19" },
+
+    { "number": 9, "name": "Chris Wood", "pos": "AV", "club": "Nottingham Forest", "born": "1991-12-07" },
+
+    { "number": 10, "name": "Sarpreet Singh", "pos": "MED", "club": "Wellington Phoenix", "born": "1999-02-20" },
+
+    { "number": 11, "name": "Elijah Just", "pos": "MED", "club": "Motherwell", "born": "2000-05-01" },
+
+    { "number": 12, "name": "Alex Paulsen", "pos": "GR", "club": "Lechia Gdańsk", "born": "2002-07-04" },
+
+    { "number": 13, "name": "Liberato Cacace", "pos": "DEF", "club": "Wrexham", "born": "2000-09-27" },
+
+    { "number": 14, "name": "Alex Rufer", "pos": "MED", "club": "Wellington Phoenix", "born": "1996-06-12" },
+
+    { "number": 15, "name": "Nando Pijnaker", "pos": "DEF", "club": "Auckland FC", "born": "1999-02-25" },
+
+    { "number": 16, "name": "Finn Surman", "pos": "DEF", "club": "Portland Timbers", "born": "2003-09-23" },
+
+    { "number": 17, "name": "Kosta Barbarouses", "pos": "AV", "club": "Western Sydney Wanderers", "born": "1990-02-19" },
+
+    { "number": 18, "name": "Ben Waine", "pos": "AV", "club": "Port Vale", "born": "2001-06-11" },
+
+    { "number": 19, "name": "Ben Old", "pos": "MED", "club": "Saint-Étienne", "born": "2002-08-13" },
+
+    { "number": 20, "name": "Callum McCowatt", "pos": "MED", "club": "Silkeborg", "born": "1999-04-30" },
+
+    { "number": 21, "name": "Jesse Randall", "pos": "AV", "club": "Auckland FC", "born": "2002-08-19" },
+
+    { "number": 22, "name": "Michael Woud", "pos": "GR", "club": "Auckland FC", "born": "1999-01-16" },
+
+    { "number": 23, "name": "Ryan Thomas", "pos": "MED", "club": "PEC Zwolle", "born": "1994-12-20" },
+
+    { "number": 24, "name": "Callan Elliot", "pos": "DEF", "club": "Auckland FC", "born": "1999-07-07" },
+
+    { "number": 25, "name": "Lachlan Bayliss", "pos": "MED", "club": "Newcastle Jets", "born": "2002-07-24" },
+
+    { "number": 26, "name": "Tommy Smith", "pos": "DEF", "club": "Braintree Town", "born": "1990-03-31" }
+  ]
+}
