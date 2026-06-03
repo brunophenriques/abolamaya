@@ -1,0 +1,56 @@
+{
+  "name": "Haiti",
+  "flag": "🇭🇹",
+  "group": "C",
+  "manager": "Sebastien Migne",
+  "players": [
+    { "number": 1, "name": "Johny Placide", "pos": "GR", "club": "SC Bastia", "born": "1988-01-29" },
+
+    { "number": 2, "name": "Carlens Arcus", "pos": "DEF", "club": "Angers", "born": "1996-06-28" },
+    { "number": 3, "name": "Keeto Thermoncy", "pos": "DEF", "club": "Young Boys", "born": "2006-03-29" },
+    { "number": 4, "name": "Ricardo Ade", "pos": "DEF", "club": "LDU Quito", "born": "1990-05-21" },
+    { "number": 5, "name": "Hannes Delcroix", "pos": "DEF", "club": "Lugano", "born": "1999-02-28" },
+
+    { "number": 6, "name": "Carl Sainte", "pos": "MED", "club": "El Paso Locomotive", "born": "2002-08-09" },
+
+    { "number": 7, "name": "Derrick Etienne Jr.", "pos": "AV", "club": "Toronto FC", "born": "1996-11-25" },
+
+    { "number": 8, "name": "Martin Experience", "pos": "DEF", "club": "Nancy", "born": "1999-03-09" },
+
+    { "number": 9, "name": "Duckens Nazon", "pos": "AV", "club": "Esteghlal Tehran", "born": "1994-04-07" },
+
+    { "number": 10, "name": "Jean-Ricner Bellegarde", "pos": "MED", "club": "Wolverhampton", "born": "1998-07-27" },
+
+    { "number": 11, "name": "Don Deedson Louicius", "pos": "AV", "club": "Dallas", "born": "2001-02-11" },
+
+    { "number": 12, "name": "Alexandre Pierre", "pos": "GR", "club": "Sochaux", "born": "2001-02-25" },
+
+    { "number": 13, "name": "Markhus Lacroix", "pos": "DEF", "club": "Colorado Springs Switchbacks", "born": "1993-10-14" },
+
+    { "number": 14, "name": "Leverton Pierre", "pos": "MED", "club": "Vizela", "born": "1998-03-09" },
+
+    { "number": 15, "name": "Ruben Providence", "pos": "AV", "club": "Almere City", "born": "2001-07-07" },
+
+    { "number": 16, "name": "Lenny Joseph", "pos": "AV", "club": "Ferencvaros", "born": "2000-10-12" },
+
+    { "number": 17, "name": "Danley Jean Jacques", "pos": "MED", "club": "Philadelphia Union", "born": "2000-05-20" },
+
+    { "number": 18, "name": "Wilson Isidor", "pos": "AV", "club": "Sunderland", "born": "2000-08-27" },
+
+    { "number": 19, "name": "Yassin Fortune", "pos": "AV", "club": "Vizela", "born": "1999-01-30" },
+
+    { "number": 20, "name": "Frantzdy Pierrot", "pos": "AV", "club": "Rizespor", "born": "1995-03-29" },
+
+    { "number": 21, "name": "Jeremie Casimir", "pos": "AV", "club": "AJ Auxerre", "born": "2001-09-24" },
+
+    { "number": 22, "name": "Jean-Kevin Duverne", "pos": "DEF", "club": "KAA Gent", "born": "1997-07-12" },
+
+    { "number": 23, "name": "Josue Duverger", "pos": "GR", "club": "Koblenz", "born": "2000-04-27" },
+
+    { "number": 24, "name": "Wilguens Paugain", "pos": "DEF", "club": "Waregem", "born": "2001-08-24" },
+
+    { "number": 25, "name": "Dominique Simon", "pos": "MED", "club": "Tatran Presov", "born": "2000-07-29" },
+
+    { "number": 26, "name": "Oliver Wodensky Pierre", "pos": "MED", "club": "Violette AC", "born": "2004-12-30" }
+  ]
+}

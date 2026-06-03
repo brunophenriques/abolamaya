@@ -1,0 +1,37 @@
+{
+  "name": "Canada",
+  "flag": "🇨🇦",
+  "group": "B",
+  "manager": "Jesse Marsch",
+  "players": [
+    { "number": 1, "name": "Dayne St. Clair", "pos": "GR", "club": "Inter Miami", "born": "1997-05-09" },
+    { "number": 16, "name": "Maxime Crepeau", "pos": "GR", "club": "Orlando City", "born": "1994-05-11" },
+    { "number": 18, "name": "Owen Goodman", "pos": "GR", "club": "Barnsley", "born": "2003-11-27" },
+
+    { "number": 2, "name": "Alistair Johnston", "pos": "DEF", "club": "Celtic", "born": "1998-10-08" },
+    { "number": 3, "name": "Alfie Jones", "pos": "DEF", "club": "Middlesbrough", "born": "1997-10-07" },
+    { "number": 4, "name": "Luc De Fougerolles", "pos": "DEF", "club": "Dender", "born": "2005-10-12" },
+    { "number": 5, "name": "Joel Waterman", "pos": "DEF", "club": "Chicago Fire", "born": "1996-01-24" },
+    { "number": 13, "name": "Derek Cornelius", "pos": "DEF", "club": "Rangers", "born": "1997-11-25" },
+    { "number": 15, "name": "Moise Bombito", "pos": "DEF", "club": "Nice", "born": "2000-03-30" },
+    { "number": 19, "name": "Alphonso Davies", "pos": "DEF", "club": "Bayern Munich", "born": "2000-11-02" },
+    { "number": 22, "name": "Richie Laryea", "pos": "DEF", "club": "Toronto FC", "born": "1995-01-07" },
+    { "number": 23, "name": "Niko Sigur", "pos": "DEF", "club": "Hajduk Split", "born": "2003-09-09" },
+
+    { "number": 6, "name": "Mathieu Choiniere", "pos": "MED", "club": "LAFC", "born": "1999-02-07" },
+    { "number": 7, "name": "Stephen Eustaquio", "pos": "MED", "club": "LAFC", "born": "1996-12-21" },
+    { "number": 8, "name": "Ismael Kone", "pos": "MED", "club": "Sassuolo", "born": "2002-06-16" },
+    { "number": 11, "name": "Liam Millar", "pos": "MED", "club": "Hull City", "born": "1999-09-27" },
+    { "number": 14, "name": "Jacob Shaffelburg", "pos": "MED", "club": "LAFC", "born": "1999-11-26" },
+    { "number": 21, "name": "Jonathan Osorio", "pos": "MED", "club": "Toronto FC", "born": "1992-06-12" },
+    { "number": 25, "name": "Nathan Saliba", "pos": "MED", "club": "Anderlecht", "born": "2004-02-07" },
+    { "number": 26, "name": "Marcelo Flores", "pos": "MED", "club": "Tigres UANL", "born": "2003-10-01" },
+
+    { "number": 9, "name": "Cyle Larin", "pos": "AV", "club": "Southampton", "born": "1995-04-17" },
+    { "number": 10, "name": "Jonathan David", "pos": "AV", "club": "Juventus", "born": "2000-01-14" },
+    { "number": 12, "name": "Tani Oluwaseyi", "pos": "AV", "club": "Villarreal", "born": "2000-05-15" },
+    { "number": 17, "name": "Tajon Buchanan", "pos": "AV", "club": "Villarreal", "born": "1999-02-08" },
+    { "number": 20, "name": "Ali Ahmed", "pos": "AV", "club": "Norwich City", "born": "2000-10-10" },
+    { "number": 24, "name": "Promise David", "pos": "AV", "club": "Union Saint-Gilloise", "born": "2001-07-03" }
+  ]
+}

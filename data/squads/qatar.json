@@ -1,0 +1,37 @@
+{
+  "name": "Qatar",
+  "flag": "🇶🇦",
+  "group": "B",
+  "manager": "Julen Lopetegui",
+  "players": [
+    { "number": 1, "name": "Mahmoud Abunada", "pos": "GR", "club": "Al Rayyan", "born": "2000-02-05" },
+    { "number": 21, "name": "Salah Zakaria", "pos": "GR", "club": "Al Duhail", "born": "1999-04-24" },
+    { "number": 22, "name": "Meshaal Barsham", "pos": "GR", "club": "Al Sadd", "born": "1998-02-14" },
+
+    { "number": 2, "name": "Pedro Miguel", "pos": "DEF", "club": "Al Sadd", "born": "1990-08-06" },
+    { "number": 3, "name": "Lucas Mendes", "pos": "DEF", "club": "Al Wakrah", "born": "1990-07-03" },
+    { "number": 4, "name": "Issa Laye", "pos": "DEF", "club": "Al Arabi", "born": "1997-12-22" },
+    { "number": 5, "name": "Jassem Gaber", "pos": "DEF", "club": "Al Rayyan", "born": "2002-02-20" },
+    { "number": 13, "name": "Ayoub Aloui", "pos": "DEF", "club": "Al Gharafa", "born": "2005-03-11" },
+    { "number": 14, "name": "Homam Ahmed", "pos": "DEF", "club": "Cultural Leonesa", "born": "1999-08-25" },
+    { "number": 16, "name": "Boualem Khoukhi", "pos": "DEF", "club": "Al Sadd", "born": "1990-07-09" },
+    { "number": 18, "name": "Sultan Al Brake", "pos": "DEF", "club": "Al Duhail", "born": "1996-04-07" },
+    { "number": 25, "name": "Alhashmi Alhussein", "pos": "DEF", "club": "Al Arabi", "born": "2003-08-15" },
+
+    { "number": 6, "name": "Abdulaziz Hatem", "pos": "MED", "club": "Al Rayyan", "born": "1990-01-01" },
+    { "number": 12, "name": "Karim Boudiaf", "pos": "MED", "club": "Al Duhail", "born": "1990-09-16" },
+    { "number": 17, "name": "Ahmed Alganehi", "pos": "MED", "club": "Al Gharafa", "born": "2000-09-22" },
+    { "number": 20, "name": "Ahmed Fathy", "pos": "MED", "club": "Al Arabi", "born": "1993-01-25" },
+    { "number": 23, "name": "Assim Madibo", "pos": "MED", "club": "Al Wakrah", "born": "1996-10-22" },
+
+    { "number": 7, "name": "Ahmed Alaaeldin", "pos": "AV", "club": "Al Rayyan", "born": "1993-01-31" },
+    { "number": 8, "name": "Edmilson Junior", "pos": "AV", "club": "Al Duhail", "born": "1994-08-19" },
+    { "number": 9, "name": "Mohammed Muntari", "pos": "AV", "club": "Al Gharafa", "born": "1993-12-20" },
+    { "number": 10, "name": "Hassan Al Haydos", "pos": "AV", "club": "Al Sadd", "born": "1990-12-11" },
+    { "number": 11, "name": "Akram Afif", "pos": "AV", "club": "Al Sadd", "born": "1996-11-18" },
+    { "number": 15, "name": "Yusuf Abdurisag", "pos": "AV", "club": "Al Wakrah", "born": "1999-08-06" },
+    { "number": 19, "name": "Almoez Ali", "pos": "AV", "club": "Al Duhail", "born": "1996-08-19" },
+    { "number": 24, "name": "Tahsin Jamshid", "pos": "AV", "club": "Al Duhail", "born": "2006-06-16" },
+    { "number": 26, "name": "Mohamed Manai", "pos": "AV", "club": "Al Shamal", "born": "2002-10-25" }
+  ]
+}

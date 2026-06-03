@@ -1,0 +1,37 @@
+{
+  "name": "Switzerland",
+  "flag": "🇨🇭",
+  "group": "B",
+  "manager": "Murat Yakin",
+  "players": [
+    { "number": 1, "name": "Gregor Kobel", "pos": "GR", "club": "Borussia Dortmund", "born": "1997-12-06" },
+    { "number": 12, "name": "Yvon Mvogo", "pos": "GR", "club": "Lorient", "born": "1994-06-06" },
+    { "number": 21, "name": "Marvin Keller", "pos": "GR", "club": "Young Boys", "born": "2002-07-03" },
+
+    { "number": 2, "name": "Miro Muheim", "pos": "DEF", "club": "Hamburger SV", "born": "1998-03-24" },
+    { "number": 3, "name": "Silvan Widmer", "pos": "DEF", "club": "Mainz 05", "born": "1993-03-05" },
+    { "number": 4, "name": "Nico Elvedi", "pos": "DEF", "club": "Borussia Monchengladbach", "born": "1996-09-30" },
+    { "number": 5, "name": "Manuel Akanji", "pos": "DEF", "club": "Inter Milan", "born": "1995-07-19" },
+    { "number": 13, "name": "Ricardo Rodriguez", "pos": "DEF", "club": "Real Betis", "born": "1992-08-25" },
+    { "number": 18, "name": "Eray Comert", "pos": "DEF", "club": "Valencia", "born": "1998-02-04" },
+    { "number": 24, "name": "Aurele Amenda", "pos": "DEF", "club": "Eintracht Frankfurt", "born": "2003-07-31" },
+    { "number": 25, "name": "Luca Jaquez", "pos": "DEF", "club": "VfB Stuttgart", "born": "2003-06-02" },
+
+    { "number": 6, "name": "Denis Zakaria", "pos": "MED", "club": "Monaco", "born": "1996-11-20" },
+    { "number": 8, "name": "Remo Freuler", "pos": "MED", "club": "Bologna", "born": "1992-04-15" },
+    { "number": 9, "name": "Johan Manzambi", "pos": "MED", "club": "Freiburg", "born": "2005-10-14" },
+    { "number": 10, "name": "Granit Xhaka", "pos": "MED", "club": "Sunderland", "born": "1992-09-27" },
+    { "number": 14, "name": "Ardon Jashari", "pos": "MED", "club": "AC Milan", "born": "2002-07-30" },
+    { "number": 15, "name": "Djibril Sow", "pos": "MED", "club": "Sevilla", "born": "1997-02-06" },
+    { "number": 20, "name": "Michel Aebischer", "pos": "MED", "club": "Pisa", "born": "1997-01-06" },
+    { "number": 22, "name": "Fabian Rieder", "pos": "MED", "club": "Augsburg", "born": "2002-02-16" },
+
+    { "number": 7, "name": "Breel Embolo", "pos": "AV", "club": "Rennes", "born": "1997-02-14" },
+    { "number": 11, "name": "Dan Ndoye", "pos": "AV", "club": "Nottingham Forest", "born": "2000-10-25" },
+    { "number": 16, "name": "Christian Fassnacht", "pos": "AV", "club": "Young Boys", "born": "1993-11-11" },
+    { "number": 17, "name": "Ruben Vargas", "pos": "AV", "club": "Sevilla", "born": "1998-08-05" },
+    { "number": 19, "name": "Noah Okafor", "pos": "AV", "club": "Leeds United", "born": "2000-05-24" },
+    { "number": 23, "name": "Zeki Amdouni", "pos": "AV", "club": "Burnley", "born": "2000-12-04" },
+    { "number": 26, "name": "Cedric Itten", "pos": "AV", "club": "Fortuna Dusseldorf", "born": "1996-12-27" }
+  ]
+}

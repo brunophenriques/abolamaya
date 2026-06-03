@@ -1,0 +1,37 @@
+{
+  "name": "Bosnia and Herzegovina",
+  "flag": "🇧🇦",
+  "group": "B",
+  "manager": "Sergej Barbarez",
+  "players": [
+    { "number": 1, "name": "Nikola Vasilj", "pos": "GR", "club": "FC St. Pauli", "born": "1995-12-02" },
+    { "number": 12, "name": "Mladen Jurkas", "pos": "GR", "club": "Borac Banja Luka", "born": "2007-10-07" },
+    { "number": 22, "name": "Martin Zlomislic", "pos": "GR", "club": "HNK Rijeka", "born": "1998-08-16" },
+
+    { "number": 2, "name": "Nihad Mujakic", "pos": "DEF", "club": "Gaziantep FK", "born": "1998-04-15" },
+    { "number": 3, "name": "Dennis Hadzikadunic", "pos": "DEF", "club": "Sampdoria", "born": "1998-07-09" },
+    { "number": 4, "name": "Tarik Muharemovic", "pos": "DEF", "club": "Sassuolo", "born": "2003-02-28" },
+    { "number": 5, "name": "Sead Kolasinac", "pos": "DEF", "club": "Atalanta", "born": "1993-06-20" },
+    { "number": 7, "name": "Amar Dedic", "pos": "DEF", "club": "Benfica", "born": "2002-08-18" },
+    { "number": 18, "name": "Nikola Katic", "pos": "DEF", "club": "Schalke 04", "born": "1996-10-10" },
+    { "number": 21, "name": "Stjepan Radeljic", "pos": "DEF", "club": "HNK Rijeka", "born": "1997-09-05" },
+    { "number": 24, "name": "Nidal Celik", "pos": "DEF", "club": "Lens", "born": "2006-07-17" },
+
+    { "number": 6, "name": "Benjamin Tahirovic", "pos": "MED", "club": "Brondby", "born": "2003-03-03" },
+    { "number": 8, "name": "Armin Gigovic", "pos": "MED", "club": "Young Boys", "born": "2002-04-06" },
+    { "number": 13, "name": "Ivan Basic", "pos": "MED", "club": "Astana", "born": "2002-04-30" },
+    { "number": 14, "name": "Ivan Sunjic", "pos": "MED", "club": "Pafos", "born": "1996-10-09" },
+    { "number": 15, "name": "Amar Memic", "pos": "MED", "club": "Viktoria Plzen", "born": "2001-01-20" },
+    { "number": 16, "name": "Amir Hadziahmetovic", "pos": "MED", "club": "Hull City", "born": "1997-03-08" },
+    { "number": 17, "name": "Dzenis Burnic", "pos": "MED", "club": "Karlsruher SC", "born": "1998-05-22" },
+    { "number": 26, "name": "Ermin Mahmic", "pos": "MED", "club": "Slovan Liberec", "born": "2005-03-14" },
+
+    { "number": 9, "name": "Samed Bazdar", "pos": "AV", "club": "Jagiellonia Bialystok", "born": "2004-01-31" },
+    { "number": 10, "name": "Ermedin Demirovic", "pos": "AV", "club": "VfB Stuttgart", "born": "1998-03-25" },
+    { "number": 11, "name": "Edin Dzeko", "pos": "AV", "club": "Schalke 04", "born": "1986-03-17" },
+    { "number": 19, "name": "Kerim Alajbegovic", "pos": "AV", "club": "Red Bull Salzburg", "born": "2007-09-21" },
+    { "number": 20, "name": "Esmir Bajraktarevic", "pos": "AV", "club": "PSV Eindhoven", "born": "2005-03-10" },
+    { "number": 23, "name": "Haris Tabakovic", "pos": "AV", "club": "Borussia Monchengladbach", "born": "1994-06-20" },
+    { "number": 25, "name": "Jovo Lukic", "pos": "AV", "club": "Universitatea Cluj", "born": "1998-11-28" }
+  ]
+}

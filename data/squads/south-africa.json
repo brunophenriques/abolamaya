@@ -1,0 +1,37 @@
+{
+  "name": "South Africa",
+  "flag": "🇿🇦",
+  "group": "A",
+  "manager": "Hugo Broos",
+  "players": [
+    { "number": 1, "name": "Ronwen Williams", "pos": "GR", "club": "Mamelodi Sundowns", "born": "1992-01-21" },
+    { "number": 16, "name": "Sipho Chaine", "pos": "GR", "club": "Orlando Pirates", "born": "1996-12-14" },
+    { "number": 22, "name": "Ricardo Goss", "pos": "GR", "club": "Siwelele", "born": "1994-08-25" },
+
+    { "number": 2, "name": "Thabang Matuludi", "pos": "DEF", "club": "Polokwane City", "born": "1999-05-03" },
+    { "number": 3, "name": "Khulumani Ndamane", "pos": "DEF", "club": "Mamelodi Sundowns", "born": "2004-02-05" },
+    { "number": 6, "name": "Aubrey Modiba", "pos": "DEF", "club": "Mamelodi Sundowns", "born": "1995-07-22" },
+    { "number": 14, "name": "Mbekezeli Mbokazi", "pos": "DEF", "club": "Chicago Fire", "born": "2005-01-20" },
+    { "number": 18, "name": "Samukele Kabini", "pos": "DEF", "club": "Molde", "born": "2004-03-15" },
+    { "number": 19, "name": "Nkosinathi Sibisi", "pos": "DEF", "club": "Orlando Pirates", "born": "1995-09-22" },
+    { "number": 20, "name": "Khuliso Mudau", "pos": "DEF", "club": "Mamelodi Sundowns", "born": "1995-04-26" },
+    { "number": 21, "name": "Ime Okon", "pos": "DEF", "club": "Hannover 96", "born": "2004-02-20" },
+    { "number": 24, "name": "Olwethu Makhanya", "pos": "DEF", "club": "Philadelphia Union", "born": "2004-04-30" },
+    { "number": 26, "name": "Bradley Cross", "pos": "DEF", "club": "Kaizer Chiefs", "born": "2001-01-30" },
+
+    { "number": 4, "name": "Teboho Mokoena", "pos": "MED", "club": "Mamelodi Sundowns", "born": "1997-01-24" },
+    { "number": 5, "name": "Thalente Mbatha", "pos": "MED", "club": "Orlando Pirates", "born": "2000-03-06" },
+    { "number": 13, "name": "Yaya Sithole", "pos": "MED", "club": "Tondela", "born": "1999-03-03" },
+    { "number": 23, "name": "Jayden Adams", "pos": "MED", "club": "Mamelodi Sundowns", "born": "2001-05-05" },
+
+    { "number": 7, "name": "Oswin Appollis", "pos": "AV", "club": "Orlando Pirates", "born": "2001-08-25" },
+    { "number": 8, "name": "Tshepang Moremi", "pos": "AV", "club": "Orlando Pirates", "born": "2000-10-19" },
+    { "number": 9, "name": "Lyle Foster", "pos": "AV", "club": "Burnley", "born": "2000-09-03" },
+    { "number": 10, "name": "Relebohile Mofokeng", "pos": "AV", "club": "Orlando Pirates", "born": "2004-10-23" },
+    { "number": 11, "name": "Themba Zwane", "pos": "AV", "club": "Mamelodi Sundowns", "born": "1989-08-03" },
+    { "number": 12, "name": "Thapelo Maseko", "pos": "AV", "club": "AEL Limassol", "born": "2003-11-11" },
+    { "number": 15, "name": "Iqraam Rayners", "pos": "AV", "club": "Mamelodi Sundowns", "born": "1995-12-19" },
+    { "number": 17, "name": "Evidence Makgopa", "pos": "AV", "club": "Orlando Pirates", "born": "2000-06-05" },
+    { "number": 25, "name": "Kamogelo Sebelebele", "pos": "AV", "club": "Orlando Pirates", "born": "2003-03-08" }
+  ]
+}

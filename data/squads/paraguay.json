@@ -1,0 +1,52 @@
+{
+  "name": "Paraguay",
+  "flag": "🇵🇾",
+  "group": "D",
+  "manager": "Gustavo Alfaro",
+  "players": [
+    { "number": 1, "name": "Roberto Fernandez", "pos": "GR", "club": "Cerro Porteno", "born": "1988-03-29" },
+
+    { "number": 2, "name": "Gustavo Velazquez", "pos": "DEF", "club": "Cerro Porteno", "born": "1991-04-17" },
+    { "number": 3, "name": "Omar Alderete", "pos": "DEF", "club": "Sunderland", "born": "1996-12-26" },
+    { "number": 4, "name": "Juan Jose Caceres", "pos": "DEF", "club": "Dynamo Moscow", "born": "2001-06-01" },
+    { "number": 5, "name": "Fabian Balbuena", "pos": "DEF", "club": "Gremio", "born": "1991-08-23" },
+    { "number": 6, "name": "Junior Alonso", "pos": "DEF", "club": "Atletico Mineiro", "born": "1993-02-09" },
+
+    { "number": 7, "name": "Ramon Sosa", "pos": "MED", "club": "Palmeiras", "born": "1999-08-31" },
+    { "number": 8, "name": "Diego Gomez", "pos": "MED", "club": "Brighton", "born": "2003-07-27" },
+
+    { "number": 9, "name": "Antonio Sanabria", "pos": "AV", "club": "Cremonese", "born": "1996-03-04" },
+
+    { "number": 10, "name": "Miguel Almiron", "pos": "MED", "club": "Atlanta United", "born": "1994-02-10" },
+
+    { "number": 11, "name": "Mauricio", "pos": "MED", "club": "Palmeiras", "born": "2001-06-22" },
+
+    { "number": 12, "name": "Orlando Gill", "pos": "GR", "club": "San Lorenzo", "born": "2000-06-11" },
+
+    { "number": 13, "name": "Jose Maria Canale", "pos": "DEF", "club": "Lanus", "born": "1996-07-20" },
+
+    { "number": 14, "name": "Andres Cubas", "pos": "MED", "club": "Vancouver Whitecaps", "born": "1996-05-11" },
+
+    { "number": 15, "name": "Gustavo Gomez", "pos": "DEF", "club": "Palmeiras", "born": "1993-05-06" },
+
+    { "number": 16, "name": "Damian Bobadilla", "pos": "MED", "club": "Sao Paulo", "born": "2001-07-11" },
+
+    { "number": 17, "name": "Alejandro Romero Gamarra", "pos": "AV", "club": "Al Ain", "born": "1995-01-11" },
+    { "number": 18, "name": "Alex Arce", "pos": "AV", "club": "Independiente Rivadavia", "born": "1995-06-16" },
+    { "number": 19, "name": "Julio Enciso", "pos": "AV", "club": "Strasbourg", "born": "2004-01-23" },
+
+    { "number": 20, "name": "Braian Ojeda", "pos": "MED", "club": "Orlando City", "born": "2000-06-27" },
+
+    { "number": 21, "name": "Gabriel Avalos", "pos": "AV", "club": "Independiente", "born": "1990-10-12" },
+
+    { "number": 22, "name": "Gaston Oliveira", "pos": "GR", "club": "Olimpia", "born": "1993-04-21" },
+
+    { "number": 23, "name": "Matias Galarza", "pos": "MED", "club": "Atlanta United", "born": "2002-02-11" },
+
+    { "number": 24, "name": "Gustavo Caballero", "pos": "AV", "club": "Portsmouth", "born": "2001-09-21" },
+
+    { "number": 25, "name": "Isidro Pitta", "pos": "AV", "club": "Red Bull Bragantino", "born": "1999-08-14" },
+
+    { "number": 26, "name": "Alexandro Maidana", "pos": "DEF", "club": "Talleres", "born": "2005-07-26" }
+  ]
+}

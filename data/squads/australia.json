@@ -1,0 +1,51 @@
+{
+  "name": "Australia",
+  "flag": "🇦🇺",
+  "group": "D",
+  "manager": "Tony Popovic",
+  "players": [
+    { "number": 1, "name": "Mathew Ryan", "pos": "GR", "club": "Levante", "born": "1992-04-08" },
+
+    { "number": 2, "name": "Milos Degenek", "pos": "DEF", "club": "APOEL", "born": "1994-04-28" },
+    { "number": 3, "name": "Alessandro Circati", "pos": "DEF", "club": "Parma", "born": "2003-10-10" },
+    { "number": 4, "name": "Jacob Italiano", "pos": "DEF", "club": "Grazer AK", "born": "2001-07-30" },
+    { "number": 5, "name": "Jordan Bos", "pos": "DEF", "club": "Feyenoord", "born": "2002-10-29" },
+    { "number": 6, "name": "Jason Geria", "pos": "DEF", "club": "Albirex Niigata", "born": "1993-10-10" },
+
+    { "number": 7, "name": "Mathew Leckie", "pos": "AV", "club": "Melbourne City", "born": "1991-02-04" },
+
+    { "number": 8, "name": "Connor Metcalfe", "pos": "MED", "club": "St. Pauli", "born": "1999-11-05" },
+
+    { "number": 9, "name": "Mohamed Toure", "pos": "AV", "club": "Norwich City", "born": "2004-03-26" },
+    { "number": 10, "name": "Ajdin Hrustic", "pos": "AV", "club": "Heracles Almelo", "born": "1996-07-05" },
+    { "number": 11, "name": "Awer Mabil", "pos": "AV", "club": "CD Castellon", "born": "1995-09-15" },
+
+    { "number": 12, "name": "Paul Izzo", "pos": "GR", "club": "Randers", "born": "1995-01-06" },
+
+    { "number": 13, "name": "Aiden O'Neill", "pos": "MED", "club": "New York City FC", "born": "1998-07-04" },
+    { "number": 14, "name": "Cameron Devlin", "pos": "MED", "club": "Heart of Midlothian", "born": "1998-06-07" },
+
+    { "number": 15, "name": "Kai Trewin", "pos": "DEF", "club": "New York City FC", "born": "2001-05-18" },
+    { "number": 16, "name": "Aziz Behich", "pos": "DEF", "club": "Melbourne City", "born": "1990-12-16" },
+
+    { "number": 17, "name": "Nestory Irankunda", "pos": "AV", "club": "Watford", "born": "2006-02-09" },
+
+    { "number": 18, "name": "Patrick Beach", "pos": "GR", "club": "Melbourne City", "born": "2003-06-06" },
+
+    { "number": 19, "name": "Harry Souttar", "pos": "DEF", "club": "Leicester City", "born": "1998-10-22" },
+
+    { "number": 20, "name": "Cristian Volpato", "pos": "AV", "club": "Sassuolo", "born": "2003-11-15" },
+
+    { "number": 21, "name": "Cameron Burgess", "pos": "DEF", "club": "Swansea City", "born": "1995-10-21" },
+
+    { "number": 22, "name": "Jackson Irvine", "pos": "MED", "club": "St. Pauli", "born": "1993-03-07" },
+
+    { "number": 23, "name": "Nishan Velupillay", "pos": "AV", "club": "Melbourne Victory", "born": "2001-07-07" },
+
+    { "number": 24, "name": "Paul Okon-Engstler", "pos": "MED", "club": "Sydney FC", "born": "2005-01-24" },
+
+    { "number": 25, "name": "Lucas Herrington", "pos": "DEF", "club": "Colorado Rapids", "born": "2007-09-05" },
+
+    { "number": 26, "name": "Tete Yengi", "pos": "AV", "club": "Machida Zelvia", "born": "2000-11-28" }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Turkey",
+  "flag": "🇹🇷",
+  "group": "D",
+  "manager": "Vincenzo Montella",
+  "players": [
+    { "number": 1, "name": "Mert Gunok", "pos": "GR", "club": "Fenerbahce", "born": "1989-03-01" },
+
+    { "number": 2, "name": "Zeki Celik", "pos": "DEF", "club": "AS Roma", "born": "1997-02-17" },
+    { "number": 3, "name": "Merih Demiral", "pos": "DEF", "club": "Al Ahli", "born": "1998-03-05" },
+    { "number": 4, "name": "Caglar Soyuncu", "pos": "DEF", "club": "Fenerbahce", "born": "1996-05-23" },
+
+    { "number": 5, "name": "Salih Ozcan", "pos": "MED", "club": "Borussia Dortmund", "born": "1998-01-11" },
+    { "number": 6, "name": "Orkun Kokcu", "pos": "MED", "club": "Besiktas", "born": "2000-12-29" },
+
+    { "number": 7, "name": "Kerem Akturkoglu", "pos": "AV", "club": "Fenerbahce", "born": "1998-10-21" },
+    { "number": 8, "name": "Arda Guler", "pos": "AV", "club": "Real Madrid", "born": "2005-02-25" },
+    { "number": 9, "name": "Deniz Gul", "pos": "AV", "club": "FC Porto", "born": "2004-07-02" },
+
+    { "number": 10, "name": "Hakan Calhanoglu", "pos": "MED", "club": "Inter Milan", "born": "1994-02-08" },
+
+    { "number": 11, "name": "Kenan Yildiz", "pos": "AV", "club": "Juventus", "born": "2005-05-04" },
+
+    { "number": 12, "name": "Altay Bayindir", "pos": "GR", "club": "Manchester United", "born": "1998-04-14" },
+
+    { "number": 13, "name": "Eren Elmali", "pos": "DEF", "club": "Galatasaray", "born": "2000-07-07" },
+    { "number": 14, "name": "Abdulkerim Bardakci", "pos": "DEF", "club": "Galatasaray", "born": "1994-09-07" },
+    { "number": 15, "name": "Ozan Kabak", "pos": "DEF", "club": "TSG Hoffenheim", "born": "2000-03-25" },
+
+    { "number": 16, "name": "Ismail Yuksek", "pos": "MED", "club": "Fenerbahce", "born": "1999-01-26" },
+
+    { "number": 17, "name": "Irfan Can Kahveci", "pos": "AV", "club": "Kasimpasa", "born": "1995-07-15" },
+
+    { "number": 18, "name": "Mert Muldur", "pos": "DEF", "club": "Fenerbahce", "born": "1999-04-03" },
+
+    { "number": 19, "name": "Yunus Akgun", "pos": "AV", "club": "Galatasaray", "born": "2000-07-07" },
+
+    { "number": 20, "name": "Ferdi Kadioglu", "pos": "DEF", "club": "Brighton", "born": "1999-10-07" },
+
+    { "number": 21, "name": "Baris Alper Yilmaz", "pos": "AV", "club": "Galatasaray", "born": "2000-05-23" },
+
+    { "number": 22, "name": "Kaan Ayhan", "pos": "MED", "club": "Galatasaray", "born": "1994-11-10" },
+
+    { "number": 23, "name": "Ugurcan Cakir", "pos": "GR", "club": "Galatasaray", "born": "1996-04-05" },
+
+    { "number": 24, "name": "Oguz Aydin", "pos": "AV", "club": "Fenerbahce", "born": "2000-07-27" },
+
+    { "number": 25, "name": "Samet Akaydin", "pos": "DEF", "club": "Caykur Rizespor", "born": "1994-03-13" },
+
+    { "number": 26, "name": "Can Uzun", "pos": "AV", "club": "Eintracht Frankfurt", "born": "2005-11-11" }
+  ]
+}

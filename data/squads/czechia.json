@@ -1,0 +1,37 @@
+{
+  "name": "Czechia",
+  "flag": "🇨🇿",
+  "group": "A",
+  "manager": "Miroslav Koubek",
+  "players": [
+    { "number": 16, "name": "Jindrich Stanek", "pos": "GR", "club": "Slavia Prague", "born": "1996-04-27" },
+    { "number": 1, "name": "Matej Kovar", "pos": "GR", "club": "PSV Eindhoven", "born": "2000-05-17" },
+    { "number": 23, "name": "Lukas Hornicek", "pos": "GR", "club": "Braga", "born": "2002-07-13" },
+
+    { "number": 5, "name": "Vladimir Coufal", "pos": "DEF", "club": "TSG Hoffenheim", "born": "1992-08-22" },
+    { "number": 20, "name": "Jaroslav Zeleny", "pos": "DEF", "club": "Sparta Prague", "born": "1992-08-20" },
+    { "number": 3, "name": "Tomas Holes", "pos": "DEF", "club": "Slavia Prague", "born": "1993-03-31" },
+    { "number": 7, "name": "Ladislav Krejci", "pos": "DEF", "club": "Wolverhampton Wanderers", "born": "1999-04-20" },
+    { "number": 21, "name": "David Doudera", "pos": "DEF", "club": "Slavia Prague", "born": "1998-05-31" },
+    { "number": 2, "name": "David Zima", "pos": "DEF", "club": "Slavia Prague", "born": "2000-11-08" },
+    { "number": 4, "name": "Robin Hranac", "pos": "DEF", "club": "TSG Hoffenheim", "born": "2000-01-29" },
+    { "number": 6, "name": "Stepan Chaloupek", "pos": "DEF", "club": "Slavia Prague", "born": "2003-03-08" },
+
+    { "number": 8, "name": "Vladimir Darida", "pos": "MED", "club": "Hradec Kralove", "born": "1990-08-08" },
+    { "number": 22, "name": "Tomas Soucek", "pos": "MED", "club": "West Ham United", "born": "1995-02-27" },
+    { "number": 17, "name": "Lukas Provod", "pos": "MED", "club": "Slavia Prague", "born": "1996-10-23" },
+    { "number": 18, "name": "Michal Sadilek", "pos": "MED", "club": "Slavia Prague", "born": "1999-05-31" },
+    { "number": 13, "name": "Mojmir Chytil", "pos": "AV", "club": "Slavia Prague", "born": "1999-04-29" },
+    { "number": 15, "name": "Pavel Sulc", "pos": "MED", "club": "Olympique Lyonnais", "born": "2000-12-29" },
+    { "number": 12, "name": "Lukas Cerv", "pos": "MED", "club": "Viktoria Plzen", "born": "2001-04-10" },
+    { "number": 26, "name": "Denis Visinsky", "pos": "MED", "club": "Viktoria Plzen", "born": "2003-03-21" },
+    { "number": 14, "name": "David Jurasek", "pos": "DEF", "club": "Slavia Prague", "born": "2000-08-07" },
+    { "number": 24, "name": "Alexandr Sojka", "pos": "MED", "club": "Viktoria Plzen", "born": "2003-04-02" },
+    { "number": 25, "name": "Hugo Sochurek", "pos": "MED", "club": "Sparta Prague", "born": "2008-06-07" },
+
+    { "number": 10, "name": "Patrik Schick", "pos": "AV", "club": "Bayer Leverkusen", "born": "1996-01-24" },
+    { "number": 11, "name": "Jan Kuchta", "pos": "AV", "club": "Sparta Prague", "born": "1997-01-08" },
+    { "number": 19, "name": "Tomas Chory", "pos": "AV", "club": "Slavia Prague", "born": "1995-01-26" },
+    { "number": 9, "name": "Adam Hlozek", "pos": "AV", "club": "TSG Hoffenheim", "born": "2002-07-25" }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "Scotland",
+  "flag": "🏴󠁧󠁢󠁳󠁣󠁴",
+  "group": "C",
+  "manager": "Steve Clarke",
+  "players": [
+    { "number": 1, "name": "Angus Gunn", "pos": "GR", "club": "Nottingham Forest", "born": "1996-01-22" },
+
+    { "number": 2, "name": "Aaron Hickey", "pos": "DEF", "club": "Brentford", "born": "2002-06-10" },
+    { "number": 3, "name": "Andy Robertson", "pos": "DEF", "club": "Liverpool", "born": "1994-03-11" },
+
+    { "number": 4, "name": "Scott McTominay", "pos": "MED", "club": "Napoli", "born": "1996-12-08" },
+
+    { "number": 5, "name": "Grant Hanley", "pos": "DEF", "club": "Hibernian", "born": "1991-11-20" },
+    { "number": 6, "name": "Kieran Tierney", "pos": "DEF", "club": "Celtic", "born": "1997-05-05" },
+
+    { "number": 7, "name": "John McGinn", "pos": "MED", "club": "Aston Villa", "born": "1994-10-18" },
+    { "number": 8, "name": "Tyler Fletcher", "pos": "MED", "club": "Manchester United", "born": "2007-03-19" },
+
+    { "number": 9, "name": "Lyndon Dykes", "pos": "AV", "club": "Charlton Athletic", "born": "1995-07-07" },
+    { "number": 10, "name": "Che Adams", "pos": "AV", "club": "Torino", "born": "1996-07-13" },
+
+    { "number": 11, "name": "Ryan Christie", "pos": "MED", "club": "Bournemouth", "born": "1995-02-22" },
+
+    { "number": 12, "name": "Liam Kelly", "pos": "GR", "club": "Rangers", "born": "1996-01-23" },
+
+    { "number": 13, "name": "Jack Hendry", "pos": "DEF", "club": "Al Ettifaq", "born": "1995-07-07" },
+
+    { "number": 14, "name": "Ross Stewart", "pos": "AV", "club": "Southampton", "born": "1996-07-11" },
+
+    { "number": 15, "name": "John Souttar", "pos": "DEF", "club": "Rangers", "born": "1996-09-25" },
+    { "number": 16, "name": "Dominic Hyam", "pos": "DEF", "club": "Wrexham", "born": "1995-12-20" },
+
+    { "number": 17, "name": "Ben Doak", "pos": "AV", "club": "Bournemouth", "born": "2005-11-11" },
+    { "number": 18, "name": "George Hirst", "pos": "AV", "club": "Ipswich Town", "born": "1999-02-15" },
+
+    { "number": 19, "name": "Lewis Ferguson", "pos": "MED", "club": "Bologna", "born": "1999-08-24" },
+    { "number": 20, "name": "Lawrence Shankland", "pos": "AV", "club": "Heart of Midlothian", "born": "1995-08-10" },
+
+    { "number": 21, "name": "Craig Gordon", "pos": "GR", "club": "Heart of Midlothian", "born": "1982-12-31" },
+
+    { "number": 22, "name": "Nathan Patterson", "pos": "DEF", "club": "Everton", "born": "2001-10-16" },
+
+    { "number": 23, "name": "Kenny McLean", "pos": "MED", "club": "Norwich City", "born": "1992-01-08" },
+
+    { "number": 24, "name": "Anthony Ralston", "pos": "DEF", "club": "Celtic", "born": "1998-11-16" },
+
+    { "number": 25, "name": "Findlay Curtis", "pos": "AV", "club": "Kilmarnock", "born": "2006-09-09" },
+
+    { "number": 26, "name": "Scott McKenna", "pos": "DEF", "club": "Dinamo Zagreb", "born": "1996-11-12" }
+  ]
+}

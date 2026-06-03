@@ -86,7 +86,7 @@ const GROUP_COLOR_CLASS = {
     if (!res.ok) throw new Error('Ficheiro não encontrado');
     squad = await res.json();
   } catch {
-    renderError(`Dados da seleção "${slug}" ainda não disponíveis.<br><span class="muted small">Adiciona <code>data/squads/${slug}.json</code> para activar esta página.</span>`);
+    renderUnderConstruction();
     return;
   }
 
@@ -99,6 +99,19 @@ function renderError(msg) {
       <p style="font-size:1.4rem;font-weight:700;margin-bottom:12px">Seleção não disponível</p>
       <p class="muted">${msg}</p>
       <a href="javascript:history.back()" class="btn btn-ghost btn-sm" style="margin-top:16px">Voltar</a>
+    </div>`;
+}
+
+function renderUnderConstruction() {
+  document.getElementById('teamContent').innerHTML = `
+    <div class="card text-center" style="padding:48px 24px;margin-top:24px">
+      <div style="font-size:4rem;margin-bottom:16px">🚧</div>
+      <p style="font-size:1.6rem;font-weight:700;margin-bottom:8px">Página em Construção</p>
+      <p class="muted" style="margin-bottom:24px">Esta seleção ainda não está disponível. Deixa de ser guloso e volta mais tarde!</p>
+      <img src="img/construction.jpg" alt="Em construção"
+           style="width:100%;max-width: 500px;border-radius:12px;margin-bottom:24px;object-fit:cover">
+      <br>
+      <a href="javascript:history.back()" class="btn btn-ghost btn-sm">Voltar</a>
     </div>`;
 }
 
@@ -144,15 +157,16 @@ function renderSquad(squad, slug) {
 function renderPlayerCard(p, slug, gcClass) {
   const age    = calcAge(p.born);
   const photo  = `img/squads/${slug}/${teamSlug(p.name)}.jpg`;
+  const num    = p.number ?? '?';
   const imgEl  = `<img src="${photo}" alt="${p.name}" class="player-photo"
                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                  <div class="player-photo-placeholder" style="display:none">${p.number}</div>`;
+                  <div class="player-photo-placeholder" style="display:none">${num}</div>`;
 
   return `
     <div class="player-card">
       <div class="player-photo-wrap">
         ${imgEl}
-        <span class="player-number-badge ${gcClass}">${p.number}</span>
+        <span class="player-number-badge ${gcClass}">${num}</span>
       </div>
       <div class="player-info">
         <div class="player-name" title="${p.name}">${p.name}</div>

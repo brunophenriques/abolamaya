@@ -1,0 +1,37 @@
+{
+  "name": "South Korea",
+  "flag": "🇰🇷",
+  "group": "A",
+  "manager": "Hong Myung-bo",
+  "players": [
+    { "number": 1, "name": "Kim Seung-gyu", "pos": "GR", "club": "FC Tokyo", "born": "1990-09-30" },
+    { "number": 12, "name": "Song Bumkeun", "pos": "GR", "club": "Jeonbuk Hyundai Motors", "born": "1997-10-15" },
+    { "number": 21, "name": "Jo Hyeonwoo", "pos": "GR", "club": "Ulsan HD", "born": "1991-09-25" },
+
+    { "number": 2, "name": "Lee Hanbeom", "pos": "DEF", "club": "FC Midtjylland", "born": "2002-06-17" },
+    { "number": 4, "name": "Kim Minjae", "pos": "DEF", "club": "Bayern Munich", "born": "1996-11-15" },
+    { "number": 5, "name": "Kim Taehyeon", "pos": "DEF", "club": "Kashima Antlers", "born": "2000-09-17" },
+    { "number": 13, "name": "Lee Taeseok", "pos": "DEF", "club": "Austria Wien", "born": "2002-07-28" },
+    { "number": 14, "name": "Cho Wije", "pos": "DEF", "club": "Jeonbuk Hyundai Motors", "born": "2001-08-25" },
+    { "number": 15, "name": "Kim Moonhwan", "pos": "DEF", "club": "Daejeon Hana Citizen", "born": "1995-08-01" },
+    { "number": 16, "name": "Park Jinseob", "pos": "DEF", "club": "Zhejiang FC", "born": "1995-10-23" },
+    { "number": 22, "name": "Seol Youngwoo", "pos": "DEF", "club": "Crvena Zvezda", "born": "1998-12-05" },
+    { "number": 23, "name": "Jens Castrop", "pos": "DEF", "club": "Borussia Monchengladbach", "born": "2003-07-29" },
+
+    { "number": 3, "name": "Lee Kihyuk", "pos": "MED", "club": "Gangwon FC", "born": "2000-07-07" },
+    { "number": 6, "name": "Hwang Inbeom", "pos": "MED", "club": "Feyenoord", "born": "1996-09-20" },
+    { "number": 8, "name": "Paik Seungho", "pos": "MED", "club": "Birmingham City", "born": "1997-03-17" },
+    { "number": 10, "name": "Lee Jaesung", "pos": "MED", "club": "Mainz 05", "born": "1992-08-10" },
+    { "number": 17, "name": "Bae Junho", "pos": "MED", "club": "Stoke City", "born": "2003-08-21" },
+    { "number": 19, "name": "Lee Kangin", "pos": "MED", "club": "Paris Saint-Germain", "born": "2001-02-19" },
+    { "number": 24, "name": "Kim Jingyu", "pos": "MED", "club": "Jeonbuk Hyundai Motors", "born": "1997-02-24" },
+    { "number": 25, "name": "Eom Jisung", "pos": "MED", "club": "Swansea City", "born": "2002-05-09" },
+    { "number": 26, "name": "Lee Donggyeong", "pos": "MED", "club": "Ulsan HD", "born": "1997-09-20" },
+
+    { "number": 7, "name": "Son Heungmin", "pos": "AV", "club": "LAFC", "born": "1992-07-08" },
+    { "number": 9, "name": "Cho Guesung", "pos": "AV", "club": "FC Midtjylland", "born": "1998-01-25" },
+    { "number": 11, "name": "Hwang Heechan", "pos": "AV", "club": "Wolverhampton Wanderers", "born": "1996-01-26" },
+    { "number": 18, "name": "Oh Hyeongyu", "pos": "AV", "club": "Besiktas", "born": "2001-04-12" },
+    { "number": 20, "name": "Yang Hyunjun", "pos": "AV", "club": "Celtic", "born": "2002-05-25" }
+  ]
+}

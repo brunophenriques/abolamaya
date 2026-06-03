@@ -1,0 +1,47 @@
+{
+  "name": "USA",
+  "flag": "🇺🇸",
+  "group": "D",
+  "manager": "Mauricio Pochettino",
+  "players": [
+    { "number": 1, "name": "Matt Turner", "pos": "GR", "club": "New England Revolution", "born": "1994-06-24" },
+
+    { "number": 2, "name": "Sergino Dest", "pos": "DEF", "club": "PSV Eindhoven", "born": "2000-11-03" },
+    { "number": 3, "name": "Chris Richards", "pos": "DEF", "club": "Crystal Palace", "born": "2000-03-28" },
+
+    { "number": 4, "name": "Tyler Adams", "pos": "MED", "club": "Bournemouth", "born": "1999-02-14" },
+
+    { "number": 5, "name": "Antonee Robinson", "pos": "DEF", "club": "Fulham", "born": "1997-08-08" },
+    { "number": 6, "name": "Auston Trusty", "pos": "DEF", "club": "Celtic", "born": "1998-08-12" },
+
+    { "number": 7, "name": "Giovanni Reyna", "pos": "MED", "club": "Borussia Monchengladbach", "born": "2002-11-13" },
+    { "number": 8, "name": "Weston McKennie", "pos": "MED", "club": "Juventus", "born": "1998-08-28" },
+
+    { "number": 9, "name": "Ricardo Pepi", "pos": "AV", "club": "PSV Eindhoven", "born": "2003-01-09" },
+    { "number": 10, "name": "Christian Pulisic", "pos": "AV", "club": "AC Milan", "born": "1998-09-18" },
+    { "number": 11, "name": "Brenden Aaronson", "pos": "AV", "club": "Leeds United", "born": "2000-10-22" },
+
+    { "number": 12, "name": "Miles Robinson", "pos": "DEF", "club": "FC Cincinnati", "born": "1997-03-14" },
+    { "number": 13, "name": "Tim Ream", "pos": "DEF", "club": "Charlotte FC", "born": "1987-10-05" },
+
+    { "number": 14, "name": "Sebastian Berhalter", "pos": "MED", "club": "Vancouver Whitecaps", "born": "2001-05-10" },
+    { "number": 15, "name": "Cristian Roldan", "pos": "MED", "club": "Seattle Sounders", "born": "1995-06-03" },
+
+    { "number": 16, "name": "Alex Freeman", "pos": "DEF", "club": "Villarreal", "born": "2004-08-09" },
+
+    { "number": 17, "name": "Malik Tillman", "pos": "MED", "club": "Bayer Leverkusen", "born": "2002-05-28" },
+    { "number": 18, "name": "Max Arfsten", "pos": "DEF", "club": "Columbus Crew", "born": "2001-04-19" },
+
+    { "number": 19, "name": "Haji Wright", "pos": "AV", "club": "Coventry City", "born": "1998-03-27" },
+    { "number": 20, "name": "Folarin Balogun", "pos": "AV", "club": "Monaco", "born": "2001-07-03" },
+    { "number": 21, "name": "Timothy Weah", "pos": "AV", "club": "Olympique Marseille", "born": "2000-02-22" },
+
+    { "number": 22, "name": "Mark McKenzie", "pos": "DEF", "club": "Toulouse", "born": "1999-02-25" },
+    { "number": 23, "name": "Joe Scally", "pos": "DEF", "club": "Borussia Monchengladbach", "born": "2002-12-31" },
+
+    { "number": 24, "name": "Matt Freese", "pos": "GR", "club": "New York City FC", "born": "1998-09-02" },
+    { "number": 25, "name": "Chris Brady", "pos": "GR", "club": "Chicago Fire", "born": "2004-03-03" },
+
+    { "number": 26, "name": "Alex Zendejas", "pos": "AV", "club": "Club America", "born": "1998-02-07" }
+  ]
+}
