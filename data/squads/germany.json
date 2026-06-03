@@ -1,0 +1,36 @@
+{
+  "name": "Germany",
+  "flag": "🇩🇪",
+  "group": "E",
+  "manager": "Julian Nagelsmann",
+  "players": [
+    { "number": 1, "name": "Manuel Neuer", "pos": "GR", "club": "Bayern Munich", "born": "1986-03-27" },
+    { "number": 12, "name": "Oliver Baumann", "pos": "GR", "club": "TSG Hoffenheim", "born": "1990-06-02" },    
+    { "number": 21, "name": "Alexander Nübel", "pos": "GR", "club": "VfB Stuttgart", "born": "1996-09-30" },
+
+    { "number": 3, "name": "Waldemar Anton", "pos": "DEF", "club": "Borussia Dortmund", "born": "1996-07-20" },
+    { "number": 18, "name": "Nathaniel Brown", "pos": "DEF", "club": "Eintracht Frankfurt", "born": "2003-06-16" },
+    { "number": 13, "name": "Pascal Groß", "pos": "MED", "club": "Brighton & Hove Albion", "born": "1991-06-15" },
+    { "number": 6, "name": "Joshua Kimmich", "pos": "DEF", "club": "Bayern Munich", "born": "1995-02-08" },
+    { "number": 23, "name": "Felix Nmecha", "pos": "MED", "club": "Borussia Dortmund", "born": "2000-10-10" },
+    { "number": 5, "name": "Aleksandar Pavlovic", "pos": "MED", "club": "Bayern Munich", "born": "2004-05-03" },
+    { "number": 22, "name": "David Raum", "pos": "DEF", "club": "RB Leipzig", "born": "1998-04-22" },
+    { "number": 2, "name": "Antonio Rüdiger", "pos": "DEF", "club": "Real Madrid", "born": "1993-03-03" },
+    { "number": 15, "name": "Nico Schlotterbeck", "pos": "DEF", "club": "Borussia Dortmund", "born": "1999-12-01" },
+    { "number": 16, "name": "Angelo Stiller", "pos": "MED", "club": "VfB Stuttgart", "born": "2001-04-04" },
+    { "number": 4, "name": "Jonathan Tah", "pos": "DEF", "club": "Bayern Munich", "born": "1996-02-11" },
+    { "number": 24, "name": "Malick Thiaw", "pos": "DEF", "club": "AC Milan", "born": "2001-08-08" },
+
+    { "number": 20, "name": "Nadiem Amiri", "pos": "MED", "club": "Mainz 05", "born": "1996-10-27" },
+    { "number": 14, "name": "Maximilian Beier", "pos": "AV", "club": "Borussia Dortmund", "born": "2002-10-17" },
+    { "number": 8, "name": "Leon Goretzka", "pos": "MED", "club": "Bayern Munich", "born": "1995-02-06" },
+    { "number": 7, "name": "Kai Havertz", "pos": "AV", "club": "Arsenal", "born": "1999-06-11" },
+    { "number": 25, "name": "Lennart Karl", "pos": "MED", "club": "Bayern Munich", "born": "2008-02-22" },
+    { "number": 9, "name": "Jamie Leweling", "pos": "AV", "club": "VfB Stuttgart", "born": "2001-02-26" },
+    { "number": 10, "name": "Jamal Musiala", "pos": "MED", "club": "Bayern Munich", "born": "2003-02-26" },
+    { "number": 19, "name": "Leroy Sané", "pos": "AV", "club": "Galatasaray", "born": "1996-01-11" },
+    { "number": 26, "name": "Deniz Undav", "pos": "AV", "club": "VfB Stuttgart", "born": "1996-07-19" },
+    { "number": 17, "name": "Florian Wirtz", "pos": "MED", "club": "Liverpool", "born": "2003-05-03" },
+    { "number": 11, "name": "Nick Woltemade", "pos": "AV", "club": "Newcastle United", "born": "2002-02-14" }
+  ]
+}

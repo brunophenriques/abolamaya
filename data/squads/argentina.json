@@ -1,0 +1,37 @@
+{
+  "name": "Argentina",
+  "flag": "🇦🇷",
+  "group": "J",
+  "manager": "Lionel Scaloni",
+  "players": [
+    { "number": 1,  "name": "Juan Musso",            "pos": "GR",  "club": "Atlético de Madrid",   "born": "1994-05-06" },
+    { "number": 12, "name": "Gerónimo Rulli",         "pos": "GR",  "club": "Olympique Marseille",  "born": "1992-05-20" },
+    { "number": 23, "name": "Emiliano Martínez",      "pos": "GR",  "club": "Aston Villa",          "born": "1992-09-02" },
+
+    { "number": 2,  "name": "Leonardo Balerdi",       "pos": "DEF", "club": "Olympique Marseille",  "born": "1999-01-26" },
+    { "number": 3,  "name": "Nicolás Tagliafico",     "pos": "DEF", "club": "Olympique Lyon",       "born": "1992-08-31" },
+    { "number": 4,  "name": "Gonzalo Montiel",        "pos": "DEF", "club": "River Plate",          "born": "1997-01-01" },
+    { "number": 6,  "name": "Lisandro Martínez",      "pos": "DEF", "club": "Manchester United",    "born": "1998-01-18" },
+    { "number": 13, "name": "Cristian Romero",        "pos": "DEF", "club": "Tottenham Hotspur",    "born": "1998-04-27" },
+    { "number": 19, "name": "Nicolás Otamendi",       "pos": "DEF", "club": "Benfica",              "born": "1988-02-12" },
+    { "number": 25, "name": "Facundo Medina",         "pos": "DEF", "club": "Olympique Marseille",  "born": "1999-05-28" },
+    { "number": 26, "name": "Nahuel Molina",          "pos": "DEF", "club": "Atlético de Madrid",   "born": "1998-04-06" },
+
+    { "number": 5,  "name": "Leandro Paredes",        "pos": "MED", "club": "Boca Juniors",         "born": "1994-06-29" },
+    { "number": 7,  "name": "Rodrigo De Paul",        "pos": "MED", "club": "Inter Miami",          "born": "1994-05-24" },
+    { "number": 8,  "name": "Valentín Barco",         "pos": "MED", "club": "Estrasburgo",          "born": "2004-07-23" },
+    { "number": 11, "name": "Giovani Lo Celso",       "pos": "MED", "club": "Real Betis",           "born": "1996-04-09" },
+    { "number": 14, "name": "Exequiel Palacios",      "pos": "MED", "club": "Bayer Leverkusen",     "born": "1998-10-05" },
+    { "number": 20, "name": "Alexis Mac Allister",    "pos": "MED", "club": "Liverpool",            "born": "1998-12-24" },
+    { "number": 24, "name": "Enzo Fernández",         "pos": "MED", "club": "Chelsea",              "born": "2001-01-17" },
+
+    { "number": 9,  "name": "Julián Álvarez",         "pos": "AV",  "club": "Atlético de Madrid",   "born": "2000-01-31" },
+    { "number": 10, "name": "Lionel Messi",           "pos": "AV",  "club": "Inter Miami",          "born": "1987-06-24" },
+    { "number": 15, "name": "Nicolás González",       "pos": "AV",  "club": "Atlético de Madrid",   "born": "1998-04-06" },
+    { "number": 16, "name": "Thiago Almada",          "pos": "AV",  "club": "Atlético de Madrid",   "born": "2001-04-26" },
+    { "number": 17, "name": "Giuliano Simeone",       "pos": "AV",  "club": "Atlético de Madrid",   "born": "2002-12-18" },
+    { "number": 18, "name": "Nicolás Paz",            "pos": "AV",  "club": "Como",                 "born": "2004-09-08" },
+    { "number": 21, "name": "José López",             "pos": "AV",  "club": "Palmeiras",            "born": "2000-12-06" },
+    { "number": 22, "name": "Lautaro Martínez",       "pos": "AV",  "club": "Inter",                "born": "1997-08-22" }
+  ]
+}

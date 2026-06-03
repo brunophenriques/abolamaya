@@ -1,0 +1,37 @@
+{
+  "name": "Spain",
+  "flag": "🇪🇸",
+  "group": "H",
+  "manager": "Luis de la Fuente",
+  "players": [
+    { "number": 1, "name": "David Raya", "pos": "GR", "club": "Arsenal", "born": "1995-09-15" },
+    { "number": 13, "name": "Joan Garcia", "pos": "GR", "club": "Barcelona", "born": "2001-05-04" },
+    { "number": 23, "name": "Unai Simon", "pos": "GR", "club": "Athletic Club", "born": "1997-06-11" },
+
+    { "number": 2, "name": "Marc Pubill", "pos": "DEF", "club": "Atlético Madrid", "born": "2003-06-20" },
+    { "number": 3, "name": "Alejandro Grimaldo", "pos": "DEF", "club": "Bayer Leverkusen", "born": "1995-09-20" },
+    { "number": 4, "name": "Eric Garcia", "pos": "DEF", "club": "Barcelona", "born": "2001-01-09" },
+    { "number": 12, "name": "Pedro Porro", "pos": "DEF", "club": "Tottenham Hotspur", "born": "1999-09-13" },
+    { "number": 14, "name": "Aymeric Laporte", "pos": "DEF", "club": "Athletic Club", "born": "1994-05-27" },
+    { "number": 22, "name": "Pau Cubarsi", "pos": "DEF", "club": "Barcelona", "born": "2007-01-22" },
+    { "number": 24, "name": "Marc Cucurella", "pos": "DEF", "club": "Chelsea", "born": "1998-07-22" },
+
+    { "number": 5, "name": "Marcos Llorente", "pos": "MED", "club": "Atlético Madrid", "born": "1995-01-30" },
+    { "number": 6, "name": "Mikel Merino", "pos": "MED", "club": "Arsenal", "born": "1996-06-22" },
+    { "number": 8, "name": "Fabián Ruiz", "pos": "MED", "club": "PSG", "born": "1996-04-03" },
+    { "number": 9, "name": "Gavi", "pos": "MED", "club": "Barcelona", "born": "2004-08-05" },
+    { "number": 10, "name": "Dani Olmo", "pos": "MED", "club": "Barcelona", "born": "1998-05-07" },
+    { "number": 15, "name": "Álex Baena", "pos": "MED", "club": "Atlético Madrid", "born": "2001-07-20" },
+    { "number": 18, "name": "Martín Zubimendi", "pos": "MED", "club": "Arsenal", "born": "1999-02-02" },
+    { "number": 20, "name": "Pedri", "pos": "MED", "club": "Barcelona", "born": "2002-11-25" },
+
+    { "number": 7, "name": "Ferran Torres", "pos": "AV", "club": "Barcelona", "born": "2000-02-29" },
+    { "number": 11, "name": "Yeremy Pino", "pos": "AV", "club": "Crystal Palace", "born": "2002-10-20" },
+    { "number": 16, "name": "Rodrigo Riquelme", "pos": "AV", "club": "Atlético Madrid", "born": "2000-04-02" },
+    { "number": 17, "name": "Nico Williams", "pos": "AV", "club": "Athletic Club", "born": "2002-07-12" },
+    { "number": 19, "name": "Lamine Yamal", "pos": "AV", "club": "Barcelona", "born": "2007-07-13" },
+    { "number": 21, "name": "Mikel Oyarzabal", "pos": "AV", "club": "Real Sociedad", "born": "1997-04-21" },
+    { "number": 25, "name": "Víctor Muñoz", "pos": "AV", "club": "Osasuna", "born": "2003-07-13" },
+    { "number": 26, "name": "Borja Iglesias", "pos": "AV", "club": "Celta Vigo", "born": "1993-01-17" }
+  ]
+}
