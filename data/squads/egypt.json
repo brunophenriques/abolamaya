@@ -1,0 +1,59 @@
+{
+  "name": "Egypt",
+  "flag": "🇪🇬",
+  "group": "G",
+  "manager": "Hossam Hassan",
+  "players": [
+    { "number": 1, "name": "Mohamed El Shenawy", "pos": "GR", "club": "Al Ahly", "born": "1988-12-18" },
+
+    { "number": 2, "name": "Yasser Ibrahim", "pos": "DEF", "club": "Al Ahly", "born": "1993-02-10" },
+
+    { "number": 3, "name": "Mohamed Hany", "pos": "DEF", "club": "Al Ahly", "born": "1996-02-02" },
+
+    { "number": 4, "name": "Hossam Abdelmaguid", "pos": "DEF", "club": "Zamalek", "born": "2001-04-30" },
+
+    { "number": 5, "name": "Ramy Rabia", "pos": "DEF", "club": "Al Ain", "born": "1993-05-20" },
+
+    { "number": 6, "name": "Mohamed Abdelmonem", "pos": "DEF", "club": "OGC Nice", "born": "1999-02-01" },
+
+    { "number": 7, "name": "Mahmoud Trezeguet", "pos": "AV", "club": "Al Ahly", "born": "1994-10-01" },
+
+    { "number": 8, "name": "Emam Ashour", "pos": "MED", "club": "Al Ahly", "born": "1998-02-20" },
+
+    { "number": 9, "name": "Hamza Abdelkarim", "pos": "AV", "club": "Barcelona", "born": "2008-01-01" },
+
+    { "number": 10, "name": "Mohamed Salah", "pos": "AV", "club": "Liverpool", "born": "1992-06-15" },
+
+    { "number": 11, "name": "Mostafa Zico", "pos": "MED", "club": "Pyramids", "born": "1997-04-27" },
+
+    { "number": 12, "name": "Haissem Hassan", "pos": "AV", "club": "Real Oviedo", "born": "2002-08-08" },
+
+    { "number": 13, "name": "Ahmed Fattouh", "pos": "DEF", "club": "Zamalek", "born": "1998-03-22" },
+
+    { "number": 14, "name": "Hamdy Fathy", "pos": "MED", "club": "Al Wakrah", "born": "1994-09-29" },
+
+    { "number": 15, "name": "Karim Hafez", "pos": "DEF", "club": "Pyramids", "born": "1996-03-12" },
+
+    { "number": 16, "name": "Mahdy Soliman", "pos": "GR", "club": "Zamalek", "born": "1987-06-08" },
+
+    { "number": 17, "name": "Mohanad Lasheen", "pos": "MED", "club": "Pyramids", "born": "1996-05-29" },
+
+    { "number": 18, "name": "Nabil Emad Donga", "pos": "MED", "club": "Al Najmah", "born": "1996-04-06" },
+
+    { "number": 19, "name": "Marawan Attia", "pos": "MED", "club": "Al Ahly", "born": "1998-08-01" },
+
+    { "number": 20, "name": "Ibrahim Adel", "pos": "AV", "club": "FC Nordsjaelland", "born": "2001-04-23" },
+
+    { "number": 21, "name": "Mahmoud Saber", "pos": "MED", "club": "ZED FC", "born": "2001-07-30" },
+
+    { "number": 22, "name": "Omar Marmoush", "pos": "AV", "club": "Manchester City", "born": "1999-02-07" },
+
+    { "number": 23, "name": "Mostafa Shobir", "pos": "GR", "club": "Al Ahly", "born": "2000-05-15" },
+
+    { "number": 24, "name": "Tarek Alaa", "pos": "DEF", "club": "ZED FC", "born": "2002-01-05" },
+
+    { "number": 25, "name": "Zizo", "pos": "AV", "club": "Al Ahly", "born": "1996-01-10" },
+
+    { "number": 26, "name": "Mohamed Alaa", "pos": "GR", "club": "El Gouna", "born": "1999-01-01" }
+  ]
+}

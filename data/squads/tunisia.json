@@ -1,0 +1,59 @@
+{
+  "name": "Tunisia",
+  "flag": "🇹🇳",
+  "group": "F",
+  "manager": "Sabri Lamouchi",
+  "players": [
+    { "number": 1, "name": "Mouhib Chamakh", "pos": "GR", "club": "Club Africain", "born": "2001-08-25" },
+
+    { "number": 2, "name": "Ali Abdi", "pos": "DEF", "club": "OGC Nice", "born": "1993-12-20" },
+
+    { "number": 3, "name": "Montassar Talbi", "pos": "DEF", "club": "FC Lorient", "born": "1998-05-26" },
+
+    { "number": 4, "name": "Omar Rekik", "pos": "DEF", "club": "NK Maribor", "born": "2001-12-20" },
+
+    { "number": 5, "name": "Adam Arous", "pos": "DEF", "club": "Kasimpasa", "born": "2004-07-17" },
+
+    { "number": 6, "name": "Dylan Bronn", "pos": "DEF", "club": "Servette", "born": "1995-06-19" },
+
+    { "number": 7, "name": "Elyes Achouri", "pos": "AV", "club": "FC Copenhagen", "born": "1999-02-10" },
+
+    { "number": 8, "name": "Elias Saad", "pos": "AV", "club": "Hannover 96", "born": "1999-12-27" },
+
+    { "number": 9, "name": "Hazem Mastouri", "pos": "AV", "club": "Dynamo Makhachkala", "born": "1997-06-18" },
+
+    { "number": 10, "name": "Hannibal Mejbri", "pos": "MED", "club": "Burnley", "born": "2003-01-21" },
+
+    { "number": 11, "name": "Ismael Gharbi", "pos": "MED", "club": "Augsburg", "born": "2004-04-10" },
+
+    { "number": 12, "name": "Ahmed Ben Ouanes", "pos": "DEF", "club": "Kasimpasa", "born": "1994-07-02" },
+
+    { "number": 13, "name": "Rani Khedira", "pos": "MED", "club": "Union Berlin", "born": "1994-01-27" },
+
+    { "number": 14, "name": "Khalil Ayari", "pos": "MED", "club": "Paris Saint-Germain", "born": "2005-02-02" },
+
+    { "number": 15, "name": "Mohamed Belhadj Mahmoud", "pos": "MED", "club": "FC Lugano", "born": "2000-04-24" },
+
+    { "number": 16, "name": "Aymen Dahmen", "pos": "GR", "club": "CS Sfaxien", "born": "1997-01-28" },
+
+    { "number": 17, "name": "Ellyes Skhiri", "pos": "MED", "club": "Eintracht Frankfurt", "born": "1995-05-10" },
+
+    { "number": 18, "name": "Rayan Elloumi", "pos": "AV", "club": "Vancouver Whitecaps", "born": "2007-09-17" },
+
+    { "number": 19, "name": "Firas Chaouat", "pos": "AV", "club": "Club Africain", "born": "1996-05-08" },
+
+    { "number": 20, "name": "Yan Valery", "pos": "DEF", "club": "Young Boys", "born": "1999-02-22" },
+
+    { "number": 21, "name": "Mohamed Amine Ben Hamida", "pos": "DEF", "club": "Esperance de Tunis", "born": "1995-12-15" },
+
+    { "number": 22, "name": "Sabri Ben Hsen", "pos": "GR", "club": "Etoile du Sahel", "born": "1996-03-13" },
+
+    { "number": 23, "name": "Moutaz Neffati", "pos": "DEF", "club": "IFK Norrkoping", "born": "2004-09-04" },
+
+    { "number": 24, "name": "Raed Chikhaoui", "pos": "DEF", "club": "US Monastir", "born": "2004-06-09" },
+
+    { "number": 25, "name": "Anis Slimane", "pos": "MED", "club": "Norwich City", "born": "2001-03-16" },
+
+    { "number": 26, "name": "Sebastian Tounekti", "pos": "MED", "club": "Celtic", "born": "2002-07-13" }
+  ]
+}

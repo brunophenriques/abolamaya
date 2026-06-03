@@ -1,0 +1,59 @@
+{
+  "name": "Belgium",
+  "flag": "🇧🇪",
+  "group": "G",
+  "manager": "Rudi Garcia",
+  "players": [
+    { "number": 1, "name": "Thibaut Courtois", "pos": "GR", "club": "Real Madrid", "born": "1992-05-11" },
+
+    { "number": 2, "name": "Zeno Debast", "pos": "DEF", "club": "Sporting CP", "born": "2003-10-24" },
+
+    { "number": 3, "name": "Arthur Theate", "pos": "DEF", "club": "Eintracht Frankfurt", "born": "2000-05-25" },
+
+    { "number": 4, "name": "Brandon Mechele", "pos": "DEF", "club": "Club Brugge", "born": "1993-01-28" },
+
+    { "number": 5, "name": "Maxim De Cuyper", "pos": "DEF", "club": "Brighton & Hove Albion", "born": "2000-12-22" },
+
+    { "number": 6, "name": "Axel Witsel", "pos": "MED", "club": "Girona", "born": "1989-01-12" },
+
+    { "number": 7, "name": "Kevin De Bruyne", "pos": "MED", "club": "Napoli", "born": "1991-06-28" },
+
+    { "number": 8, "name": "Youri Tielemans", "pos": "MED", "club": "Aston Villa", "born": "1997-05-07" },
+
+    { "number": 9, "name": "Romelu Lukaku", "pos": "AV", "club": "Napoli", "born": "1993-05-13" },
+
+    { "number": 10, "name": "Leandro Trossard", "pos": "AV", "club": "Arsenal", "born": "1994-12-04" },
+
+    { "number": 11, "name": "Jeremy Doku", "pos": "AV", "club": "Manchester City", "born": "2002-05-27" },
+
+    { "number": 12, "name": "Senne Lammens", "pos": "GR", "club": "Manchester United", "born": "2002-07-07" },
+
+    { "number": 13, "name": "Mike Penders", "pos": "GR", "club": "Strasbourg", "born": "2005-07-31" },
+
+    { "number": 14, "name": "Dodi Lukebakio", "pos": "AV", "club": "Benfica", "born": "1997-09-24" },
+
+    { "number": 15, "name": "Thomas Meunier", "pos": "DEF", "club": "Lille", "born": "1991-09-12" },
+
+    { "number": 16, "name": "Koni De Winter", "pos": "DEF", "club": "AC Milan", "born": "2002-12-12" },
+
+    { "number": 17, "name": "Charles De Ketelaere", "pos": "AV", "club": "Atalanta", "born": "2001-03-10" },
+
+    { "number": 18, "name": "Joaquin Seys", "pos": "DEF", "club": "Club Brugge", "born": "2005-03-28" },
+
+    { "number": 19, "name": "Diego Moreira", "pos": "MED", "club": "Strasbourg", "born": "2004-08-06" },
+
+    { "number": 20, "name": "Hans Vanaken", "pos": "MED", "club": "Club Brugge", "born": "1992-08-24" },
+
+    { "number": 21, "name": "Timothy Castagne", "pos": "DEF", "club": "Fulham", "born": "1995-12-05" },
+
+    { "number": 22, "name": "Alexis Saelemaekers", "pos": "MED", "club": "AC Milan", "born": "1999-06-27" },
+
+    { "number": 23, "name": "Nicolas Raskin", "pos": "MED", "club": "Rangers", "born": "2001-02-23" },
+
+    { "number": 24, "name": "Amadou Onana", "pos": "MED", "club": "Aston Villa", "born": "2001-08-16" },
+
+    { "number": 25, "name": "Nathan Ngoy", "pos": "DEF", "club": "Lille", "born": "2003-06-10" },
+
+    { "number": 26, "name": "Matias Fernandez-Pardo", "pos": "AV", "club": "Lille", "born": "2005-03-03" }
+  ]
+}

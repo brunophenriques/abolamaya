@@ -1,0 +1,59 @@
+{
+  "name": "Iran",
+  "flag": "🇮🇷",
+  "group": "G",
+  "manager": "Amir Ghalenoei",
+  "players": [
+    { "number": 1, "name": "Alireza Beiranvand", "pos": "GR", "club": "Tractor", "born": "1992-09-21" },
+
+    { "number": 2, "name": "Saleh Hardani", "pos": "DEF", "club": "Esteghlal", "born": "1998-12-26" },
+
+    { "number": 3, "name": "Ehsan Hajsafi", "pos": "DEF", "club": "Sepahan", "born": "1990-02-25" },
+
+    { "number": 4, "name": "Shoja Khalilzadeh", "pos": "DEF", "club": "Tractor", "born": "1989-05-14" },
+
+    { "number": 5, "name": "Milad Mohammadi", "pos": "DEF", "club": "Persepolis", "born": "1993-09-29" },
+
+    { "number": 6, "name": "Saeid Ezatolahi", "pos": "MED", "club": "Shabab Al Ahli", "born": "1996-10-01" },
+
+    { "number": 7, "name": "Alireza Jahanbakhsh", "pos": "MED", "club": "FCV Dender", "born": "1993-08-11" },
+
+    { "number": 8, "name": "Mohammad Mohebi", "pos": "MED", "club": "FC Rostov", "born": "1998-12-20" },
+
+    { "number": 9, "name": "Mehdi Taremi", "pos": "AV", "club": "Olympiacos", "born": "1992-07-18" },
+
+    { "number": 10, "name": "Mehdi Ghayedi", "pos": "AV", "club": "Al Nasr", "born": "1998-12-05" },
+
+    { "number": 11, "name": "Ali Alipour", "pos": "AV", "club": "Persepolis", "born": "1995-11-11" },
+
+    { "number": 12, "name": "Payam Niazmand", "pos": "GR", "club": "Persepolis", "born": "1995-04-06" },
+
+    { "number": 13, "name": "Mohammad Hossein Kanani", "pos": "DEF", "club": "Persepolis", "born": "1994-03-23" },
+
+    { "number": 14, "name": "Saman Ghoddos", "pos": "MED", "club": "Al Ittihad Kalba", "born": "1993-09-06" },
+
+    { "number": 15, "name": "Roozbeh Cheshmi", "pos": "MED", "club": "Esteghlal", "born": "1993-07-24" },
+
+    { "number": 16, "name": "Mahdi Torabi", "pos": "MED", "club": "Tractor", "born": "1994-09-10" },
+
+    { "number": 17, "name": "Arya Yousefi", "pos": "DEF", "club": "Sepahan", "born": "2002-04-22" },
+
+    { "number": 18, "name": "Amirhossein Hosseinzadeh", "pos": "AV", "club": "Tractor", "born": "2000-10-30" },
+
+    { "number": 19, "name": "Ali Nemati", "pos": "DEF", "club": "Foolad", "born": "1996-02-08" },
+
+    { "number": 20, "name": "Shahriyar Moghanloo", "pos": "AV", "club": "Al Ittihad Kalba", "born": "1994-12-21" },
+
+    { "number": 21, "name": "Mohammad Ghorbani", "pos": "MED", "club": "Al Wahda", "born": "2001-10-07" },
+
+    { "number": 22, "name": "Hossein Hosseini", "pos": "GR", "club": "Sepahan", "born": "1992-06-30" },
+
+    { "number": 23, "name": "Ramin Rezaeian", "pos": "DEF", "club": "Foolad", "born": "1990-03-21" },
+
+    { "number": 24, "name": "Dennis Dargahi", "pos": "AV", "club": "Standard Liège", "born": "1997-01-09" },
+
+    { "number": 25, "name": "Danial Iri", "pos": "DEF", "club": "Malavan", "born": "2003-10-26" },
+
+    { "number": 26, "name": "Amirmohammad Razaghinia", "pos": "MED", "club": "Esteghlal", "born": "2006-10-11" }
+  ]
+}

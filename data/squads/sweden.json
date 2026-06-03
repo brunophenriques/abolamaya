@@ -1,0 +1,59 @@
+{
+  "name": "Sweden",
+  "flag": "🇸🇪",
+  "group": "F",
+  "manager": "Graham Potter",
+  "players": [
+    { "number": 1, "name": "Jacob Widell Zetterstrom", "pos": "GR", "club": "Derby County", "born": "1998-07-11" },
+
+    { "number": 2, "name": "Gustaf Lagerbielke", "pos": "DEF", "club": "SC Braga", "born": "2000-04-10" },
+
+    { "number": 3, "name": "Victor Lindelof", "pos": "DEF", "club": "Aston Villa", "born": "1994-07-17" },
+
+    { "number": 4, "name": "Isak Hien", "pos": "DEF", "club": "Atalanta", "born": "1999-01-13" },
+
+    { "number": 5, "name": "Gabriel Gudmundsson", "pos": "DEF", "club": "Leeds United", "born": "1999-04-29" },
+
+    { "number": 6, "name": "Herman Johansson", "pos": "DEF", "club": "FC Dallas", "born": "1997-10-16" },
+
+    { "number": 7, "name": "Lucas Bergvall", "pos": "MED", "club": "Tottenham Hotspur", "born": "2006-02-02" },
+
+    { "number": 8, "name": "Daniel Svensson", "pos": "DEF", "club": "Borussia Dortmund", "born": "2002-02-12" },
+
+    { "number": 9, "name": "Alexander Isak", "pos": "AV", "club": "Liverpool", "born": "1999-09-21" },
+
+    { "number": 10, "name": "Benjamin Nygren", "pos": "MED", "club": "Celtic", "born": "2001-07-08" },
+
+    { "number": 11, "name": "Anthony Elanga", "pos": "AV", "club": "Newcastle United", "born": "2002-04-27" },
+
+    { "number": 12, "name": "Viktor Johansson", "pos": "GR", "club": "Stoke City", "born": "1998-09-14" },
+
+    { "number": 13, "name": "Ken Sema", "pos": "MED", "club": "Pafos", "born": "1993-09-30" },
+
+    { "number": 14, "name": "Hjalmar Ekdal", "pos": "DEF", "club": "Burnley", "born": "1998-10-21" },
+
+    { "number": 15, "name": "Carl Starfelt", "pos": "DEF", "club": "Celta Vigo", "born": "1995-06-01" },
+
+    { "number": 16, "name": "Jesper Karlstrom", "pos": "MED", "club": "Udinese", "born": "1995-06-21" },
+
+    { "number": 17, "name": "Viktor Gyokeres", "pos": "AV", "club": "Arsenal", "born": "1998-06-04" },
+
+    { "number": 18, "name": "Yasin Ayari", "pos": "MED", "club": "Brighton & Hove Albion", "born": "2003-10-06" },
+
+    { "number": 19, "name": "Mattias Svanberg", "pos": "MED", "club": "Wolfsburg", "born": "1999-01-05" },
+
+    { "number": 20, "name": "Eric Smith", "pos": "DEF", "club": "St. Pauli", "born": "1997-01-08" },
+
+    { "number": 21, "name": "Alexander Bernhardsson", "pos": "DEF", "club": "Holstein Kiel", "born": "1998-09-08" },
+
+    { "number": 22, "name": "Besfort Zeneli", "pos": "MED", "club": "Royale Union SG", "born": "2002-11-21" },
+
+    { "number": 23, "name": "Kristoffer Nordfeldt", "pos": "GR", "club": "AIK", "born": "1989-06-23" },
+
+    { "number": 24, "name": "Elliot Stroud", "pos": "DEF", "club": "Mjallby", "born": "2002-06-22" },
+
+    { "number": 25, "name": "Gustaf Nilsson", "pos": "AV", "club": "Club Brugge", "born": "1997-05-23" },
+
+    { "number": 26, "name": "Taha Ali", "pos": "AV", "club": "Malmo FF", "born": "1998-07-01" }
+  ]
+}

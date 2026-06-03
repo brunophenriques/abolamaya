@@ -1,0 +1,59 @@
+{
+  "name": "Japan",
+  "flag": "🇯🇵",
+  "group": "F",
+  "manager": "Hajime Moriyasu",
+  "players": [
+    { "number": 1, "name": "Zion Suzuki", "pos": "GR", "club": "Parma", "born": "2002-08-21" },
+
+    { "number": 2, "name": "Yukinari Sugawara", "pos": "DEF", "club": "Werder Bremen", "born": "2000-06-28" },
+
+    { "number": 3, "name": "Shogo Taniguchi", "pos": "DEF", "club": "Sint-Truiden", "born": "1991-07-15" },
+
+    { "number": 4, "name": "Kou Itakura", "pos": "DEF", "club": "Ajax", "born": "1997-01-27" },
+
+    { "number": 5, "name": "Yuto Nagatomo", "pos": "DEF", "club": "FC Tokyo", "born": "1986-09-12" },
+
+    { "number": 6, "name": "Wataru Endo", "pos": "MED", "club": "Liverpool", "born": "1993-02-09" },
+
+    { "number": 7, "name": "Ao Tanaka", "pos": "MED", "club": "Leeds United", "born": "1998-09-10" },
+
+    { "number": 8, "name": "Takefusa Kubo", "pos": "MED", "club": "Real Sociedad", "born": "2001-06-04" },
+
+    { "number": 9, "name": "Keisuke Goto", "pos": "AV", "club": "Sint-Truiden", "born": "2005-06-03" },
+
+    { "number": 10, "name": "Ritsu Doan", "pos": "MED", "club": "Eintracht Frankfurt", "born": "1998-06-16" },
+
+    { "number": 11, "name": "Daizen Maeda", "pos": "AV", "club": "Celtic", "born": "1997-10-20" },
+
+    { "number": 12, "name": "Keisuke Osako", "pos": "GR", "club": "Sanfrecce Hiroshima", "born": "1999-07-28" },
+
+    { "number": 13, "name": "Keito Nakamura", "pos": "MED", "club": "Stade Reims", "born": "2000-07-28" },
+
+    { "number": 14, "name": "Junya Ito", "pos": "MED", "club": "Genk", "born": "1993-03-09" },
+
+    { "number": 15, "name": "Daichi Kamada", "pos": "MED", "club": "Crystal Palace", "born": "1996-08-05" },
+
+    { "number": 16, "name": "Tsuyoshi Watanabe", "pos": "DEF", "club": "Feyenoord", "born": "1997-02-05" },
+
+    { "number": 17, "name": "Yuito Suzuki", "pos": "MED", "club": "SC Freiburg", "born": "2001-10-25" },
+
+    { "number": 18, "name": "Ayase Ueda", "pos": "AV", "club": "Feyenoord", "born": "1998-08-28" },
+
+    { "number": 19, "name": "Koki Ogawa", "pos": "AV", "club": "NEC Nijmegen", "born": "1997-08-08" },
+
+    { "number": 20, "name": "Ayumu Seko", "pos": "DEF", "club": "Le Havre", "born": "2000-07-07" },
+
+    { "number": 21, "name": "Hiroki Ito", "pos": "DEF", "club": "Bayern Munich", "born": "1999-05-12" },
+
+    { "number": 22, "name": "Takehiro Tomiyasu", "pos": "DEF", "club": "Ajax", "born": "1998-11-05" },
+
+    { "number": 23, "name": "Tomoki Hayakawa", "pos": "GR", "club": "Kashima Antlers", "born": "1999-03-03" },
+
+    { "number": 24, "name": "Kaishu Sano", "pos": "MED", "club": "Mainz 05", "born": "2000-12-30" },
+
+    { "number": 25, "name": "Junnosuke Suzuki", "pos": "DEF", "club": "Copenhagen", "born": "2003-07-12" },
+
+    { "number": 26, "name": "Kento Shiogai", "pos": "AV", "club": "VfL Wolfsburg", "born": "2005-03-26" }
+  ]
+}

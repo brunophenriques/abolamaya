@@ -1,0 +1,59 @@
+{
+  "name": "Netherlands",
+  "flag": "🇳🇱",
+  "group": "F",
+  "manager": "Ronald Koeman",
+  "players": [
+    { "number": 1, "name": "Bart Verbruggen", "pos": "GR", "club": "Brighton & Hove Albion", "born": "2002-08-18" },
+
+    { "number": 2, "name": "Jurrien Timber", "pos": "DEF", "club": "Arsenal", "born": "2001-06-17" },
+
+    { "number": 3, "name": "Marten de Roon", "pos": "MED", "club": "Atalanta", "born": "1991-03-29" },
+
+    { "number": 4, "name": "Virgil van Dijk", "pos": "DEF", "club": "Liverpool", "born": "1991-07-08" },
+
+    { "number": 5, "name": "Nathan Ake", "pos": "DEF", "club": "Manchester City", "born": "1995-02-18" },
+
+    { "number": 6, "name": "Jan Paul van Hecke", "pos": "DEF", "club": "Brighton & Hove Albion", "born": "2000-08-06" },
+
+    { "number": 7, "name": "Justin Kluivert", "pos": "MED", "club": "AFC Bournemouth", "born": "1999-05-05" },
+
+    { "number": 8, "name": "Ryan Gravenberch", "pos": "MED", "club": "Liverpool", "born": "2002-05-16" },
+
+    { "number": 9, "name": "Wout Weghorst", "pos": "AV", "club": "Ajax", "born": "1992-08-07" },
+
+    { "number": 10, "name": "Memphis Depay", "pos": "AV", "club": "Corinthians", "born": "1994-02-13" },
+
+    { "number": 11, "name": "Cody Gakpo", "pos": "AV", "club": "Liverpool", "born": "1999-05-07" },
+
+    { "number": 12, "name": "Mats Wieffer", "pos": "DEF", "club": "Brighton & Hove Albion", "born": "1999-11-16" },
+
+    { "number": 13, "name": "Robin Roefs", "pos": "GR", "club": "Sunderland", "born": "2003-01-17" },
+
+    { "number": 14, "name": "Tijjani Reijnders", "pos": "MED", "club": "Manchester City", "born": "1998-07-29" },
+
+    { "number": 15, "name": "Micky van de Ven", "pos": "DEF", "club": "Tottenham Hotspur", "born": "2001-04-19" },
+
+    { "number": 16, "name": "Guus Til", "pos": "MED", "club": "PSV Eindhoven", "born": "1997-12-22" },
+
+    { "number": 17, "name": "Noa Lang", "pos": "AV", "club": "Galatasaray", "born": "1999-06-17" },
+
+    { "number": 18, "name": "Donyell Malen", "pos": "AV", "club": "AS Roma", "born": "1999-01-19" },
+
+    { "number": 19, "name": "Brian Brobbey", "pos": "AV", "club": "Sunderland", "born": "2002-02-01" },
+
+    { "number": 20, "name": "Teun Koopmeiners", "pos": "MED", "club": "Juventus", "born": "1998-02-28" },
+
+    { "number": 21, "name": "Frenkie de Jong", "pos": "MED", "club": "Barcelona", "born": "1997-05-12" },
+
+    { "number": 22, "name": "Denzel Dumfries", "pos": "DEF", "club": "Inter Milan", "born": "1996-04-18" },
+
+    { "number": 23, "name": "Mark Flekken", "pos": "GR", "club": "Bayer Leverkusen", "born": "1993-06-13" },
+
+    { "number": 24, "name": "Crysencio Summerville", "pos": "AV", "club": "West Ham United", "born": "2001-10-30" },
+
+    { "number": 25, "name": "Jorrel Hato", "pos": "DEF", "club": "Chelsea", "born": "2006-03-07" },
+
+    { "number": 26, "name": "Quinten Timber", "pos": "MED", "club": "Olympique Marseille", "born": "2001-06-17" }
+  ]
+}
