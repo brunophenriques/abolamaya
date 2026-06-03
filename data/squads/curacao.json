@@ -1,0 +1,47 @@
+{
+  "name": "Curacao",
+  "flag": "🇨🇼",
+  "group": "E",
+  "manager": "Dick Advocaat",
+  "players": [
+    { "number": 1, "name": "Eloy Room", "pos": "GR", "club": "Miami FC", "born": "1989-02-06" },
+
+    { "number": 2, "name": "Shurandy Sambo", "pos": "DEF", "club": "Sparta Rotterdam", "born": "2001-08-19" },
+    { "number": 3, "name": "Jurien Gaari", "pos": "DEF", "club": "Abha Club", "born": "1993-12-23" },
+    { "number": 4, "name": "Roshon van Eijma", "pos": "DEF", "club": "RKC Waalwijk", "born": "1998-06-09" },
+    { "number": 5, "name": "Sherel Floranus", "pos": "DEF", "club": "PEC Zwolle", "born": "1998-08-23" },
+
+    { "number": 6, "name": "Godfried Roemeratoe", "pos": "MED", "club": "RKC Waalwijk", "born": "1999-08-19" },
+    { "number": 7, "name": "Juninho Bacuna", "pos": "MED", "club": "FC Volendam", "born": "1997-08-07" },
+    { "number": 8, "name": "Livano Comenencia", "pos": "MED", "club": "FC Zurich", "born": "2004-02-03" },
+
+    { "number": 9, "name": "Jurgen Locadia", "pos": "AV", "club": "Miami FC", "born": "1993-11-07" },
+
+    { "number": 10, "name": "Leandro Bacuna", "pos": "MED", "club": "Igdir FK", "born": "1991-08-21" },
+
+    { "number": 11, "name": "Jeremy Antonisse", "pos": "AV", "club": "AEK Larnaca", "born": "2002-03-29" },
+    { "number": 12, "name": "Sontje Hansen", "pos": "AV", "club": "Middlesbrough", "born": "2002-05-18" },
+    { "number": 13, "name": "Tyrese Noslin", "pos": "AV", "club": "Telstar", "born": "2002-09-11" },
+    { "number": 14, "name": "Kenji Gorre", "pos": "AV", "club": "Maccabi Haifa", "born": "1994-09-29" },
+
+    { "number": 15, "name": "Arjany Martha", "pos": "MED", "club": "Rotherham United", "born": "2003-09-04" },
+
+    { "number": 16, "name": "Jearl Margaritha", "pos": "AV", "club": "Beveren", "born": "2000-04-10" },
+    { "number": 17, "name": "Brandley Kuwas", "pos": "AV", "club": "FC Volendam", "born": "1992-09-19" },
+
+    { "number": 18, "name": "Armando Obispo", "pos": "DEF", "club": "PSV Eindhoven", "born": "1999-03-05" },
+
+    { "number": 19, "name": "Gervane Kastaneer", "pos": "AV", "club": "Terengganu", "born": "1996-06-09" },
+
+    { "number": 20, "name": "Joshua Brenet", "pos": "DEF", "club": "Kayserispor", "born": "1994-03-20" },
+
+    { "number": 21, "name": "Tahith Chong", "pos": "MED", "club": "Sheffield United", "born": "1999-12-04" },
+    { "number": 22, "name": "Kevin Felida", "pos": "MED", "club": "Den Bosch", "born": "1999-11-11" },
+
+    { "number": 23, "name": "Richedly Bazoer", "pos": "DEF", "club": "Konyaspor", "born": "1996-10-12" },
+    { "number": 24, "name": "Deveron Fonville", "pos": "DEF", "club": "NEC Nijmegen", "born": "2003-05-16" },
+
+    { "number": 25, "name": "Tyrick Bodak", "pos": "GR", "club": "Telstar", "born": "2002-05-15" },
+    { "number": 26, "name": "Trevor Doornbusch", "pos": "GR", "club": "VVV-Venlo", "born": "1999-07-06" }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Ivory Coast",
+  "flag": "🇨🇮",
+  "group": "E",
+  "manager": "Emerse Fae",
+  "players": [
+    { "number": 1, "name": "Yahia Fofana", "pos": "GR", "club": "Caykur Rizespor", "born": "2000-08-21" },
+
+    { "number": 2, "name": "Ousmane Diomande", "pos": "DEF", "club": "Sporting CP", "born": "2003-12-04" },
+    { "number": 3, "name": "Ghislain Konan", "pos": "DEF", "club": "Gil Vicente", "born": "1995-12-27" },
+
+    { "number": 4, "name": "Jean Michael Seri", "pos": "MED", "club": "NK Maribor", "born": "1991-07-19" },
+
+    { "number": 5, "name": "Wilfried Singo", "pos": "DEF", "club": "Galatasaray", "born": "2000-12-25" },
+
+    { "number": 6, "name": "Seko Fofana", "pos": "MED", "club": "FC Porto", "born": "1995-05-07" },
+
+    { "number": 7, "name": "Odilon Kossounou", "pos": "DEF", "club": "Atalanta", "born": "2001-01-04" },
+
+    { "number": 8, "name": "Franck Kessie", "pos": "MED", "club": "Al Ahli", "born": "1996-12-19" },
+
+    { "number": 9, "name": "Ange-Yoan Bonny", "pos": "AV", "club": "Inter Milan", "born": "2003-10-25" },
+
+    { "number": 10, "name": "Simon Adingra", "pos": "AV", "club": "Monaco", "born": "2002-01-01" },
+
+    { "number": 11, "name": "Yan Diomande", "pos": "AV", "club": "RB Leipzig", "born": "2006-11-14" },
+
+    { "number": 12, "name": "Sepe Elye Wahi", "pos": "AV", "club": "Nice", "born": "2003-01-02" },
+
+    { "number": 13, "name": "Christopher Operi", "pos": "DEF", "club": "Basaksehir", "born": "1997-04-29" },
+
+    { "number": 14, "name": "Oumar Diakite", "pos": "AV", "club": "Cercle Brugge", "born": "2003-12-20" },
+
+    { "number": 15, "name": "Amad Diallo", "pos": "AV", "club": "Manchester United", "born": "2002-07-11" },
+
+    { "number": 16, "name": "Mohamed Kone", "pos": "GR", "club": "Sporting Charleroi", "born": "2002-03-07" },
+
+    { "number": 17, "name": "Guela Doue", "pos": "DEF", "club": "Strasbourg", "born": "2002-10-17" },
+
+    { "number": 18, "name": "Ibrahim Sangare", "pos": "MED", "club": "Nottingham Forest", "born": "1997-12-02" },
+
+    { "number": 19, "name": "Nicolas Pepe", "pos": "AV", "club": "Villarreal", "born": "1995-05-29" },
+
+    { "number": 20, "name": "Emmanuel Agbadou", "pos": "DEF", "club": "Besiktas", "born": "1997-06-17" },
+
+    { "number": 21, "name": "Evan Ndicka", "pos": "DEF", "club": "AS Roma", "born": "1999-08-20" },
+
+    { "number": 22, "name": "Evan Guessand", "pos": "AV", "club": "Crystal Palace", "born": "2001-07-01" },
+
+    { "number": 23, "name": "Alban Lafont", "pos": "GR", "club": "Panathinaikos", "born": "1999-07-23" },
+
+    { "number": 24, "name": "Bazoumana Toure", "pos": "AV", "club": "TSG Hoffenheim", "born": "2006-03-02" },
+
+    { "number": 25, "name": "Parfait Guiagon", "pos": "MED", "club": "Sporting Charleroi", "born": "2001-02-22" },
+
+    { "number": 26, "name": "Christ Inao Oulai", "pos": "MED", "club": "Trabzonspor", "born": "2006-04-06" }
+  ]
+}
