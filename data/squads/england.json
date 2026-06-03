@@ -1,0 +1,37 @@
+{
+  "name": "England",
+  "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "group": "L",
+  "manager": "Thomas Tuchel",
+  "players": [
+    { "number": 1,  "name": "Jordan Pickford",   "pos": "GR",  "club": "Everton",             "born": "1994-03-07" },
+    { "number": 13, "name": "Dean Henderson",     "pos": "GR",  "club": "Crystal Palace",      "born": "1997-03-12" },
+    { "number": 23, "name": "James Trafford",     "pos": "GR",  "club": "Manchester City",     "born": "2002-10-10" },
+
+    { "number": 2,  "name": "Ezri Konsa",         "pos": "DEF", "club": "Aston Villa",         "born": "1997-10-23" },
+    { "number": 5,  "name": "John Stones",        "pos": "DEF", "club": "Manchester City",     "born": "1994-05-28" },
+    { "number": 6,  "name": "Marc Guéhi",         "pos": "DEF", "club": "Manchester City",     "born": "2000-07-13" },
+    { "number": 12, "name": "Tino Livramento",    "pos": "DEF", "club": "Newcastle United",    "born": "2002-11-12" },
+    { "number": 15, "name": "Dan Burn",           "pos": "DEF", "club": "Newcastle United",    "born": "1992-05-09" },
+    { "number": 24, "name": "Reece James",        "pos": "DEF", "club": "Chelsea",             "born": "1999-12-08" },
+    { "number": 25, "name": "Djed Spence",        "pos": "DEF", "club": "Tottenham Hotspur",   "born": "2000-08-09" },
+    { "number": 26, "name": "Jarell Quansah",     "pos": "DEF", "club": "Bayer Leverkusen",    "born": "2003-01-29" },
+
+    { "number": 3,  "name": "Nico O'Reilly",      "pos": "MED", "club": "Manchester City",     "born": "2005-03-21" },
+    { "number": 4,  "name": "Declan Rice",        "pos": "MED", "club": "Arsenal",             "born": "1999-01-14" },
+    { "number": 8,  "name": "Elliot Anderson",    "pos": "MED", "club": "Nottingham Forest",   "born": "2002-11-06" },
+    { "number": 10, "name": "Jude Bellingham",    "pos": "MED", "club": "Real Madrid",         "born": "2003-06-29" },
+    { "number": 14, "name": "Jordan Henderson",   "pos": "MED", "club": "Brentford",           "born": "1990-06-17" },
+    { "number": 16, "name": "Kobbie Mainoo",      "pos": "MED", "club": "Manchester United",   "born": "2005-04-19" },
+    { "number": 21, "name": "Eberechi Eze",       "pos": "MED", "club": "Arsenal",             "born": "1998-06-29" },
+
+    { "number": 7,  "name": "Bukayo Saka",        "pos": "AV",  "club": "Arsenal",             "born": "2001-09-05" },
+    { "number": 9,  "name": "Harry Kane",         "pos": "AV",  "club": "Bayern Munich",       "born": "1993-07-28" },
+    { "number": 11, "name": "Marcus Rashford",    "pos": "AV",  "club": "Barcelona",           "born": "1997-10-31" },
+    { "number": 17, "name": "Morgan Rogers",      "pos": "AV",  "club": "Aston Villa",         "born": "2002-07-26" },
+    { "number": 18, "name": "Anthony Gordon",     "pos": "AV",  "club": "Newcastle United",    "born": "2001-02-24" },
+    { "number": 19, "name": "Ollie Watkins",      "pos": "AV",  "club": "Aston Villa",         "born": "1995-12-30" },
+    { "number": 20, "name": "Noni Madueke",       "pos": "AV",  "club": "Arsenal",             "born": "2002-03-10" },
+    { "number": 22, "name": "Ivan Toney",         "pos": "AV",  "club": "Al-Ahli",             "born": "1996-03-16" }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "Cabo Verde",
+  "flag": "🇨🇻",
+  "group": "H",
+  "manager": "Bubista",
+  "players": [
+    { "number": 1,  "name": "CJ dos Santos",       "pos": "GR",  "club": "San Diego FC",         "born": "2000-01-01" },
+    { "number": 12, "name": "Márcio Rosa",          "pos": "GR",  "club": "Montana",              "born": "1996-01-01" },
+    { "number": 23, "name": "Vozinha",              "pos": "GR",  "club": "GD Chaves",            "born": "1985-01-01" },
+
+    { "number": 2,  "name": "Wagner Pina",          "pos": "DEF", "club": "Trabzonspor",          "born": "2002-01-01" },
+    { "number": 3,  "name": "Logan Costa",          "pos": "DEF", "club": "Villarreal",           "born": "2000-01-01" },
+    { "number": 4,  "name": "Stopira",              "pos": "DEF", "club": "SC União Torreense",   "born": "1987-01-01" },
+    { "number": 5,  "name": "Roberto Lopes",        "pos": "DEF", "club": "Shamrock Rovers",      "born": "1992-01-01" },
+    { "number": 13, "name": "Diney Borges",         "pos": "DEF", "club": "Al-Bataeh CSC",        "born": "1994-01-01" },
+    { "number": 14, "name": "Sidny Lopes Cabral",   "pos": "DEF", "club": "Benfica",              "born": "2002-01-01" },
+    { "number": 15, "name": "Steven Moreira",       "pos": "DEF", "club": "Columbus Crew",        "born": "1994-01-01" },
+    { "number": 16, "name": "Kelvin Pires",         "pos": "DEF", "club": "SJK Seinäjoki",        "born": "2000-01-01" },
+
+    { "number": 6,  "name": "Kevin Lenini",         "pos": "MED", "club": "FK Krasnodar",         "born": "1996-01-01" },
+    { "number": 7,  "name": "Laros Duarte",         "pos": "MED", "club": "Puskás Akadémia FC",   "born": "1996-01-01" },
+    { "number": 8,  "name": "Deroy Duarte",         "pos": "MED", "club": "PFK Ludogorets",       "born": "1999-01-01" },
+    { "number": 17, "name": "João Paulo",           "pos": "MED", "club": "FCSB",                 "born": "1997-01-01" },
+    { "number": 18, "name": "Jamiro Monteiro",      "pos": "MED", "club": "PEC Zwolle",           "born": "1993-01-01" },
+    { "number": 19, "name": "Yannick Semedo",       "pos": "MED", "club": "SC Farense",           "born": "1995-01-01" },
+
+    { "number": 9,  "name": "Dailon Livramento",    "pos": "AV",  "club": "Casa Pia AC",          "born": "2000-01-01" },
+    { "number": 10, "name": "Jovane Cabral",        "pos": "AV",  "club": "CF Estrela Amadora",   "born": "1998-01-01" },
+    { "number": 11, "name": "Hélio Varela",         "pos": "AV",  "club": "Maccabi Tel-Aviv",     "born": "2001-01-01" },
+    { "number": 20, "name": "Ryan Mendes",          "pos": "AV",  "club": "Igdir FK",             "born": "1989-01-01" },
+    { "number": 21, "name": "Telmo Arcanjo",        "pos": "AV",  "club": "Vitória SC",           "born": "2001-01-01" },
+    { "number": 22, "name": "Willy Semedo",         "pos": "AV",  "club": "Omónia Nicósia",       "born": "1993-01-01" },
+    { "number": 24, "name": "Benchimol",            "pos": "AV",  "club": "Akron Togliatti",      "born": "2001-01-01" },
+    { "number": 25, "name": "Garry Rodrigues",      "pos": "AV",  "club": "Apollon Limassol",     "born": "1990-01-01" },
+    { "number": 26, "name": "Nuno Da Costa",        "pos": "AV",  "club": "Basaksehir FK",        "born": "1990-01-01" }
+  ]
+}
