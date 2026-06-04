@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Definições — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb7').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb7" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px;max-width:600px">
+  <div class="page-header">
+    <h2>Definições</h2>
+    <p>Gere a tua conta e preferências.</p>
+  </div>
+
+  <div id="settingsContent"><div class="loading">A carregar...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let me;
+
+(async () => {
+  me = await requireAuth();
+  if (!me) return;
+  renderSettings();
+})();
+
+function renderSettings() {
+  const color   = me.avatar_color || avatarColor(me.username);
+  const initial = (me.display_name || me.username).charAt(0).toUpperCase();
+
+  document.getElementById('settingsContent').innerHTML = `
+
+    <!-- Avatar preview -->
+    <div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <div style="width:64px;height:64px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.6rem;flex-shrink:0">${initial}</div>
+      <div>
+        <div style="font-weight:700">@${me.username}</div>
+        <div class="muted small">${me.email || ''}</div>
+        <a href="profile.html?u=${me.username}" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-block">Ver Perfil</a>
+      </div>
+    </div>
+
+    <!-- Profile info -->
+    <div class="card mt-12">
+      <div class="card-title">Informação do Perfil</div>
+      <div class="form-group">
+        <label class="muted small">Nome de Exibição</label>
+        <input type="text" id="displayName" class="input" value="${me.display_name || ''}" maxlength="50" placeholder="Como queres aparecer">
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="muted small">Biografia</label>
+        <textarea id="bio" class="input" rows="3" maxlength="300" style="resize:vertical;font-family:inherit"
+          placeholder="Apresenta-te em poucas palavras…">${me.bio || ''}</textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="saveProfile()">Guardar</button>
+    </div>
+
+    <!-- Change username -->
+    <div class="card mt-12">
+      <div class="card-title">Username</div>
+      <p class="muted small" style="margin-bottom:12px">Podes mudar o username uma vez. Outros utilizadores verão o novo username.</p>
+      <div class="form-group">
+        <label class="muted small">Novo Username</label>
+        <input type="text" id="newUsername" class="input" value="${me.username}" maxlength="20" placeholder="3–20 chars, letras/números/_">
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="saveUsername()">Alterar Username</button>
+    </div>
+
+    <!-- Change password -->
+    <div class="card mt-12">
+      <div class="card-title">Palavra-passe</div>
+      <div class="form-group">
+        <label class="muted small">Palavra-passe Atual</label>
+        <input type="password" id="currentPw" class="input" placeholder="••••••">
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="muted small">Nova Palavra-passe</label>
+        <input type="password" id="newPw" class="input" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="muted small">Confirmar Nova Palavra-passe</label>
+        <input type="password" id="confirmPw" class="input" placeholder="Repete a nova palavra-passe">
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="savePassword()">Alterar Palavra-passe</button>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card mt-12" style="border-color:var(--primary)">
+      <div class="card-title" style="color:var(--primary)">Zona de Perigo</div>
+      <p class="muted small" style="margin-bottom:12px">Terminar sessão em todos os dispositivos ou apagar conta.</p>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Terminar Sessão</button>
+    </div>
+  `;
+}
+
+async function saveProfile() {
+  const display_name = document.getElementById('displayName')?.value.trim();
+  const bio          = document.getElementById('bio')?.value.trim();
+  try {
+    await API.patch('/profile/me', { display_name, bio });
+    me.display_name = display_name;
+    me.bio = bio;
+    showToast('Perfil atualizado!');
+    setupNavbar(me);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function saveUsername() {
+  const username = document.getElementById('newUsername')?.value.trim().toLowerCase();
+  if (username === me.username) { showToast('É o mesmo username.', 'error'); return; }
+  if (!confirm(`Tens a certeza que queres mudar para @${username}?`)) return;
+  try {
+    await API.patch('/profile/me/username', { username });
+    showToast('Username alterado! Volta a fazer login.');
+    setTimeout(() => {
+      localStorage.removeItem('abm_token');
+      window.location.href = 'index.html';
+    }, 1500);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function savePassword() {
+  const current_password = document.getElementById('currentPw')?.value;
+  const new_password     = document.getElementById('newPw')?.value;
+  const confirm          = document.getElementById('confirmPw')?.value;
+  if (new_password !== confirm) { showToast('As palavras-passe não coincidem.', 'error'); return; }
+  try {
+    await API.patch('/profile/me/password', { current_password, new_password });
+    document.getElementById('currentPw').value = '';
+    document.getElementById('newPw').value = '';
+    document.getElementById('confirmPw').value = '';
+    showToast('Palavra-passe alterada com sucesso!');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+</script>
+</body>
+</html>

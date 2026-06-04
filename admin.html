@@ -20,14 +20,17 @@
     </a>
     <div class="navbar-nav">
       <a href="dashboard.html">Início</a>
+      <a href="predict.html">Previsões</a>
       <a href="leaderboard.html">Classificação</a>
-      <a href="admin.html" class="active">Admin</a>
+      <a href="lobby.html">Salas</a>
+      <a href="admin.html" class="active" id="navAdminLink">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
+      <div class="avatar" id="navAvatar" title="O meu perfil">?</div>
       <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
     </div>
   </div>
@@ -38,6 +41,7 @@
     <h2>Painel de Admin</h2>
     <p>Introduz resultados reais e calcula pontos automaticamente.</p>
   </div>
+  <div id="statsBar" style="display:none" class="admin-stats"></div>
   <div id="adminContent"><div class="loading">A verificar permissões...</div></div>
 </main>
 
@@ -69,6 +73,7 @@ let user, allMatches = [], groupMatches = {};
     groupMatches[m.group_id].push(m);
   }
   renderPanel();
+  loadAdminStats();
 })();
 
 // ── Panel render ──────────────────────────────────────────────────────────────
@@ -292,6 +297,26 @@ async function saveResult(id) {
     renderPanel();
     showToast(`Resultado guardado (${h}–${a})!`);
   } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function loadAdminStats() {
+  try {
+    const s = await API.get('/admin/stats');
+    const bar = document.getElementById('statsBar');
+    bar.style.display = '';
+    const lastScrape = s.lastScrape ? new Date(s.lastScrape).toLocaleString('pt-PT') : '—';
+    bar.innerHTML = [
+      { v: s.users,       l: 'Utilizadores' },
+      { v: s.predictions, l: 'Previsões' },
+      { v: `${s.settled}/${s.predictions}`, l: 'Liquidadas' },
+      { v: `${s.finished}/${s.matches}`, l: 'Jogos concluídos' },
+      { v: `${s.scrapeCount}/48`, l: 'Seleções c/ dados' },
+      { v: lastScrape,    l: 'Último Scrape' },
+    ].map(x => `<div class="admin-stat">
+      <div class="admin-stat-value">${x.v}</div>
+      <div class="admin-stat-label">${x.l}</div>
+    </div>`).join('');
+  } catch { /* stats optional */ }
 }
 
 async function calcGroup(g) {

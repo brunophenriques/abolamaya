@@ -55,7 +55,7 @@ function autoSettleFromScrape(db) {
 
     // Score predictions — points_earned IS NULL guard prevents double-scoring
     const actualResult = Math.sign(found.home_score - found.away_score);
-    db.prepare(`
+    const scored = db.prepare(`
       UPDATE match_predictions
       SET    points_earned = CASE
                WHEN home_score=? AND away_score=? THEN 3
@@ -67,6 +67,11 @@ function autoSettleFromScrape(db) {
              updated_at = datetime('now')
       WHERE  match_id=? AND points_earned IS NULL
     `).run(found.home_score, found.away_score, actualResult, m.id);
+
+    db.prepare(`
+      INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, predictions_scored)
+      VALUES (?, 'auto', ?, ?, ?)
+    `).run(m.id, found.home_score, found.away_score, scored.changes);
 
     console.log(`[settle] ${m.home_team} ${found.home_score}–${found.away_score} ${m.away_team} (match ${m.id}) settled`);
     settled++;

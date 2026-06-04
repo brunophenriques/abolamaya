@@ -197,7 +197,32 @@ if (currentVersion < SCHEMA_VERSION) {
   console.log(`✅ Base de dados v${SCHEMA_VERSION}: 72 jogos inseridos.`);
 }
 
-// Non-breaking column additions — idempotent, SQLite throws if column already exists
+// Non-breaking column/table additions — idempotent
 try { db.exec(`ALTER TABLE team_results ADD COLUMN team_is_home INTEGER`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN bio TEXT`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN avatar_color TEXT`); } catch {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS friends (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    addressee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status       TEXT NOT NULL DEFAULT 'pending',
+    created_at   TEXT DEFAULT (datetime('now')),
+    updated_at   TEXT DEFAULT (datetime('now')),
+    UNIQUE(requester_id, addressee_id),
+    CHECK(requester_id != addressee_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS settlement_log (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id            INTEGER NOT NULL,
+    settled_by          TEXT NOT NULL,
+    home_score          INTEGER NOT NULL,
+    away_score          INTEGER NOT NULL,
+    predictions_scored  INTEGER DEFAULT 0,
+    settled_at          TEXT DEFAULT (datetime('now'))
+  );
+`);
 
 module.exports = db;

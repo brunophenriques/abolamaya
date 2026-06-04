@@ -12,6 +12,13 @@ function makeToken(user) {
   );
 }
 
+function genAvatarColor(str) {
+  const palette = ['#E61D25','#2A398D','#3CAC3B','#f5a623','#8b5cf6','#06b6d4','#f97316','#ec4899','#10b981','#a855f7'];
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  return palette[Math.abs(h) % palette.length];
+}
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   const { username, display_name, email, password } = req.body;
@@ -24,10 +31,12 @@ router.post('/register', async (req, res) => {
 
   try {
     const hash = await bcrypt.hash(password, 10);
+    const uname = username.toLowerCase();
+    const color = genAvatarColor(uname);
     const r = db.prepare(
-      'INSERT INTO users (username, display_name, email, password_hash) VALUES (?,?,?,?)'
-    ).run(username.toLowerCase(), display_name || username, email.toLowerCase(), hash);
-    const user = db.prepare('SELECT id,username,display_name,is_admin FROM users WHERE id=?').get(r.lastInsertRowid);
+      'INSERT INTO users (username, display_name, email, password_hash, avatar_color) VALUES (?,?,?,?,?)'
+    ).run(uname, display_name || username, email.toLowerCase(), hash, color);
+    const user = db.prepare('SELECT id,username,display_name,is_admin,avatar_color FROM users WHERE id=?').get(r.lastInsertRowid);
     res.json({ token: makeToken(user), user: { ...user, is_admin: !!user.is_admin } });
   } catch (e) {
     if (e.message.includes('UNIQUE'))

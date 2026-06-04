@@ -1463,4 +1463,103 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
   .save-bar       { padding: 10px 16px; }
   .groups-standings-grid { grid-template-columns: 1fr; }
   .cj-grid        { grid-template-columns: 1fr !important; }
+  .profile-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .profile-stats  { grid-template-columns: repeat(3, 1fr); }
+  .lb-table .lb-accuracy { display: none; }
 }
+
+/* ── Avatar generated ────────────────────────────────────────────────────────*/
+.avatar-gen { transition: opacity .15s; }
+.avatar-gen:hover { opacity: .85; }
+#navAvatar { transition: background .3s; }
+
+/* ── Profile page ────────────────────────────────────────────────────────────*/
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.profile-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; font-weight: 900; color: #fff;
+  flex-shrink: 0;
+}
+.profile-info h1 { font-size: 1.6rem; font-weight: 900; margin: 0 0 4px; }
+.profile-meta    { color: var(--muted); font-size: .85rem; display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0 10px; }
+.profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.profile-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  text-align: center;
+}
+.profile-stat-value { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+.profile-stat-label { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Prediction history table ────────────────────────────────────────────────*/
+.history-table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+.history-table th { text-align: left; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.history-table td { padding: 10px; border-bottom: 1px solid var(--border); }
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: rgba(255,255,255,.03); }
+.pred-correct  { color: var(--green); font-weight: 700; }
+.pred-exact    { color: var(--gold);  font-weight: 700; }
+.pred-wrong    { color: var(--muted); }
+.pred-pending  { color: var(--muted); font-style: italic; }
+
+/* ── User badges ─────────────────────────────────────────────────────────────*/
+.user-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .7rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+  vertical-align: middle;
+}
+.badge-admin    { background: rgba(245,166,35,.15); color: var(--gold); }
+.badge-top      { background: rgba(60,172,59,.15);  color: var(--green); }
+
+/* ── Friends ─────────────────────────────────────────────────────────────────*/
+.friend-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 10px; }
+.friend-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px;
+  text-decoration: none; color: var(--text);
+  transition: border-color .2s;
+}
+.friend-card:hover { border-color: var(--primary); }
+.friend-name  { font-weight: 700; font-size: .9rem; }
+.friend-sub   { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+.request-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px; margin-bottom: 8px;
+}
+.request-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+
+/* ── Leaderboard improvements ────────────────────────────────────────────────*/
+.lb-table .lb-rank    { width: 40px; font-weight: 700; color: var(--muted); text-align: center; }
+.lb-table .lb-avatar  { width: 40px; }
+.lb-table .lb-accuracy{ color: var(--muted); font-size: .82rem; }
+.lb-table .lb-admin   { color: var(--gold); font-size: .9rem; }
+
+/* ── Admin stats dashboard ───────────────────────────────────────────────────*/
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 10px; margin-bottom: 16px; }
+.admin-stat  { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 12px; text-align: center; }
+.admin-stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+.admin-stat-label { font-size: .7rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }

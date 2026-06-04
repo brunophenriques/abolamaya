@@ -19,10 +19,14 @@ app.use('/api/lobbies',     require('./routes/lobbies'));
 app.use('/api/admin',       require('./routes/admin'));
 app.use('/api/football',       require('./routes/football'));
 app.use('/api/national-teams', require('./routes/national-teams'));
+app.use('/api/profile',        require('./routes/profile'));
+app.use('/api/friends',        require('./routes/friends'));
 
 // GET /api/me
 app.get('/api/me', auth, (req, res) => {
-  const user = db.prepare('SELECT id,username,display_name,is_admin FROM users WHERE id=?').get(req.user.id);
+  const user = db.prepare(
+    'SELECT id,username,display_name,is_admin,bio,avatar_color,created_at FROM users WHERE id=?'
+  ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
   res.json({ ...user, is_admin: !!user.is_admin });
 });

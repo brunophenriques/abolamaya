@@ -23,13 +23,14 @@
       <a href="predict.html">Previsões</a>
       <a href="leaderboard.html" class="active always">Classificação</a>
       <a href="lobby.html">Salas</a>
+      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <div class="avatar" id="navAvatar">?</div>
+      <div class="avatar" id="navAvatar" title="O meu perfil">?</div>
       <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
     </div>
   </div>
@@ -43,6 +44,7 @@
 
   <div class="tabs" id="lbTabs">
     <button class="tab-btn active" onclick="switchTab('global', this)">Global</button>
+    <button class="tab-btn" onclick="switchTab('friends', this)">Amigos</button>
     <span id="lobbyTabs" style="display:contents"></span>
   </div>
 
@@ -56,25 +58,19 @@
 <script>
 let user, globalData = [];
 
-function rankBadge(i) {
-  if (i < 3) return `<span class="rank-badge rank-${i+1}">${i+1}</span>`;
-  return String(i + 1);
-}
-
 (async () => {
   user = await requireAuth();
   if (!user) return;
-  document.getElementById('navAvatar').textContent = (user.display_name || user.username).charAt(0).toUpperCase();
 
   const [lb, lobbies] = await Promise.all([API.get('/leaderboard'), API.get('/lobbies')]);
   globalData = lb || [];
 
   const lobbyTabsEl = document.getElementById('lobbyTabs');
-  for (const lb of lobbies || []) {
+  for (const l of lobbies || []) {
     const btn = document.createElement('button');
     btn.className = 'tab-btn';
-    btn.textContent = lb.name;
-    btn.onclick = () => switchTab(lb.id, btn);
+    btn.textContent = l.name;
+    btn.onclick = () => switchTab(l.id, btn);
     lobbyTabsEl.appendChild(btn);
   }
 
@@ -87,37 +83,65 @@ async function switchTab(tab, btn) {
   document.getElementById('lbContent').innerHTML = '<div class="loading">A carregar...</div>';
   if (tab === 'global') {
     renderTable(globalData);
+  } else if (tab === 'friends') {
+    try { renderTable(await API.get('/friends/leaderboard')); }
+    catch (e) { document.getElementById('lbContent').innerHTML = `<p class="muted">${e.message}</p>`; }
   } else {
-    try {
-      renderTable(await API.get(`/leaderboard/lobby/${tab}`));
-    } catch (e) {
-      document.getElementById('lbContent').innerHTML = `<p class="muted">${e.message}</p>`;
-    }
+    try { renderTable(await API.get(`/leaderboard/lobby/${tab}`)); }
+    catch (e) { document.getElementById('lbContent').innerHTML = `<p class="muted">${e.message}</p>`; }
   }
+}
+
+function miniAvatar(u) {
+  const color   = u.avatar_color || avatarColor(u.username || '');
+  const initial = (u.display_name || u.username || '?').charAt(0).toUpperCase();
+  return `<div style="width:30px;height:30px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem;flex-shrink:0">${initial}</div>`;
 }
 
 function renderTable(rows) {
   if (!rows.length) {
-    document.getElementById('lbContent').innerHTML = '<div class="card"><p class="muted text-center" style="padding:28px">Ainda sem jogadores.</p></div>';
+    document.getElementById('lbContent').innerHTML =
+      '<div class="card"><p class="muted text-center" style="padding:28px">Ainda sem jogadores.</p></div>';
     return;
   }
   document.getElementById('lbContent').innerHTML = `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
-        <thead><tr><th>#</th><th>Utilizador</th><th title="Previsões feitas">Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
-        <tbody>${rows.map((u, i) => `
-          <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
-            <td>${rankBadge(i)}</td>
-            <td>
-              <strong>${u.display_name || u.username}</strong>
-              <br><span class="lb-sub">@${u.username}</span>
-              ${u.id === user.id ? ' <span class="badge badge-red" style="font-size:.62rem">Tu</span>' : ''}
+        <thead><tr>
+          <th class="lb-rank">#</th>
+          <th class="lb-avatar"></th>
+          <th>Utilizador</th>
+          <th class="lb-accuracy" title="Previsões corretas / total">Precisão</th>
+          <th>Pts Jogos</th>
+          <th>Pts Grupos</th>
+          <th>Total</th>
+        </tr></thead>
+        <tbody>${rows.map((u, i) => {
+          const rankCls = i < 3 ? `rank-row-${i+1}` : '';
+          const meCls   = u.id === user.id ? 'me' : '';
+          const rank    = i < 3
+            ? `<span class="rank-badge rank-${i+1}">${i+1}</span>`
+            : `<span style="color:var(--muted)">${i+1}</span>`;
+          const adminBadge = u.is_admin ? `<span class="lb-admin" title="Admin">👑</span>` : '';
+          const accuracyLabel = u.predictions_made > 0 ? `${u.accuracy}%` : '—';
+          return `<tr class="${rankCls} ${meCls}">
+            <td class="lb-rank">${rank}</td>
+            <td class="lb-avatar">
+              <a href="profile.html?u=${u.username}" style="text-decoration:none">${miniAvatar(u)}</a>
             </td>
-            <td>${u.predictions_made}</td>
+            <td>
+              <a href="profile.html?u=${u.username}" style="text-decoration:none;color:var(--text)">
+                <strong>${u.display_name || u.username}</strong> ${adminBadge}
+                ${u.id === user.id ? '<span class="badge badge-red" style="font-size:.62rem">Tu</span>' : ''}
+              </a>
+              <br><span class="lb-sub">@${u.username}</span>
+            </td>
+            <td class="lb-accuracy">${accuracyLabel}</td>
             <td>${u.match_points}</td>
             <td>${u.group_points}</td>
             <td class="lb-pts">${u.total_points}</td>
-          </tr>`).join('')}
+          </tr>`;
+        }).join('')}
         </tbody>
       </table>
     </div>

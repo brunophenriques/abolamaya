@@ -1,12 +1,31 @@
 async function requireAuth() {
   if (!localStorage.getItem('abm_token')) { window.location.href = 'index.html'; return null; }
   try {
-    return await API.get('/me');
+    const user = await API.get('/me');
+    setupNavbar(user);
+    return user;
   } catch {
     localStorage.removeItem('abm_token');
     window.location.href = 'index.html';
     return null;
   }
+}
+
+function setupNavbar(user) {
+  // Avatar initial + color
+  const avatarEl = document.getElementById('navAvatar');
+  if (avatarEl) {
+    const color = (typeof avatarColor === 'function')
+      ? (user.avatar_color || avatarColor(user.username || ''))
+      : (user.avatar_color || '#E61D25');
+    avatarEl.textContent = (user.display_name || user.username || '?').charAt(0).toUpperCase();
+    avatarEl.style.background = color;
+    avatarEl.style.cursor = 'pointer';
+    avatarEl.onclick = () => { window.location.href = `profile.html?u=${user.username}`; };
+  }
+  // Admin link
+  const adminLink = document.getElementById('navAdminLink');
+  if (adminLink && user.is_admin) adminLink.style.display = '';
 }
 
 function logout() {

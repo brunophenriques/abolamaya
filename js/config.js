@@ -22,3 +22,19 @@ const GROUP_LABELS = {
 };
 
 const ALL_GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+
+// Deterministic avatar color from username — same function used server-side
+function avatarColor(str) {
+  const p = ['#E61D25','#2A398D','#3CAC3B','#f5a623','#8b5cf6','#06b6d4','#f97316','#ec4899','#10b981','#a855f7'];
+  let h = 0;
+  for (let i = 0; i < (str || '').length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  return p[Math.abs(h) % p.length];
+}
+
+// Render a small avatar element (initial + color)
+function renderAvatar(user, size = 32, cls = '') {
+  const color = user.avatar_color || avatarColor(user.username || '');
+  const initial = (user.display_name || user.username || '?').charAt(0).toUpperCase();
+  const style = `width:${size}px;height:${size}px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;flex-shrink:0;text-decoration:none;`;
+  return `<div class="avatar-gen ${cls}" style="${style}" title="${user.display_name || user.username}">${initial}</div>`;
+}

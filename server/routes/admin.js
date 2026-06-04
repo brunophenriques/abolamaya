@@ -3,6 +3,22 @@ const db     = require('../db');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
 
+// GET /api/admin/stats — dashboard overview
+router.get('/stats', auth, requireAdmin, (req, res) => {
+  const users        = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
+  const predictions  = db.prepare('SELECT COUNT(*) AS n FROM match_predictions').get().n;
+  const settled      = db.prepare('SELECT COUNT(*) AS n FROM match_predictions WHERE points_earned IS NOT NULL').get().n;
+  const matches      = db.prepare('SELECT COUNT(*) AS n FROM matches').get().n;
+  const finished     = db.prepare(`SELECT COUNT(*) AS n FROM matches WHERE status='finished'`).get().n;
+  const scrapeCount  = db.prepare('SELECT COUNT(DISTINCT team_code) AS n FROM team_results').get().n;
+  const lastScrape   = db.prepare('SELECT MAX(scraped_at) AS t FROM team_results').get().t;
+  const recentLogs   = db.prepare(
+    'SELECT * FROM settlement_log ORDER BY settled_at DESC LIMIT 10'
+  ).all();
+
+  res.json({ users, predictions, settled, matches, finished, scrapeCount, lastScrape, recentLogs });
+});
+
 // Shared standings calculation (mirrors js/scoring.js)
 function calcStandings(matches, preds) {
   const stats = {};
@@ -41,7 +57,7 @@ router.post('/result', auth, requireAdmin, (req, res) => {
     .run(home_score, away_score, match_id);
 
   const actualResult = Math.sign(home_score - away_score);
-  db.prepare(`
+  const scored = db.prepare(`
     UPDATE match_predictions
     SET points_earned = CASE
       WHEN home_score=? AND away_score=? THEN 3
@@ -50,6 +66,11 @@ router.post('/result', auth, requireAdmin, (req, res) => {
     END, updated_at=datetime('now')
     WHERE match_id=?
   `).run(home_score, away_score, actualResult, match_id);
+
+  db.prepare(`
+    INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, predictions_scored)
+    VALUES (?, 'admin', ?, ?, ?)
+  `).run(match_id, home_score, away_score, scored.changes);
 
   res.json({ ok: true });
 });

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb6').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb6" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div id="profileContent"><div class="loading">A carregar perfil...</div></div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let me, targetUser;
+
+(async () => {
+  me = await requireAuth();
+  if (!me) return;
+
+  const params   = new URLSearchParams(location.search);
+  const username = params.get('u') || me.username;
+  const isOwn    = username.toLowerCase() === me.username.toLowerCase();
+
+  try {
+    const [profileData, historyData] = await Promise.all([
+      API.get(`/profile/${username}`),
+      API.get(`/profile/${username}/history`),
+    ]);
+    targetUser = profileData.user;
+    renderProfile(profileData, historyData, isOwn);
+  } catch (e) {
+    document.getElementById('profileContent').innerHTML = `
+      <div class="card text-center" style="padding:48px;margin-top:24px">
+        <p style="font-size:1.4rem;font-weight:700;margin-bottom:8px">Perfil não encontrado</p>
+        <p class="muted">${e.message}</p>
+        <a href="javascript:history.back()" class="btn btn-ghost btn-sm" style="margin-top:16px">Voltar</a>
+      </div>`;
+  }
+})();
+
+function renderProfile({ user, stats }, { predictions }, isOwn) {
+  const color   = user.avatar_color || avatarColor(user.username);
+  const initial = (user.display_name || user.username).charAt(0).toUpperCase();
+  const joined  = new Date(user.created_at + (user.created_at.includes('T') ? '' : 'T00:00:00Z'))
+    .toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+
+  const badges = [
+    user.is_admin ? `<span class="user-badge badge-admin">👑 Admin</span>` : '',
+    stats.total_points >= 50 ? `<span class="user-badge badge-top">⭐ Top Predictor</span>` : '',
+  ].filter(Boolean).join(' ');
+
+  const friendBtn = isOwn
+    ? `<a href="settings.html" class="btn btn-ghost btn-sm">⚙ Definições</a>`
+    : `<button class="btn btn-primary btn-sm" onclick="sendFriendRequest('${user.username}')">+ Amigo</button>`;
+
+  document.title = `${user.display_name || user.username} — A Bola Maya`;
+
+  document.getElementById('profileContent').innerHTML = `
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-avatar" style="background:${color}">${initial}</div>
+      <div class="profile-info" style="flex:1;min-width:0">
+        <h1>${user.display_name || user.username}
+          ${badges}
+        </h1>
+        <div class="profile-meta">
+          <span>@${user.username}</span>
+          <span>Membro desde ${joined}</span>
+          ${user.bio ? `<span style="color:var(--text)">${user.bio}</span>` : ''}
+        </div>
+        <div class="profile-actions">${friendBtn}</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="profile-stats">
+      ${statCard(stats.total_predictions, 'Previsões')}
+      ${statCard(stats.correct_predictions, 'Corretas')}
+      ${statCard(stats.accuracy + '%', 'Precisão')}
+      ${statCard(stats.total_points, 'Pontos')}
+      ${statCard('#' + stats.rank, 'Rank')}
+    </div>
+
+    <!-- Prediction history -->
+    <div class="card">
+      <div class="card-title">Histórico de Previsões</div>
+      ${renderHistory(predictions)}
+    </div>
+
+    ${isOwn ? renderFriendsSection() : ''}
+  `;
+
+  if (isOwn) loadFriends();
+}
+
+function statCard(value, label) {
+  return `<div class="profile-stat">
+    <div class="profile-stat-value">${value}</div>
+    <div class="profile-stat-label">${label}</div>
+  </div>`;
+}
+
+function renderHistory(predictions) {
+  if (!predictions.length)
+    return '<p class="muted small" style="padding:12px 0">Ainda sem previsões.</p>';
+
+  const rows = predictions.map(p => {
+    const hasResult  = p.status === 'finished';
+    const pts        = p.points_earned;
+    const ptsCls     = pts === 3 ? 'pred-exact' : pts >= 1 ? 'pred-correct' : pts === 0 ? 'pred-wrong' : 'pred-pending';
+    const ptsLabel   = pts === null ? '—' : pts === 3 ? '+3 ✓✓' : pts === 1 ? '+1 ✓' : '0';
+    const actualScore = hasResult ? `${p.actual_home}–${p.actual_away}` : '?–?';
+    return `<tr>
+      <td class="muted small">${formatDate(p.match_date)}</td>
+      <td>${p.home_flag} ${p.home_team} <span class="muted">vs</span> ${p.away_team} ${p.away_flag}</td>
+      <td style="text-align:center"><strong>${p.pred_home}–${p.pred_away}</strong></td>
+      <td style="text-align:center;color:var(--muted)">${actualScore}</td>
+      <td style="text-align:center" class="${ptsCls}">${ptsLabel}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div style="overflow-x:auto">
+    <table class="history-table">
+      <thead><tr>
+        <th>Data</th><th>Jogo</th><th style="text-align:center">Previsão</th>
+        <th style="text-align:center">Resultado</th><th style="text-align:center">Pts</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderFriendsSection() {
+  return `
+    <div class="card mt-12">
+      <div class="flex-between" style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Amigos</div>
+        <div class="flex gap-8">
+          <input type="text" id="friendInput" class="input" style="width:180px;padding:6px 10px;font-size:.85rem" placeholder="Username...">
+          <button class="btn btn-primary btn-sm" onclick="sendFriendRequest()">+ Adicionar</button>
+        </div>
+      </div>
+      <div id="friendsContainer"><span class="muted small">A carregar...</span></div>
+    </div>`;
+}
+
+async function loadFriends() {
+  const el = document.getElementById('friendsContainer');
+  if (!el) return;
+  try {
+    const data = await API.get('/friends');
+    renderFriends(data, el);
+  } catch { el.innerHTML = '<span class="form-error">Erro ao carregar amigos.</span>'; }
+}
+
+function renderFriends({ friends, incoming, outgoing }, el) {
+  let html = '';
+
+  if (incoming.length) {
+    html += `<p class="muted small" style="margin-bottom:8px"><strong>${incoming.length}</strong> pedido(s) pendente(s):</p>`;
+    html += incoming.map(f => `
+      <div class="request-card">
+        <div class="request-info">
+          ${renderAvatarEl(f, 32)}
+          <div>
+            <div class="friend-name">${f.display_name || f.username}</div>
+            <div class="friend-sub">@${f.username}</div>
+          </div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-primary btn-sm" onclick="acceptFriend(${f.fid})">Aceitar</button>
+          <button class="btn btn-ghost btn-sm"   onclick="rejectFriend(${f.fid})">Recusar</button>
+        </div>
+      </div>`).join('');
+    html += '<div class="divider"></div>';
+  }
+
+  if (!friends.length && !outgoing.length) {
+    html += '<p class="muted small">Ainda sem amigos. Adiciona alguém pelo username!</p>';
+  } else {
+    html += `<div class="friend-grid">`;
+    html += friends.map(f => `
+      <a href="profile.html?u=${f.username}" class="friend-card">
+        ${renderAvatarEl(f, 36)}
+        <div style="min-width:0">
+          <div class="friend-name">${f.display_name || f.username}</div>
+          <div class="friend-sub">@${f.username}</div>
+        </div>
+      </a>`).join('');
+    html += outgoing.map(f => `
+      <div class="friend-card" style="opacity:.6">
+        ${renderAvatarEl(f, 36)}
+        <div style="min-width:0">
+          <div class="friend-name">${f.display_name || f.username}</div>
+          <div class="friend-sub muted">Pedido enviado…</div>
+        </div>
+      </div>`).join('');
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function renderAvatarEl(user, size) {
+  const color   = user.avatar_color || avatarColor(user.username);
+  const initial = (user.display_name || user.username).charAt(0).toUpperCase();
+  return `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;flex-shrink:0">${initial}</div>`;
+}
+
+async function sendFriendRequest(username) {
+  const u = username || document.getElementById('friendInput')?.value.trim();
+  if (!u) return;
+  try {
+    await API.post('/friends/request', { username: u });
+    showToast('Pedido de amizade enviado!');
+    if (document.getElementById('friendInput')) {
+      document.getElementById('friendInput').value = '';
+      loadFriends();
+    }
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function acceptFriend(id) {
+  try { await API.post(`/friends/${id}/accept`); loadFriends(); showToast('Amigo adicionado!'); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+async function rejectFriend(id) {
+  try { await API.post(`/friends/${id}/reject`); loadFriends(); }
+  catch (e) { showToast(e.message, 'error'); }
+}
+</script>
+</body>
+</html>
