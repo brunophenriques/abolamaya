@@ -58,6 +58,22 @@ db.exec(`
     joined_at TEXT DEFAULT (datetime('now')),
     PRIMARY KEY (lobby_id, user_id)
   );
+
+  CREATE TABLE IF NOT EXISTS team_results (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    team_code        TEXT    NOT NULL,
+    team_name        TEXT    NOT NULL,
+    match_date       TEXT    NOT NULL,
+    competition      TEXT    DEFAULT '',
+    home_team        TEXT    NOT NULL,
+    away_team        TEXT    NOT NULL,
+    home_score       INTEGER NOT NULL,
+    away_score       INTEGER NOT NULL,
+    result_for_team  TEXT    NOT NULL,
+    soccerway_url    TEXT    DEFAULT '',
+    scraped_at       TEXT    NOT NULL,
+    UNIQUE(team_code, match_date, home_team, away_team)
+  );
 `);
 
 // ── Migrate matches table when version changes ───────────────────────────────
@@ -180,5 +196,8 @@ if (currentVersion < SCHEMA_VERSION) {
   db.prepare('INSERT INTO schema_version VALUES (?)').run(SCHEMA_VERSION);
   console.log(`✅ Base de dados v${SCHEMA_VERSION}: 72 jogos inseridos.`);
 }
+
+// Non-breaking column additions — idempotent, SQLite throws if column already exists
+try { db.exec(`ALTER TABLE team_results ADD COLUMN team_is_home INTEGER`); } catch {}
 
 module.exports = db;

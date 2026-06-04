@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const db     = require('../db');
 const { auth, requireAdmin } = require('../middleware/auth');
+const { autoSettleFromScrape } = require('../settle');
 
 // Shared standings calculation (mirrors js/scoring.js)
 function calcStandings(matches, preds) {
@@ -98,6 +99,13 @@ router.post('/group/:group_id/points', auth, requireAdmin, (req, res) => {
   })();
 
   res.json({ ok: true, count, actual_order: actualOrder });
+});
+
+// POST /api/admin/auto-settle
+// Matches past WC fixtures against scraped team_results and scores unsettled predictions.
+router.post('/auto-settle', auth, requireAdmin, (req, res) => {
+  const result = autoSettleFromScrape(db);
+  res.json({ ok: true, ...result });
 });
 
 module.exports = router;

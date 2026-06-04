@@ -91,6 +91,7 @@ const GROUP_COLOR_CLASS = {
   }
 
   renderSquad(squad, slug);
+  loadTeamForm(slug, squad.name);
 })();
 
 function renderError(msg) {
@@ -139,6 +140,14 @@ function renderSquad(squad, slug) {
       </div>
     </div>
 
+    <!-- Recent Form (populated asynchronously by loadTeamForm) -->
+    <div id="teamFormSection" class="team-form-section">
+      <div class="team-form-title">Forma Recente</div>
+      <div class="form-badges" id="formBadges">
+        <span class="form-loading">A carregar...</span>
+      </div>
+    </div>
+
     <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
       <p class="muted small">${squad.players?.length || 0} convocados</p>
       <a href="javascript:history.back()" class="btn btn-ghost btn-sm">Voltar</a>
@@ -152,6 +161,86 @@ function renderSquad(squad, slug) {
           ${byPos[pos].sort((a,b) => a.number - b.number).map(p => renderPlayerCard(p, slug, gcClass)).join('')}
         </div>
       </div>`).join('')}`;
+}
+
+async function loadTeamForm(slug, teamName) {
+  const badges = document.getElementById('formBadges');
+  if (!badges) return;
+
+  // DP = draw that went to penalties (equal FT score, result W or L)
+  const TITLE = { W: 'Vitória', D: 'Empate', L: 'Derrota', DP: 'Penáltis' };
+  const DOT   = { W: 'fw',     D: 'fd',     L: 'fl',      DP: 'fd'       };
+  const LABEL = { W: 'V',      D: 'E',      L: 'D',       DP: 'D'        };
+
+  function renderBadges(form) {
+    return form.map(f => {
+      const r = f.result || 'D';
+      const dotInner = r === 'DP'
+        ? `D<sup style="font-size:.55em;line-height:1;vertical-align:super;margin-left:1px">p</sup>`
+        : (LABEL[r] || r);
+      return `
+        <div class="form-badge" title="${TITLE[r] || r} vs ${f.opponent} (${f.score})${f.competition ? ' · ' + f.competition : ''}">
+          <div class="form-badge-dot ${DOT[r] || 'fd'}">${dotInner}</div>
+          <div class="form-badge-score">${f.score}</div>
+          <div class="form-badge-meta">${f.opponent}</div>
+        </div>`;
+    }).join('');
+  }
+
+  try {
+    // ── 1. Try local scraped data ─────────────────────────────────────────
+    const scraped = await API.get('/national-teams/' + slug + '/results');
+    const results = scraped?.results ?? [];
+
+    if (results.length > 0) {
+      const form = results.map(r => {
+        // Penalty shootout: FT scores are equal but result is W or L
+        const isPenalty = r.home_score === r.away_score && r.result_for_team !== 'D';
+
+        // Determine home/away:
+        // 1. Use team_is_home stored by scraper (most reliable — knows Soccerway name)
+        // 2. For non-penalty W/L, infer from result + score (no name matching needed)
+        // 3. Fall back to name matching (may fail for teams with different Soccerway names)
+        let weAreHome;
+        if (r.team_is_home !== null && r.team_is_home !== undefined) {
+          weAreHome = r.team_is_home === 1;
+        } else if (!isPenalty && r.result_for_team === 'W') {
+          weAreHome = r.home_score > r.away_score;
+        } else if (!isPenalty && r.result_for_team === 'L') {
+          weAreHome = r.home_score < r.away_score;
+        } else {
+          // Draw or penalty: scores are equal, score display is correct either way
+          // Just try name matching for opponent label
+          const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+          const tname = scraped.team?.name || teamName;
+          const na = norm(r.home_team), nb = norm(tname);
+          weAreHome = na === nb || na.includes(nb) || nb.includes(na);
+        }
+
+        return {
+          result:      isPenalty ? 'DP' : r.result_for_team,
+          opponent:    weAreHome ? r.away_team : r.home_team,
+          score:       weAreHome
+            ? `${r.home_score}-${r.away_score}`
+            : `${r.away_score}-${r.home_score}`,
+          competition: r.competition,
+        };
+      });
+      badges.innerHTML = renderBadges(form);
+      return;
+    }
+
+    // ── 2. Fallback: external API-Football ────────────────────────────────
+    const ext  = await API.get('/football/form?team=' + encodeURIComponent(teamName));
+    const form = ext?.form ?? [];
+    if (!form.length) {
+      badges.innerHTML = '<span class="form-error">Sem resultados recentes disponíveis.</span>';
+      return;
+    }
+    badges.innerHTML = renderBadges(form);
+  } catch {
+    badges.innerHTML = '<span class="form-error">Forma não disponível.</span>';
+  }
 }
 
 function renderPlayerCard(p, slug, gcClass) {

@@ -3,6 +3,7 @@ const path    = require('path');
 const db      = require('./db');
 const { auth } = require('./middleware/auth');
 const { PORT } = require('./config');
+const { startScheduler } = require('./scraper/scheduler');
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,8 @@ app.use('/api/matches',     require('./routes/matches'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
 app.use('/api/lobbies',     require('./routes/lobbies'));
 app.use('/api/admin',       require('./routes/admin'));
+app.use('/api/football',       require('./routes/football'));
+app.use('/api/national-teams', require('./routes/national-teams'));
 
 // GET /api/me
 app.get('/api/me', auth, (req, res) => {
@@ -26,4 +29,5 @@ app.get('/api/me', auth, (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`\n⚽  A Bola Maya a correr em http://localhost:${PORT}\n`);
+  startScheduler(db);
 });

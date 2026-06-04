@@ -71,6 +71,8 @@ let user, allMatches = [], groupMatches = {};
   renderPanel();
 })();
 
+// ── Panel render ──────────────────────────────────────────────────────────────
+
 function renderPanel() {
   const byDate = {};
   for (const m of allMatches) {
@@ -82,8 +84,10 @@ function renderPanel() {
     <div class="tabs" id="adminTabs">
       <button class="tab-btn active" onclick="switchTab('matches',this)">Resultados</button>
       <button class="tab-btn"        onclick="switchTab('groups',this)">Pontos de Grupos</button>
+      <button class="tab-btn"        onclick="switchTab('selecoes',this)">Seleções</button>
     </div>
 
+    <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
     <div id="tabMatches">
       ${Object.entries(byDate).map(([date, ms]) => `
         <div class="card mt-12">
@@ -92,11 +96,12 @@ function renderPanel() {
         </div>`).join('')}
     </div>
 
+    <!-- ── Tab: Pontos de Grupos ───────────────────────────────────────── -->
     <div id="tabGroups" style="display:none">
       ${ALL_GROUPS.map(g => {
-        const ms = groupMatches[g] || [];
+        const ms       = groupMatches[g] || [];
         const finished = ms.filter(m => m.status === 'finished').length;
-        const done = finished === 6;
+        const done     = finished === 6;
         return `<div class="card mt-12">
           <div class="flex-between">
             <div class="card-title" style="margin-bottom:0">${GROUP_LABELS[g]}</div>
@@ -108,8 +113,135 @@ function renderPanel() {
           ${done ? renderActualStandings(g) : ''}
         </div>`;
       }).join('')}
+    </div>
+
+    <!-- ── Tab: Seleções ───────────────────────────────────────────────── -->
+    <div id="tabSelecoes" style="display:none">
+
+      <div class="card mt-12">
+        <div class="flex-between" style="margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">Estado das Seleções</div>
+          <div class="flex gap-8">
+            <button class="btn btn-primary btn-sm" onclick="scrapeAll()">Scrape All Teams</button>
+            <button class="btn btn-ghost btn-sm"   onclick="loadScrapeStatus()">↺ Atualizar</button>
+          </div>
+        </div>
+        <div id="scrapeStatusContainer">
+          <span class="muted small">A carregar...</span>
+        </div>
+      </div>
+
+      <div class="card mt-12">
+        <div class="card-title">Liquidar Previsões Automaticamente</div>
+        <p class="muted small" style="margin-bottom:16px">
+          Compara os resultados scrapeados com os jogos do Campeonato (por data e equipas).
+          Se houver correspondência, marca o jogo como terminado e atribui pontos às previsões ainda por liquidar.
+          Previsões já liquidadas não são alteradas.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="autoSettle()">Liquidar Previsões</button>
+      </div>
+
     </div>`;
 }
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('#adminTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabMatches').style.display   = tab === 'matches'  ? '' : 'none';
+  document.getElementById('tabGroups').style.display    = tab === 'groups'   ? '' : 'none';
+  document.getElementById('tabSelecoes').style.display  = tab === 'selecoes' ? '' : 'none';
+  if (tab === 'selecoes') loadScrapeStatus();
+}
+
+// ── Scrape status ─────────────────────────────────────────────────────────────
+
+async function loadScrapeStatus() {
+  const el = document.getElementById('scrapeStatusContainer');
+  if (!el) return;
+  el.innerHTML = '<span class="muted small">A carregar...</span>';
+  try {
+    const data = await API.get('/national-teams/scrape-status');
+    renderScrapeStatus(data, el);
+  } catch (e) {
+    el.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
+}
+
+function renderScrapeStatus(data, el) {
+  const { teams, scraped_count, total, last_full_scrape } = data;
+  const lastText = last_full_scrape
+    ? new Date(last_full_scrape).toLocaleString('pt-PT')
+    : 'Nunca';
+
+  const rows = teams.map(t => {
+    const hasData  = t.result_count > 0;
+    const ageMs    = t.last_scraped ? Date.now() - new Date(t.last_scraped) : null;
+    const ageHours = ageMs !== null ? Math.round(ageMs / 36e5) : null;
+    const ageTxt   = ageHours !== null
+      ? (ageHours < 1 ? '< 1h' : `${ageHours}h atrás`)
+      : '—';
+    const statusBadge = hasData
+      ? `<span class="badge badge-green">${t.result_count} result.</span>`
+      : '<span class="badge badge-muted">Sem dados</span>';
+
+    return `<tr>
+      <td><a href="team.html?team=${t.slug}" style="font-weight:600;color:var(--primary);text-decoration:none" title="Ver página de ${t.name}">${t.code}</a></td>
+      <td>${t.name}</td>
+      <td>${statusBadge}</td>
+      <td class="muted" style="font-size:.8rem">${ageTxt}</td>
+      <td><button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.78rem"
+            onclick="scrapeSingle('${t.slug}','${t.name}')">Scrape</button></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <p class="muted small" style="margin-bottom:12px">
+      <strong>${scraped_count}/${total}</strong> equipas com dados · Último scrape: ${lastText}
+    </p>
+    <div style="max-height:380px;overflow-y:auto">
+      <table class="standings-table" style="font-size:.85rem;width:100%">
+        <thead><tr>
+          <th>Cód.</th><th>Seleção</th><th>Estado</th><th>Atualizado</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function scrapeAll() {
+  try {
+    await API.post('/national-teams/scrape');
+    showToast('Scrape de todas as equipas iniciado em background. Atualiza em alguns minutos.');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function scrapeSingle(slug, name) {
+  try {
+    await API.post(`/national-teams/${slug}/scrape`);
+    showToast(`Scrape de "${name}" iniciado. Atualiza em alguns segundos.`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function autoSettle() {
+  try {
+    const r = await API.post('/admin/auto-settle');
+    if (r.settled === 0) {
+      showToast('Nenhum jogo para liquidar (sem resultados correspondentes ainda).');
+    } else {
+      showToast(`${r.settled} jogo(s) liquidado(s) automaticamente!`);
+      // Reload matches so Resultados tab is up to date
+      allMatches = await API.get('/matches') || [];
+      for (const m of allMatches) {
+        if (!groupMatches[m.group_id]) groupMatches[m.group_id] = [];
+      }
+      for (const g of ALL_GROUPS) groupMatches[g] = allMatches.filter(m => m.group_id === g);
+    }
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ── Resultados tab helpers ────────────────────────────────────────────────────
 
 function renderActualStandings(g) {
   const ms = groupMatches[g] || [];
@@ -122,8 +254,8 @@ function renderActualStandings(g) {
 }
 
 function renderAdminMatch(m) {
-  const hv = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
-  const av = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
+  const hv    = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
+  const av    = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
   const badge = m.status === 'finished'
     ? '<span class="badge badge-green">Concluído</span>'
     : '<span class="badge badge-muted">Agendado</span>';
@@ -158,8 +290,6 @@ async function saveResult(id) {
     const gid = allMatches[idx]?.group_id;
     if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
     renderPanel();
-    document.getElementById('tabGroups').style.display = 'none';
-    document.getElementById('tabMatches').style.display = '';
     showToast(`Resultado guardado (${h}–${a})!`);
   } catch (e) { showToast(e.message, 'error'); }
 }
@@ -169,13 +299,6 @@ async function calcGroup(g) {
     const r = await API.post(`/admin/group/${g}/points`);
     showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores!`);
   } catch (e) { showToast(e.message, 'error'); }
-}
-
-function switchTab(tab, btn) {
-  document.querySelectorAll('#adminTabs .tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tabMatches').style.display = tab === 'matches' ? '' : 'none';
-  document.getElementById('tabGroups').style.display  = tab === 'groups'  ? '' : 'none';
 }
 </script>
 </body>

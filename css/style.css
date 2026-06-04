@@ -1384,6 +1384,69 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
   .dash-main { order: 1; }
 }
 
+/* ============================================================
+   TEAM FORM (Recent Results)
+   ============================================================ */
+.team-form-section {
+  margin: 0 0 16px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.team-form-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.form-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.form-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+.form-badge-dot {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .82rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+.form-badge-dot.fw { background: var(--green-bg);  color: var(--green);   border: 1.5px solid var(--green); }
+.form-badge-dot.fd { background: var(--gold-bg);   color: var(--gold);    border: 1.5px solid var(--gold); }
+.form-badge-dot.fl { background: var(--red-bg);    color: var(--primary); border: 1.5px solid var(--primary); }
+.form-badge-meta {
+  font-size: .6rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 54px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.form-badge-score {
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.form-loading { color: var(--muted); font-size: .85rem; }
+.form-error   { color: var(--muted); font-size: .8rem; font-style: italic; }
+
 /* Equal-height lobby cards */
 .cj-grid { align-items: stretch; }
 .cj-grid .card { display: flex; flex-direction: column; }
