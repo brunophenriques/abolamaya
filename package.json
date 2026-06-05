@@ -7,7 +7,9 @@
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
     "optimize-squads": "node scripts/optimize-squads.js",
-    "import:player-stats": "node server/import-player-stats.js"
+    "import:player-stats": "node server/import-player-stats.js",
+    "export:player-stats": "node server/export-player-stats.js",
+    "import:player-stats-json": "node server/import-player-stats-json.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
