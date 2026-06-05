@@ -5,12 +5,15 @@ let transporter = null;
 
 if (SMTP.HOST && SMTP.USER && SMTP.PASS) {
   transporter = nodemailer.createTransport({
-    host:   SMTP.HOST,
-    port:   Number(SMTP.PORT) || 587,
-    secure: false,
-    auth:   { user: SMTP.USER, pass: SMTP.PASS },
-    family: 4,
-    tls:    { rejectUnauthorized: true },
+    host:               SMTP.HOST,
+    port:               Number(SMTP.PORT) || 587,
+    secure:             false,
+    auth:               { user: SMTP.USER, pass: SMTP.PASS },
+    family:             4,
+    tls:                { rejectUnauthorized: true },
+    connectionTimeout:  10000,
+    greetingTimeout:    10000,
+    socketTimeout:      10000,
   });
 }
 
