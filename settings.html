@@ -64,15 +64,23 @@ function renderSettings() {
 
   document.getElementById('settingsContent').innerHTML = `
 
-    <!-- Avatar preview -->
+    <!-- Avatar -->
     <div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
-      <div style="width:64px;height:64px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.6rem;flex-shrink:0">${initial}</div>
+      <div id="settingsAvatar" style="width:64px;height:64px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.6rem;flex-shrink:0;overflow:hidden;cursor:pointer;position:relative" title="Clica para alterar foto" onclick="document.getElementById('avatarInput').click()">
+        ${me.avatar_url ? `<img src="${me.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : initial}
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s" class="avatar-overlay">📷</div>
+      </div>
       <div>
         <div style="font-weight:700">@${me.username}</div>
         <div class="muted small">${me.email || ''}</div>
-        <a href="profile.html?u=${me.username}" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-block">Ver Perfil</a>
+        <div class="flex gap-8" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('avatarInput').click()">📷 Alterar foto</button>
+          ${me.avatar_url ? `<button class="btn btn-ghost btn-sm" onclick="removeAvatar()">Remover</button>` : ''}
+          <a href="profile.html?u=${me.username}" class="btn btn-ghost btn-sm">Ver Perfil</a>
+        </div>
       </div>
     </div>
+    <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
 
     <!-- Profile info -->
     <div class="card mt-12">
@@ -118,6 +126,27 @@ function renderSettings() {
       <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="savePassword()">Alterar Palavra-passe</button>
     </div>
 
+    <!-- Privacy settings -->
+    <div class="card mt-12">
+      <div class="card-title">Privacidade</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <label class="toggle-row">
+          <div>
+            <div style="font-weight:600;font-size:.9rem">Perfil público</div>
+            <div class="muted small">Outros utilizadores podem ver o teu perfil</div>
+          </div>
+          <input type="checkbox" id="profilePublic" ${me.profile_public !== 0 ? 'checked' : ''} onchange="savePrivacy()">
+        </label>
+        <label class="toggle-row">
+          <div>
+            <div style="font-weight:600;font-size:.9rem">Histórico público</div>
+            <div class="muted small">Outros podem ver o teu histórico de previsões</div>
+          </div>
+          <input type="checkbox" id="historyPublic" ${me.history_public !== 0 ? 'checked' : ''} onchange="savePrivacy()">
+        </label>
+      </div>
+    </div>
+
     <!-- Danger zone -->
     <div class="card mt-12" style="border-color:var(--primary)">
       <div class="card-title" style="color:var(--primary)">Zona de Perigo</div>
@@ -125,6 +154,46 @@ function renderSettings() {
       <button class="btn btn-ghost btn-sm" onclick="logout()">Terminar Sessão</button>
     </div>
   `;
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append('avatar', file);
+  try {
+    const token = localStorage.getItem('abm_token');
+    const res   = await fetch('/api/upload/avatar', {
+      method:  'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body:    form,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro ao enviar');
+    me.avatar_url = data.avatar_url;
+    showToast('Foto atualizada!');
+    renderSettings(); // re-render to show new avatar
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function removeAvatar() {
+  try {
+    await API.delete('/upload/avatar');
+    me.avatar_url = null;
+    showToast('Foto removida.');
+    renderSettings();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function savePrivacy() {
+  const profile_public = document.getElementById('profilePublic')?.checked ? 1 : 0;
+  const history_public = document.getElementById('historyPublic')?.checked ? 1 : 0;
+  try {
+    await API.patch('/profile/me/privacy', { profile_public, history_public });
+    me.profile_public = profile_public;
+    me.history_public = history_public;
+    showToast('Privacidade atualizada!');
+  } catch (e) { showToast(e.message, 'error'); }
 }
 
 async function saveProfile() {

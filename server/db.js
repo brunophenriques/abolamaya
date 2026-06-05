@@ -201,6 +201,40 @@ if (currentVersion < SCHEMA_VERSION) {
 try { db.exec(`ALTER TABLE team_results ADD COLUMN team_is_home INTEGER`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN bio TEXT`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN avatar_color TEXT`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN avatar_url TEXT`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN profile_public INTEGER DEFAULT 1`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN history_public INTEGER DEFAULT 1`); } catch {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_oauth (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider    TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    email       TEXT,
+    created_at  TEXT DEFAULT (datetime('now')),
+    UNIQUE(provider, provider_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS user_achievements (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type       TEXT NOT NULL,
+    earned_at  TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, type)
+  );
+
+  CREATE TABLE IF NOT EXISTS notifications (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type       TEXT NOT NULL,
+    title      TEXT NOT NULL,
+    body       TEXT,
+    link       TEXT,
+    read       INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS friends (
@@ -224,5 +258,31 @@ db.exec(`
     settled_at          TEXT DEFAULT (datetime('now'))
   );
 `);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS player_national_stats (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    team_slug           TEXT NOT NULL,
+    team_code           TEXT NOT NULL,
+    player_name         TEXT NOT NULL,
+    player_url          TEXT NOT NULL UNIQUE,
+    soccerway_player_id TEXT,
+    shirt_number        INTEGER,
+    appearances         INTEGER,
+    minutes             INTEGER,
+    goals               INTEGER,
+    assists             INTEGER,
+    yellow_cards        INTEGER,
+    red_cards           INTEGER,
+    saves_pct           TEXT,
+    clean_sheets        INTEGER,
+    senior_stats        TEXT,
+    scraped_at          TEXT NOT NULL
+  )
+`);
+// Idempotent additions for existing installs
+try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN soccerway_player_id TEXT`); } catch {}
+try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN shirt_number INTEGER`); } catch {}
+try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN senior_stats TEXT`); } catch {}
 
 module.exports = db;

@@ -2,6 +2,7 @@ const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const db      = require('../db');
 const { auth } = require('../middleware/auth');
+const { getUserAchievements } = require('../middleware/achievements');
 
 // ── Shared stats helper ───────────────────────────────────────────────────────
 function userStats(userId) {
@@ -48,12 +49,16 @@ function userStats(userId) {
 // GET /api/profile/:username
 router.get('/:username', auth, (req, res) => {
   const u = db.prepare(`
-    SELECT id, username, display_name, bio, avatar_color, is_admin, created_at
+    SELECT id, username, display_name, bio, avatar_color, avatar_url, is_admin, created_at
     FROM users WHERE username=?
   `).get(req.params.username.toLowerCase());
   if (!u) return res.status(404).json({ error: 'Utilizador não encontrado' });
 
-  res.json({ user: { ...u, is_admin: !!u.is_admin }, stats: userStats(u.id) });
+  res.json({
+    user:         { ...u, is_admin: !!u.is_admin },
+    stats:        userStats(u.id),
+    achievements: getUserAchievements(db, u.id),
+  });
 });
 
 // GET /api/profile/:username/history
@@ -104,6 +109,17 @@ router.patch('/me/password', auth, async (req, res) => {
 
   const hash = await bcrypt.hash(new_password, 10);
   db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hash, req.user.id);
+  res.json({ ok: true });
+});
+
+// PATCH /api/profile/me/privacy — update privacy settings
+router.patch('/me/privacy', auth, (req, res) => {
+  const { profile_public, history_public } = req.body;
+  const sets = [], vals = [];
+  if (profile_public !== undefined) { sets.push('profile_public=?'); vals.push(profile_public ? 1 : 0); }
+  if (history_public !== undefined) { sets.push('history_public=?'); vals.push(history_public ? 1 : 0); }
+  if (!sets.length) return res.json({ ok: true });
+  db.prepare(`UPDATE users SET ${sets.join(',')} WHERE id=?`).run(...vals, req.user.id);
   res.json({ ok: true });
 });
 

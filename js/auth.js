@@ -12,21 +12,129 @@ async function requireAuth() {
 }
 
 function setupNavbar(user) {
-  // Avatar initial + color
+  // Avatar: custom photo > generated color initial
   const avatarEl = document.getElementById('navAvatar');
   if (avatarEl) {
-    const color = (typeof avatarColor === 'function')
-      ? (user.avatar_color || avatarColor(user.username || ''))
-      : (user.avatar_color || '#E61D25');
-    avatarEl.textContent = (user.display_name || user.username || '?').charAt(0).toUpperCase();
-    avatarEl.style.background = color;
+    if (user.avatar_url) {
+      avatarEl.style.backgroundImage  = `url(${user.avatar_url})`;
+      avatarEl.style.backgroundSize   = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    } else {
+      const color = (typeof avatarColor === 'function')
+        ? (user.avatar_color || avatarColor(user.username || ''))
+        : (user.avatar_color || '#E61D25');
+      avatarEl.textContent = (user.display_name || user.username || '?').charAt(0).toUpperCase();
+      avatarEl.style.background = color;
+    }
     avatarEl.style.cursor = 'pointer';
+    avatarEl.title = 'O meu perfil';
     avatarEl.onclick = () => { window.location.href = `profile.html?u=${user.username}`; };
   }
   // Admin link
   const adminLink = document.getElementById('navAdminLink');
   if (adminLink && user.is_admin) adminLink.style.display = '';
+  // Notification bell
+  setupNotificationBell(user);
 }
+
+async function setupNotificationBell(user) {
+  // Inject bell before the avatar if not already present
+  const right = document.querySelector('.navbar-right');
+  if (!right || document.getElementById('navBell')) return;
+
+  const bell = document.createElement('div');
+  bell.id        = 'navBell';
+  bell.className = 'nav-bell';
+  bell.innerHTML = `
+    <button class="nav-bell-btn" onclick="toggleNotifications()" title="Notificações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-bell-badge" id="bellBadge" style="display:none">0</span>
+    </button>
+    <div class="nav-bell-panel" id="bellPanel" style="display:none"></div>
+  `;
+  right.insertBefore(bell, right.firstChild);
+
+  await refreshNotifications();
+}
+
+async function refreshNotifications() {
+  try {
+    const data    = await API.get('/notifications');
+    const badge   = document.getElementById('bellBadge');
+    const panel   = document.getElementById('bellPanel');
+    if (!badge || !panel) return;
+
+    if (data.unread > 0) {
+      badge.textContent  = data.unread > 9 ? '9+' : data.unread;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+
+    if (!data.notifications.length) {
+      panel.innerHTML = '<p class="muted small" style="padding:16px;text-align:center">Sem notificações.</p>';
+      return;
+    }
+
+    const TYPE_ICON = {
+      friend_request: '👥',
+      friend_accepted: '✅',
+      achievement:    '🏆',
+      match_settled:  '⚽',
+    };
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <strong style="font-size:.85rem">Notificações</strong>
+        <button onclick="markAllRead()" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px">Marcar todas lidas</button>
+      </div>
+      ${data.notifications.map(n => `
+        <a href="${n.link || '#'}" class="notif-row ${n.read ? '' : 'notif-unread'}" onclick="markRead(${n.id})">
+          <span class="notif-icon">${TYPE_ICON[n.type] || '🔔'}</span>
+          <div class="notif-body">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-time muted">${relativeNotifTime(n.created_at)}</div>
+          </div>
+        </a>`).join('')}
+    `;
+  } catch { /* notifications optional */ }
+}
+
+function relativeNotifTime(iso) {
+  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)  return 'agora';
+  if (mins < 60) return `há ${mins}m`;
+  const h = Math.floor(mins / 60);
+  if (h < 24)   return `há ${h}h`;
+  return `há ${Math.floor(h/24)}d`;
+}
+
+function toggleNotifications() {
+  const panel = document.getElementById('bellPanel');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if (!open) refreshNotifications();
+}
+
+async function markRead(id) {
+  await API.patch(`/notifications/${id}/read`).catch(() => {});
+  refreshNotifications();
+}
+
+async function markAllRead() {
+  await API.patch('/notifications/read-all').catch(() => {});
+  refreshNotifications();
+}
+
+// Close bell panel when clicking outside
+document.addEventListener('click', e => {
+  const bell = document.getElementById('navBell');
+  if (bell && !bell.contains(e.target)) {
+    const panel = document.getElementById('bellPanel');
+    if (panel) panel.style.display = 'none';
+  }
+});
 
 function logout() {
   localStorage.removeItem('abm_token');

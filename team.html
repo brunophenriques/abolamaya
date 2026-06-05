@@ -72,6 +72,12 @@ const GROUP_COLOR_CLASS = {
   G:'gc-G', H:'gc-H', I:'gc-I', J:'gc-J', K:'gc-K', L:'gc-L',
 };
 
+// Global caches populated as squad renders + stats load
+let squadPlayerCache = {};   // normName(squad name) → { p, slug, gcClass }
+let statsList        = [];   // raw array from API
+let statsByNumber    = {};   // shirt_number → stat
+let statsByPlayerId  = {};   // soccerway_player_id → stat
+
 (async () => {
   const user = await requireAuth();
   if (!user) return;
@@ -92,6 +98,7 @@ const GROUP_COLOR_CLASS = {
 
   renderSquad(squad, slug);
   loadTeamForm(slug, squad.name);
+  loadPlayerStats(slug);
 })();
 
 function renderError(msg) {
@@ -243,16 +250,101 @@ async function loadTeamForm(slug, teamName) {
   }
 }
 
+// ── Player national team stats ─────────────────────────────────────────────
+
+// Normalize a name for fuzzy matching (remove accents, lowercase, letters only)
+function normPlayerName(s) {
+  return (s || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+}
+
+function matchPlayerName(soccerwayName, squadName) {
+  const sw = normPlayerName(soccerwayName);
+  const sq = normPlayerName(squadName);
+  if (sw === sq) return true;
+
+  // Token set comparison (handles "Costa Diogo" ↔ "Diogo Costa")
+  const swToks = new Set(soccerwayName.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
+  const sqToks = new Set(squadName.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
+  const common = [...swToks].filter(t => sqToks.has(t));
+  if (common.length >= Math.min(swToks.size, sqToks.size)) return true;
+
+  // Substring (e.g. "Ronaldo" matches "Cristiano Ronaldo")
+  return sw.includes(sq) || sq.includes(sw);
+}
+
+function renderStatsMini(stat) {
+  if (!stat || stat.appearances === null) return '';
+  const row = [
+    { v: stat.appearances,  l: 'Jogos' },
+    { v: stat.goals,        l: 'Gls' },
+    { v: stat.assists,      l: 'Ast' },
+    { v: stat.yellow_cards, l: '🟨' },
+    { v: stat.red_cards,    l: '🟥' },
+    { v: stat.saves_pct,    l: 'SV%' },
+    { v: stat.clean_sheets, l: 'CS' },
+  ].filter(x => x.v !== null && x.v !== undefined);
+  if (!row.length) return '';
+  return `<div class="player-nat-stats">${
+    row.map(x => `<span class="pns-item"><span class="pns-val">${x.v}</span><span class="pns-lbl">${x.l}</span></span>`).join('')
+  }</div>`;
+}
+
+// Find stat for a player using priority: shirt number > player_id > name
+function findStatFor(name, shirtNumber) {
+  // 1. Shirt number (most reliable — no name-reversal issue)
+  if (shirtNumber && statsByNumber[shirtNumber]) return statsByNumber[shirtNumber];
+
+  // 2. Exact normalised name
+  const key = normPlayerName(name);
+  const direct = statsList.find(s => normPlayerName(s.player_name) === key);
+  if (direct) return direct;
+
+  // 3. Token-set fuzzy name match
+  return statsList.find(s => matchPlayerName(s.player_name, name)) || null;
+}
+
+async function loadPlayerStats(slug) {
+  try {
+    const data = await API.get(`/player-stats/${slug}`);
+    console.log(`[playerStats] API response: ${data.count} players for "${slug}"`);
+    if (!data.players?.length) return;
+
+    statsList     = data.players;
+    statsByNumber = {};
+    statsByPlayerId = {};
+    for (const s of data.players) {
+      if (s.shirt_number)        statsByNumber[s.shirt_number]       = s;
+      if (s.soccerway_player_id) statsByPlayerId[s.soccerway_player_id] = s;
+    }
+    console.log(`[playerStats] Cache built — byNumber keys: [${Object.keys(statsByNumber).join(', ')}]`);
+
+    // Inject mini stats into each card
+    document.querySelectorAll('[data-player-name]').forEach(card => {
+      const stat = findStatFor(card.dataset.playerName, parseInt(card.dataset.playerNumber) || null);
+      const el   = card.querySelector('.player-nat-stats');
+      if (el && stat) el.outerHTML = renderStatsMini(stat);
+    });
+  } catch (e) {
+    console.warn(`[playerStats] loadPlayerStats failed:`, e.message);
+  }
+}
+
 function renderPlayerCard(p, slug, gcClass) {
-  const age    = calcAge(p.born);
-  const photo  = `img/squads/${slug}/${teamSlug(p.name)}.jpg`;
-  const num    = p.number ?? '?';
-  const imgEl  = `<img src="${photo}" alt="${p.name}" class="player-photo"
-                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                  <div class="player-photo-placeholder" style="display:none">${num}</div>`;
+  // Store squad data for modal lookup
+  squadPlayerCache[normPlayerName(p.name)] = { p, slug, gcClass };
+
+  const age   = calcAge(p.born);
+  const photo = `img/squads/${slug}/${teamSlug(p.name)}.jpg`;
+  const num   = p.number ?? '?';
+  const imgEl = `<img src="${photo}" alt="${p.name}" class="player-photo"
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                 <div class="player-photo-placeholder" style="display:none">${num}</div>`;
 
   return `
-    <div class="player-card">
+    <div class="player-card" data-player-name="${p.name}" data-player-number="${num}" onclick="openPlayerModal(this)">
       <div class="player-photo-wrap">
         ${imgEl}
         <span class="player-number-badge ${gcClass}">${num}</span>
@@ -260,9 +352,124 @@ function renderPlayerCard(p, slug, gcClass) {
       <div class="player-info">
         <div class="player-name" title="${p.name}">${p.name}</div>
         <div class="player-club">${p.club}${age ? ` · ${age} anos` : ''}</div>
+        <div class="player-nat-stats"></div>
       </div>
     </div>`;
 }
+
+// ── Player modal ──────────────────────────────────────────────────────────────
+
+function relativeScrapedTime(iso) {
+  if (!iso) return '';
+  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)  return 'agora mesmo';
+  if (mins < 60) return `há ${mins}m`;
+  const h = Math.floor(mins / 60);
+  if (h < 24)   return `há ${h}h`;
+  return `há ${Math.floor(h / 24)}d`;
+}
+
+function openPlayerModal(cardEl) {
+  const name   = cardEl.dataset.playerName;
+  const number = parseInt(cardEl.dataset.playerNumber) || null;
+
+  const cached = squadPlayerCache[normPlayerName(name)]
+    || Object.values(squadPlayerCache).find(c => matchPlayerName(c.p.name, name));
+  if (!cached) return;
+
+  const { p, slug, gcClass } = cached;
+  const stat  = findStatFor(p.name, number);
+
+  // Debug
+  console.log(`[modal] Opened: "${p.name}" #${number}`);
+  console.log(`[modal] stat found:`, stat);
+  console.log(`[modal] statsByNumber keys:`, Object.keys(statsByNumber));
+
+  const age   = calcAge(p.born);
+  const photo = `img/squads/${slug}/${teamSlug(p.name)}.jpg`;
+  const num   = p.number ?? '?';
+  const isGK  = p.pos === 'GR';
+
+  const fmt = v => (v === null || v === undefined) ? '-' : v;
+
+  function statsGrid(s, gk) {
+    const cells = gk
+      ? [
+          { v: fmt(s.appearances),  l: 'Jogos' },
+          { v: fmt(s.clean_sheets), l: 'Sem sofrer' },
+          { v: fmt(s.saves_pct),    l: '% Defesas' },
+          { v: fmt(s.yellow_cards), l: 'Amarelos' },
+          { v: fmt(s.red_cards),    l: 'Vermelhos' },
+        ]
+      : [
+          { v: fmt(s.appearances),  l: 'Jogos' },
+          { v: fmt(s.goals),        l: 'Golos' },
+          { v: fmt(s.assists),      l: 'Assist.' },
+          { v: fmt(s.yellow_cards), l: 'Amarelos' },
+          { v: fmt(s.red_cards),    l: 'Vermelhos' },
+        ];
+    return `<div class="pmodal-stats-grid">${cells.map(x => `
+        <div class="pmodal-stat-cell">
+          <div class="pmodal-stat-val">${x.v}</div>
+          <div class="pmodal-stat-lbl">${x.l}</div>
+        </div>`).join('')}</div>`;
+  }
+
+  let statsHtml;
+  if (!stat) {
+    statsHtml = `<p class="muted small" style="text-align:center;margin-top:8px">
+      Estatísticas ainda não disponíveis.<br>Pede ao admin para fazer refresh.</p>`;
+  } else {
+    statsHtml = `
+      <div class="pmodal-stats-title">Seleções Soccerway</div>
+      ${statsGrid(stat, isGK)}
+      ${stat.scraped_at
+        ? `<div class="pmodal-updated muted small">Atualizado ${relativeScrapedTime(stat.scraped_at)}</div>`
+        : ''}
+      <div class="pmodal-note muted small">Inclui seleções jovens quando registadas no Soccerway.</div>`;
+  }
+
+  const badgeClass = gcClass.replace('gc-', 'badge-') || 'badge-muted';
+
+  document.getElementById('playerModalContent').innerHTML = `
+    <div class="pmodal-hero">
+      <div class="pmodal-photo-wrap">
+        <img src="${photo}" alt="${p.name}" class="pmodal-photo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="pmodal-photo-placeholder ${gcClass}">${num}</div>
+      </div>
+      <div class="pmodal-player-info">
+        <div class="pmodal-name">${p.name}</div>
+        <div class="pmodal-meta">${p.club}${age ? ` · ${age} anos` : ''}</div>
+        <div class="pmodal-pos">
+          <span class="badge ${badgeClass}" style="font-size:.7rem">#${num}</span>
+          <span class="badge badge-muted" style="font-size:.7rem">${POS_LABELS[p.pos] || p.pos}</span>
+        </div>
+      </div>
+    </div>
+    <hr class="pmodal-divider">
+    ${statsHtml}
+  `;
+
+  document.getElementById('playerModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePlayerModal() {
+  document.getElementById('playerModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePlayerModal();
+});
 </script>
+<!-- Player modal -->
+<div id="playerModal" class="player-modal-overlay" style="display:none" onclick="closePlayerModal()">
+  <div class="player-modal-box" onclick="event.stopPropagation()">
+    <button class="player-modal-close" onclick="closePlayerModal()" aria-label="Fechar">&times;</button>
+    <div id="playerModalContent"></div>
+  </div>
+</div>
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>A autenticar... — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-wrap" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+  <div class="auth-card text-center" style="max-width:360px;padding:48px">
+    <div id="msg" class="loading">A autenticar...</div>
+  </div>
+</div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const token  = params.get('token');
+  const error  = params.get('error');
+  const msg    = document.getElementById('msg');
+
+  if (token) {
+    localStorage.setItem('abm_token', token);
+    msg.textContent = 'Login efetuado! A redirecionar...';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+  } else if (error) {
+    msg.innerHTML = `<p style="color:var(--primary);font-weight:700;margin-bottom:12px">Erro de autenticação</p>
+      <p class="muted" style="margin-bottom:20px">${error}</p>
+      <a href="index.html" class="btn btn-primary btn-sm">Voltar ao login</a>`;
+  } else {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

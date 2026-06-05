@@ -1,7 +1,145 @@
-Para arrancar:
+╔══════════════════════════════════════════════════════════════╗
+║              A BOLA MAYA — GUIA DE ARRANQUE                  ║
+║                   Mundial 2026 Predictor                     ║
+╚══════════════════════════════════════════════════════════════╝
 
 
-# No terminal, na pasta abolamaya:
-npm install
-npm start
-# Depois abre: http://localhost:3000
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  REQUISITOS DO SISTEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  • Node.js 22 LTS   →  https://nodejs.org/
+  • npm (incluído com o Node.js)
+  • Windows 10/11, macOS ou Linux
+
+  Depois de instalar o Node.js, fecha o terminal e abre um novo.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PRIMEIRA VEZ — CONFIGURAÇÃO INICIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Confirma que o Node.js está instalado:
+
+       node -v
+       npm -v
+
+     Devem aparecer versões (ex: v22.x.x e 10.x.x).
+
+
+  2. Cria o ficheiro de configuração copiando o exemplo:
+
+       copy .env.example .env        (Windows CMD)
+       cp .env.example .env           (PowerShell / macOS / Linux)
+
+     Abre o ficheiro .env e preenche os valores:
+
+       JWT_SECRET=uma_chave_secreta_longa_qualquer
+       PORT=3000
+
+
+  3. Instala as dependências do projeto:
+
+       npm install
+
+     Aguarda até terminar. Só é preciso fazer isto uma vez.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ARRANCAR O SERVIDOR (todas as vezes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Na pasta do projeto, corre:
+
+    npm start
+
+  Quando aparecer:
+
+    ⚽  A Bola Maya a correr em http://localhost:3000
+
+  Abre o browser em:
+
+    http://localhost:3000
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TORNAR-SE ADMIN (primeira conta criada)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Regista uma conta no site. Depois, com o servidor a correr,
+  abre outro terminal e corre:
+
+    node server/make-admin.js <o_teu_username>
+
+  Recarrega a página — o link "Admin" aparece na navbar.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MODO DESENVOLVIMENTO (reinício automático)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Em vez de npm start, usa:
+
+    npm run dev
+
+  O servidor reinicia automaticamente quando guardas ficheiros.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RESOLUÇÃO DE PROBLEMAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ERRO: better-sqlite3, node-gyp, Visual Studio Build Tools
+  ──────────────────────────────────────────────────────────
+  Causa: versão de Node.js incompatível (demasiado nova).
+  Solução:
+    1. Desinstala o Node.js atual.
+    2. Instala exatamente o Node.js 22 LTS (https://nodejs.org/).
+    3. Fecha e abre o terminal.
+    4. Limpa e reinstala:
+
+         rmdir /s /q node_modules    (Windows CMD)
+         del package-lock.json
+         npm install
+         npm start
+
+
+  ERRO: PORT 3000 já está em uso
+  ──────────────────────────────
+  Outro processo está a usar a porta 3000.
+  Altera o PORT no ficheiro .env para 3001 (ou outro) e tenta de novo.
+
+
+  ERRO: Cannot find module / ficheiro não encontrado
+  ───────────────────────────────────────────────────
+  Certifica-te de que estás dentro da pasta do projeto:
+
+    cd C:\Users\Utilizador\Desktop\abolamaya
+
+  E que correste npm install pelo menos uma vez.
+
+
+  ERRO: .env não encontrado / JWT_SECRET não definido
+  ─────────────────────────────────────────────────────
+  O ficheiro .env não existe ou está incompleto.
+  Volta ao passo de configuração inicial e cria o .env.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DEPENDÊNCIAS DO PROJETO (geridas pelo npm)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  O ficheiro package.json define tudo. Não é preciso requirements.txt.
+  Um único "npm install" instala tudo o que é necessário:
+
+    express          — servidor web
+    better-sqlite3   — base de dados local (SQLite)
+    bcryptjs         — hash de passwords
+    jsonwebtoken     — autenticação JWT
+    playwright       — scraper de resultados (Chromium)
+    node-cron        — agendamento de tarefas
+    multer           — upload de ficheiros
+    dotenv           — variáveis de ambiente
+    sharp            — otimização de imagens (dev)
+    nodemon          — reinício automático (dev)
+

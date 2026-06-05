@@ -1,6 +1,8 @@
 const router   = require('express').Router();
 const db       = require('../db');
 const { auth } = require('../middleware/auth');
+const { createNotification } = require('./notifications');
+const { checkAchievements }  = require('../middleware/achievements');
 
 const USER_COLS = `u.id, u.username, u.display_name, u.avatar_color, u.is_admin`;
 
@@ -51,18 +53,40 @@ router.post('/request', auth, (req, res) => {
   if (existing?.status === 'pending')  return res.status(409).json({ error: 'Pedido já pendente' });
 
   db.prepare(`INSERT INTO friends (requester_id,addressee_id) VALUES (?,?)`).run(req.user.id, target.id);
+
+  // Notify the addressee
+  const me = db.prepare('SELECT username, display_name FROM users WHERE id=?').get(req.user.id);
+  createNotification(target.id, {
+    type:  'friend_request',
+    title: `${me.display_name || me.username} enviou-te um pedido de amizade`,
+    link:  `/profile.html?u=${me.username}`,
+  });
+
   res.json({ ok: true });
 });
 
 // POST /api/friends/:id/accept
 router.post('/:id/accept', auth, (req, res) => {
   const row = db.prepare(
-    `SELECT id FROM friends WHERE id=? AND addressee_id=? AND status='pending'`
+    `SELECT id, requester_id FROM friends WHERE id=? AND addressee_id=? AND status='pending'`
   ).get(req.params.id, req.user.id);
   if (!row) return res.status(404).json({ error: 'Pedido não encontrado' });
 
   db.prepare(`UPDATE friends SET status='accepted', updated_at=datetime('now') WHERE id=?`)
     .run(req.params.id);
+
+  // Notify the requester
+  const me = db.prepare('SELECT username FROM users WHERE id=?').get(req.user.id);
+  createNotification(row.requester_id, {
+    type:  'friend_accepted',
+    title: `${me?.username} aceitou o teu pedido de amizade`,
+    link:  `/profile.html?u=${me?.username}`,
+  });
+
+  // Check first_friend achievement for both
+  checkAchievements(db, req.user.id);
+  checkAchievements(db, row.requester_id);
+
   res.json({ ok: true });
 });
 

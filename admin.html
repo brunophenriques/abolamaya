@@ -146,6 +146,17 @@ function renderPanel() {
         <button class="btn btn-primary btn-sm" onclick="autoSettle()">Liquidar Previsões</button>
       </div>
 
+      <div class="card mt-12" style="padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="muted small">
+            <strong>Estatísticas de jogadores</strong> — manual, nunca automático.
+            Usa o botão <em>Jogadores</em> em cada linha da tabela acima.<br>
+            O botão <em>🧪</em> testa com os primeiros 3 jogadores antes de fazer o plantel completo.
+          </span>
+        </div>
+        <div id="pstats-result" style="margin-top:8px"></div>
+      </div>
+
     </div>`;
 }
 
@@ -197,7 +208,13 @@ function renderScrapeStatus(data, el) {
       <td>${statusBadge}</td>
       <td class="muted" style="font-size:.8rem">${ageTxt}</td>
       <td><button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.78rem"
-            onclick="scrapeSingle('${t.slug}','${t.name}')">Scrape</button></td>
+            onclick="scrapeSingle('${t.slug}','${t.name}')">Resultados</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" style="padding:2px 6px;font-size:.75rem" title="Teste com 3 jogadores"
+          onclick="refreshPlayerStats('${t.slug}',true)">🧪</button>
+        <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem;margin-left:3px"
+          onclick="refreshPlayerStats('${t.slug}',false)">Jogadores</button>
+      </td>
     </tr>`;
   }).join('');
 
@@ -208,7 +225,7 @@ function renderScrapeStatus(data, el) {
     <div style="max-height:380px;overflow-y:auto">
       <table class="standings-table" style="font-size:.85rem;width:100%">
         <thead><tr>
-          <th>Cód.</th><th>Seleção</th><th>Estado</th><th>Atualizado</th><th></th>
+          <th>Cód.</th><th>Seleção</th><th>Estado</th><th>Atualizado</th><th>Resultados</th><th>Jogadores</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -299,24 +316,52 @@ async function saveResult(id) {
   } catch (e) { showToast(e.message, 'error'); }
 }
 
+function relativeTime(iso) {
+  if (!iso) return '—';
+  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)   return 'agora';
+  if (mins < 60)  return `há ${mins}m`;
+  const h = Math.floor(mins / 60);
+  if (h   < 24)   return `há ${h}h`;
+  return `há ${Math.floor(h / 24)}d`;
+}
+
 async function loadAdminStats() {
   try {
     const s = await API.get('/admin/stats');
     const bar = document.getElementById('statsBar');
     bar.style.display = '';
-    const lastScrape = s.lastScrape ? new Date(s.lastScrape).toLocaleString('pt-PT') : '—';
     bar.innerHTML = [
-      { v: s.users,       l: 'Utilizadores' },
-      { v: s.predictions, l: 'Previsões' },
-      { v: `${s.settled}/${s.predictions}`, l: 'Liquidadas' },
-      { v: `${s.finished}/${s.matches}`, l: 'Jogos concluídos' },
-      { v: `${s.scrapeCount}/48`, l: 'Seleções c/ dados' },
-      { v: lastScrape,    l: 'Último Scrape' },
+      { v: s.users,                        l: 'Utilizadores' },
+      { v: s.predictions,                  l: 'Previsões' },
+      { v: `${s.settled}/${s.predictions}`,l: 'Liquidadas' },
+      { v: `${s.finished}/${s.matches}`,   l: 'Jogos conc.' },
+      { v: `${s.scrapeCount}/48`,          l: 'Seleções c/ dados' },
+      { v: relativeTime(s.lastScrape),     l: 'Último Scrape' },
     ].map(x => `<div class="admin-stat">
       <div class="admin-stat-value">${x.v}</div>
       <div class="admin-stat-label">${x.l}</div>
     </div>`).join('');
   } catch { /* stats optional */ }
+}
+
+// ── Player stats ──────────────────────────────────────────────────────────────
+
+async function refreshPlayerStats(slug, testMode) {
+  const resultEl = document.getElementById('pstats-result');
+  if (resultEl) resultEl.innerHTML = '<span class="muted small">A iniciar scrape…</span>';
+  try {
+    const url = `/player-stats/${slug}/scrape${testMode ? '?test=1' : ''}`;
+    const r   = await API.post(url);
+    if (resultEl) {
+      resultEl.innerHTML =
+        `<span class="badge badge-green">Iniciado</span> <span class="muted small">${r.message}</span>`;
+    }
+    // Refresh status after ~45 s (test: ~20 s)
+    setTimeout(() => loadPlayerStatsStatus(), testMode ? 20000 : 45000);
+  } catch (e) {
+    if (resultEl) resultEl.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
 }
 
 async function calcGroup(g) {

@@ -72,11 +72,15 @@ let me, targetUser;
   }
 })();
 
-function renderProfile({ user, stats }, { predictions }, isOwn) {
+function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
   const color   = user.avatar_color || avatarColor(user.username);
   const initial = (user.display_name || user.username).charAt(0).toUpperCase();
-  const joined  = new Date(user.created_at + (user.created_at.includes('T') ? '' : 'T00:00:00Z'))
-    .toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+  const joinedDate = user.created_at
+    ? new Date(user.created_at + (user.created_at.includes('T') ? '' : 'T00:00:00Z'))
+    : null;
+  const joined = (joinedDate && !isNaN(joinedDate))
+    ? joinedDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
+    : 'o primeiro dia';
 
   const badges = [
     user.is_admin ? `<span class="user-badge badge-admin">👑 Admin</span>` : '',
@@ -92,7 +96,11 @@ function renderProfile({ user, stats }, { predictions }, isOwn) {
   document.getElementById('profileContent').innerHTML = `
     <!-- Header -->
     <div class="profile-header">
-      <div class="profile-avatar" style="background:${color}">${initial}</div>
+      <div class="profile-avatar" style="background:${color};overflow:hidden">
+        ${user.avatar_url
+          ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
+          : initial}
+      </div>
       <div class="profile-info" style="flex:1;min-width:0">
         <h1>${user.display_name || user.username}
           ${badges}
@@ -120,6 +128,19 @@ function renderProfile({ user, stats }, { predictions }, isOwn) {
       <div class="card-title">Histórico de Previsões</div>
       ${renderHistory(predictions)}
     </div>
+
+    <!-- Achievements -->
+    ${achievements?.length ? `
+    <div class="card mt-12">
+      <div class="card-title">Conquistas <span class="badge badge-muted">${achievements.length}</span></div>
+      <div class="achievements-grid">
+        ${achievements.map(a => `
+          <div class="achievement-card" title="${a.description}">
+            <span class="achievement-icon">${a.icon}</span>
+            <span class="achievement-name">${a.name}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
 
     ${isOwn ? renderFriendsSection() : ''}
   `;

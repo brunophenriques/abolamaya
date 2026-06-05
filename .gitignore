@@ -1,5 +1,21 @@
+# Dependências
 node_modules/
-abolamaya.db
+
+# Base de dados SQLite
+*.db
 *.db-shm
 *.db-wal
+
+# Variáveis de ambiente (nunca commitar)
 .env
+
+# Fotos de perfil carregadas pelos utilizadores
+img/avatars/
+
+# Screenshots de debug do scraper
+debug-screenshots/
+
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
+desktop.ini

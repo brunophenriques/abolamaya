@@ -1563,3 +1563,184 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .admin-stat  { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 12px; text-align: center; }
 .admin-stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
 .admin-stat-label { font-size: .7rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── OAuth buttons ───────────────────────────────────────────────────────────*/
+.oauth-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0 12px; color: var(--muted); font-size: .8rem; }
+.oauth-divider::before, .oauth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.oauth-btns    { display: flex; gap: 8px; }
+.btn-oauth     {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 6px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text); text-decoration: none;
+  font-size: .82rem; font-weight: 600; transition: border-color .2s, background .2s;
+  cursor: pointer;
+}
+.btn-oauth:hover { border-color: var(--primary); background: rgba(230,29,37,.06); }
+
+/* ── Notification bell ───────────────────────────────────────────────────────*/
+.nav-bell     { position: relative; }
+.nav-bell-btn {
+  background: none; border: none; cursor: pointer; color: var(--text);
+  padding: 4px 6px; border-radius: var(--radius); display: flex; align-items: center;
+  position: relative; transition: background .15s;
+}
+.nav-bell-btn:hover { background: var(--border); }
+.nav-bell-badge {
+  position: absolute; top: -2px; right: -4px;
+  background: var(--primary); color: #fff;
+  font-size: .6rem; font-weight: 700; border-radius: 10px;
+  padding: 1px 5px; min-width: 16px; text-align: center; line-height: 1.4;
+}
+.nav-bell-panel {
+  position: absolute; right: -8px; top: calc(100% + 8px);
+  width: 300px; max-height: 400px; overflow-y: auto;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 200;
+}
+.notif-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; text-decoration: none; color: var(--text);
+  border-bottom: 1px solid var(--border); transition: background .1s;
+}
+.notif-row:last-child { border-bottom: none; }
+.notif-row:hover { background: rgba(255,255,255,.04); }
+.notif-unread { background: rgba(230,29,37,.06); }
+.notif-icon   { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.notif-title  { font-size: .83rem; font-weight: 600; line-height: 1.3; }
+.notif-time   { font-size: .73rem; margin-top: 2px; }
+
+/* ── Achievements ────────────────────────────────────────────────────────────*/
+.achievements-grid  { display: flex; flex-wrap: wrap; gap: 8px; }
+.achievement-card   {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 12px; font-size: .82rem; font-weight: 600;
+  cursor: default; transition: border-color .2s;
+}
+.achievement-card:hover { border-color: var(--gold); }
+.achievement-icon  { font-size: 1rem; }
+.achievement-name  { color: var(--text); }
+
+/* ── Privacy toggle rows ─────────────────────────────────────────────────────*/
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  cursor: pointer; padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row input[type=checkbox] { width: 36px; height: 20px; cursor: pointer; accent-color: var(--green); }
+
+/* ── Avatar hover overlay ────────────────────────────────────────────────────*/
+#settingsAvatar:hover .avatar-overlay { opacity: 1 !important; }
+
+
+/* ── Player national team stats mini display ─────────────────────────────────*/
+.player-nat-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.pns-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border-radius: 5px;
+  padding: 2px 6px;
+  min-width: 30px;
+}
+[data-theme="light"] .pns-item { background: rgba(0,0,0,.06); }
+.pns-val  { font-size: .72rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+.pns-lbl  { font-size: .58rem; color: var(--muted); line-height: 1.2; white-space: nowrap; }
+
+/* ── Player modal ─────────────────────────────────────────────────────────────*/
+.player-card { cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.player-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.22); }
+
+.player-modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.player-modal-box {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;
+  padding: 20px 24px 24px; position: relative;
+  animation: pmodal-in .18s cubic-bezier(.2,.8,.4,1);
+}
+@keyframes pmodal-in {
+  from { opacity: 0; transform: scale(.93) translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.player-modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.5rem; line-height: 1; cursor: pointer;
+  padding: 2px 8px; border-radius: 6px; transition: color .15s, background .15s;
+}
+.player-modal-close:hover { color: var(--text); background: rgba(255,255,255,.1); }
+[data-theme="light"] .player-modal-close:hover { background: rgba(0,0,0,.08); }
+
+.pmodal-hero { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; padding-top: 2px; }
+.pmodal-photo-wrap {
+  width: 76px; height: 76px; flex-shrink: 0;
+  border-radius: 50%; overflow: hidden;
+  border: 2px solid var(--border);
+}
+.pmodal-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pmodal-photo-placeholder {
+  width: 100%; height: 100%; display: flex;
+  align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.5rem; color: #fff;
+}
+.pmodal-player-info { flex: 1; min-width: 0; }
+.pmodal-name { font-size: 1.05rem; font-weight: 800; line-height: 1.25; margin-bottom: 3px; }
+.pmodal-meta { font-size: .8rem; color: var(--muted); margin-bottom: 8px; }
+.pmodal-pos  { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.pmodal-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0 12px; }
+
+.pmodal-stats-title {
+  font-size: .72rem; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+}
+.pmodal-stats-grid {
+  display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px;
+  background: rgba(255,255,255,.04); border-radius: 12px;
+  padding: 16px 8px; margin-bottom: 8px;
+}
+[data-theme="light"] .pmodal-stats-grid { background: rgba(0,0,0,.04); }
+.pmodal-stat-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 44px; }
+.pmodal-stat-val  { font-size: 1.5rem; font-weight: 900; line-height: 1; color: var(--text); }
+.pmodal-stat-lbl  { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.pmodal-updated   { text-align: right; font-size: .72rem; }
+
+/* ── Player modal — override: solid, readable card ──────────────────────────*/
+.player-modal-box {
+  background: #0d0d10;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 24px 60px rgba(0,0,0,.7);
+}
+[data-theme="light"] .player-modal-box {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.14);
+  box-shadow: 0 24px 60px rgba(0,0,0,.18);
+}
+.pmodal-stats-grid {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+}
+[data-theme="light"] .pmodal-stats-grid {
+  background: rgba(0,0,0,.05);
+  border: 1px solid rgba(0,0,0,.1);
+}
+.pmodal-stat-val  { font-size: 1.55rem; }
+.pmodal-stat-lbl  { font-size: .63rem; }
+.pmodal-name      { font-size: 1.1rem; color: #fff; }
+[data-theme="light"] .pmodal-name { color: #111; }
+.pmodal-meta      { color: #aaa; }
+[data-theme="light"] .pmodal-meta { color: #666; }
+
+/* ── Player modal — senior/total labels ──────────────────────────────────────*/
+.pmodal-secondary-label { margin-bottom: 8px; display: block; }
+.pmodal-note            { margin-top: 8px; font-size: .65rem; }
