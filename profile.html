@@ -89,7 +89,9 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
   const joinedDate = user.created_at
     ? new Date(user.created_at + (user.created_at.includes('T') ? '' : 'T00:00:00Z'))
     : null;
-  const joined = (joinedDate && !isNaN(joinedDate))
+  const joined = user.username === '67machine'
+    ? 'o primeiro dia'
+    : (joinedDate && !isNaN(joinedDate))
     ? joinedDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
     : 'o primeiro dia';
 
