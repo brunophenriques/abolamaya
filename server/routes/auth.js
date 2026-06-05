@@ -7,12 +7,22 @@ const db         = require('../db');
 const { JWT_SECRET } = require('../config');
 const { sendPasswordReset } = require('../email');
 
+// Layer 1 — IP: 5 requests per hour
 const forgotLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Demasiados pedidos de recuperação. Tenta novamente em 1 hora.' },
+});
+
+// Layer 1b — IP: 20 requests per day
+const forgotDailyLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados pedidos de recuperação. Tenta novamente mais tarde.' },
 });
 
 const resetLimiter = rateLimit({
@@ -81,7 +91,7 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/forgot-password
-router.post('/forgot-password', forgotLimiter, async (req, res) => {
+router.post('/forgot-password', forgotLimiter, forgotDailyLimiter, async (req, res) => {
   const GENERIC = 'Se existir uma conta com esse email, enviámos um link de recuperação.';
   const email = (req.body.email || '').toLowerCase().trim();
   if (!email) return res.json({ message: GENERIC });
@@ -89,20 +99,46 @@ router.post('/forgot-password', forgotLimiter, async (req, res) => {
   try {
     const user = db.prepare('SELECT id FROM users WHERE email=?').get(email);
     if (user) {
-      db.prepare('DELETE FROM password_reset_tokens WHERE user_id=? AND used_at IS NULL').run(user.id);
+      // Layer 2 — cooldown: skip if a valid unused token was created in the last 10 minutes
+      const recentToken = db.prepare(`
+        SELECT id FROM password_reset_tokens
+        WHERE user_id=? AND used_at IS NULL AND expires_at > datetime('now')
+          AND created_at > datetime('now', '-10 minutes')
+        LIMIT 1
+      `).get(user.id);
 
-      const token     = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      if (recentToken) {
+        console.log(`[forgot-password] cooldown skip — user ${user.id}`);
+      } else {
+        // Layer 3 — per-email hourly: max 3 emails per email address per hour
+        const hourlyCount = db.prepare(`
+          SELECT COUNT(*) AS n FROM password_reset_tokens
+          WHERE user_id=? AND created_at > datetime('now', '-1 hour')
+        `).get(user.id).n;
 
-      db.prepare(
-        'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?,?,?)'
-      ).run(user.id, tokenHash, expiresAt);
+        if (hourlyCount >= 3) {
+          console.log(`[forgot-password] per-email hourly limit — user ${user.id}`);
+        } else {
+          // All checks passed — clean up expired/used tokens, issue new one
+          db.prepare(`
+            DELETE FROM password_reset_tokens
+            WHERE user_id=? AND (used_at IS NOT NULL OR expires_at <= datetime('now'))
+          `).run(user.id);
 
-      // Fire-and-forget — never block the response on SMTP delivery
-      sendPasswordReset(email, token).catch(err =>
-        console.error('[forgot-password] email failed:', err.message)
-      );
+          const token     = crypto.randomBytes(32).toString('hex');
+          const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+          const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+          db.prepare(
+            'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?,?,?)'
+          ).run(user.id, tokenHash, expiresAt);
+
+          // Fire-and-forget — never block the response on email delivery
+          sendPasswordReset(email, token).catch(err =>
+            console.error('[forgot-password] email failed:', err.message)
+          );
+        }
+      }
     }
   } catch (e) {
     console.error('[forgot-password]', e.message);
