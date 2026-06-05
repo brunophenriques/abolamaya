@@ -8,6 +8,7 @@ node_modules/
 
 # Variáveis de ambiente (nunca commitar)
 .env
+.env.example
 
 # Fotos de perfil carregadas pelos utilizadores
 img/avatars/
