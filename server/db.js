@@ -204,6 +204,7 @@ try { db.exec(`ALTER TABLE users ADD COLUMN avatar_color TEXT`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN avatar_url TEXT`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN profile_public INTEGER DEFAULT 1`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN history_public INTEGER DEFAULT 1`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0`); } catch {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_oauth (
@@ -284,5 +285,31 @@ db.exec(`
 try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN soccerway_player_id TEXT`); } catch {}
 try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN shirt_number INTEGER`); } catch {}
 try { db.exec(`ALTER TABLE player_national_stats ADD COLUMN senior_stats TEXT`); } catch {}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT    NOT NULL UNIQUE,
+    expires_at TEXT    NOT NULL,
+    used_at    TEXT,
+    created_at TEXT    DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tickets (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    category    TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    description TEXT NOT NULL,
+    page_url    TEXT,
+    reference   TEXT,
+    status      TEXT NOT NULL DEFAULT 'open',
+    created_at  TEXT DEFAULT (datetime('now')),
+    updated_at  TEXT DEFAULT (datetime('now'))
+  )
+`);
 
 module.exports = db;

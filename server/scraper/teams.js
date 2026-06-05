@@ -79,6 +79,7 @@ module.exports = [
     aliases: ['United States', 'United States of America'],
     soccerwayKey: 'fuitL4CF',
     soccerwaySlug: 'united-states',
+    squadUrl: 'https://www.soccerway.com/team/usa/fuitL4CF/squad/',
   },
   {
     slug: 'paraguay', code: 'PAR', name: 'Paraguay',

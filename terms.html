@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termos & Privacidade — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb-terms').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb-terms" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" style="display:none" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" id="navLogout" style="display:none" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div class="page-header">
+    <h2>Termos &amp; Privacidade</h2>
+    <p>Curto e direto ao assunto, sem linguagem jurídica desnecessária.</p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">O que é A Bola Maya</div>
+    <p style="line-height:1.7">
+      A Bola Maya é um projeto independente e gratuito, feito por diversão à volta do Mundial FIFA 2026.
+      Não tem fins lucrativos, não tem publicidade e não tem qualquer afiliação oficial.
+      Ao criares uma conta, aceitas estas condições de utilização.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Cookies</div>
+    <p style="line-height:1.7">
+      Não utilizamos cookies de rastreamento, publicidade ou analytics.
+    </p>
+    <p style="line-height:1.7;margin-top:10px">
+      O único dado que guardamos localmente no teu browser é o teu <strong>token de autenticação</strong>
+      (em <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.85em">localStorage</code>),
+      necessário para manteres a sessão ativa. Não é um cookie — não é enviado automaticamente
+      para outros domínios e podes apagá-lo a qualquer momento limpando os dados do browser ou
+      fazendo logout.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Dados que recolhemos</div>
+    <p style="line-height:1.7">Quando crias uma conta, guardamos:</p>
+    <ul style="margin:10px 0 0 20px;line-height:2.1;color:var(--muted)">
+      <li><strong style="color:var(--text)">Username</strong> — visível publicamente</li>
+      <li><strong style="color:var(--text)">Nome a apresentar</strong> — visível publicamente</li>
+      <li><strong style="color:var(--text)">Email</strong> — não é visível publicamente</li>
+      <li><strong style="color:var(--text)">Palavra-passe</strong> — guardada de forma encriptada (bcrypt), nunca em texto simples</li>
+      <li><strong style="color:var(--text)">Previsões e pontos</strong> — associados à tua conta</li>
+    </ul>
+    <p style="line-height:1.7;margin-top:14px">
+      O email é utilizado <strong>exclusivamente</strong> para garantir que não são criadas contas em massa
+      e para identificar a tua conta de forma única. Não é partilhado com terceiros, não é
+      usado para marketing e não receberás emails da nossa parte.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Gestão de contas</div>
+    <p style="line-height:1.7">
+      A Bola Maya reserva o direito de <strong>suspender ou apagar</strong> qualquer conta,
+      a qualquer momento e sem aviso prévio, nos seguintes casos (entre outros):
+    </p>
+    <ul style="margin:10px 0 0 20px;line-height:2.1;color:var(--muted)">
+      <li>Criação de múltiplas contas para manipular o ranking</li>
+      <li>Abuso do sistema de reportes (envio de tickets repetitivos, irrelevantes ou de má-fé)</li>
+      <li>Qualquer comportamento que prejudique a experiência dos outros utilizadores</li>
+      <li>Qualquer outro motivo que a administração considere suficiente</li>
+    </ul>
+    <p style="line-height:1.7;margin-top:14px">
+      Não existe processo de recurso formal. Somos um projeto pequeno e tomamos estas decisões
+      com bom senso.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Resultados e dados do jogo</div>
+    <p style="line-height:1.7">
+      A administração reserva o direito de <strong>corrigir, alterar ou anular</strong> resultados,
+      pontos e previsões a qualquer momento — por exemplo, para corrigir um erro de introdução de dados
+      ou um problema técnico. Não existe compensação por eventuais correções.
+    </p>
+    <p style="line-height:1.7;margin-top:10px">
+      Os dados de jogadores e resultados de seleções são obtidos de fontes externas e podem
+      conter imprecisões. Consulta a página de <a href="information.html" style="color:var(--primary);text-decoration:none">Dados &amp; Fontes</a>
+      para mais detalhe.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Disponibilidade do serviço</div>
+    <p style="line-height:1.7">
+      Não garantimos disponibilidade contínua. O serviço pode ficar offline para manutenção
+      ou por qualquer outro motivo, sem aviso prévio. Como é um projeto gratuito e independente,
+      não há SLA nem obrigações de uptime.
+    </p>
+  </div>
+
+  <div class="card mt-12" style="background:var(--bg-alt);border:none">
+    <p style="margin:0;line-height:1.7;font-size:.9rem">
+      Tens dúvidas ou encontraste algo que não está bem?
+      <a href="support.html" style="color:var(--primary);font-weight:600;text-decoration:none">Abre um reporte</a>
+      — é a forma mais direta de chegares até nós.
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html" style="color:var(--primary)">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+(async () => {
+  if (!localStorage.getItem('abm_token')) return;
+  try {
+    const user = await API.get('/me');
+    setupNavbar(user);
+    document.getElementById('navAvatar').style.display = '';
+    document.getElementById('navLogout').style.display = '';
+  } catch { localStorage.removeItem('abm_token'); }
+})();
+</script>
+</body>
+</html>

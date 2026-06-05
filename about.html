@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb-about').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb-about" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" style="display:none" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" id="navLogout" style="display:none" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div class="page-header">
+    <h2>Sobre A Bola Maya</h2>
+    <p>Um projeto feito por adeptos, para adeptos.</p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">O que é isto?</div>
+    <p style="line-height:1.7">
+      A Bola Maya é um jogo de predictions da fase de grupos do Mundial FIFA 2026. Fazes as tuas previsões
+      dos marcadores e das classificações dos grupos antes do início do torneio, e acumulas pontos
+      conforme os resultados reais vão saindo.
+    </p>
+    <p style="line-height:1.7;margin-top:12px">
+      Podes jogar sozinho no ranking global, criar salas privadas com amigos, acompanhar
+      a forma das seleções e os plantéis, e ver quem acerta mais.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Quem fez isto?</div>
+    <p style="line-height:1.7">
+      O verdadeiro nome por trás da A Bola Maya continua envolto em mistério. No entanto, por detrás do projeto está o lendário trio IMSER de CD.
+
+      Somos um projeto independente e de pequena dimensão, criado pelo entusiasmo pelo Mundial e pela vontade de oferecer um jogo de previsões com um pouco mais de personalidade do que uma simples folha de Excel.
+
+    </p>
+    <p style="line-height:1.7;margin-top:12px">
+      Não somos uma empresa, não temos fins lucrativos e não há prémios em dinheiro.
+      É tudo pelas vibes.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Afiliações</div>
+    <p style="line-height:1.7">
+      <strong>A Bola Maya não tem qualquer afiliação com:</strong>
+    </p>
+    <ul style="margin:12px 0 0 20px;line-height:2;color:var(--muted)">
+      <li>FIFA ou qualquer federação de futebol oficial</li>
+      <li>Soccerway ou qualquer outra fonte de dados desportivos</li>
+      <li>Qualquer seleção nacional ou clube desportivo</li>
+    </ul>
+    <p style="line-height:1.7;margin-top:12px">
+      Os nomes de equipas, bandeiras e dados de jogadores são usados apenas para
+      fins informativos e recreativos.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Regras de pontuação</div>
+    <div style="display:grid;gap:10px;margin-top:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span>Resultado correto (vitória/empate/derrota)</span>
+        <span class="badge badge-green" style="flex-shrink:0;margin-left:12px">1 pt</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span>Marcador exato</span>
+        <span class="badge badge-green" style="flex-shrink:0;margin-left:12px">3 pts</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+        <span>Posição correta no grupo (máx. 4 por grupo)</span>
+        <span class="badge badge-green" style="flex-shrink:0;margin-left:12px">1 pt cada</span>
+      </div>
+    </div>
+    <p class="muted small" style="margin-top:12px">
+      O marcador exato substitui o ponto de resultado — não se somam.
+      Os pontos de grupo são calculados depois de todos os 6 jogos do grupo terminarem.
+    </p>
+  </div>
+
+  <div class="card mt-12" style="background:var(--bg-alt)">
+    <p style="line-height:1.7;margin:0">
+      Encontraste algum erro, dado em falta ou comportamento estranho?
+      <a href="support.html" style="color:var(--primary);font-weight:600;text-decoration:none">Reporta aqui</a>
+      — cada reporte ajuda a melhorar.
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html" style="color:var(--primary)">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+(async () => {
+  if (!localStorage.getItem('abm_token')) return;
+  try {
+    const user = await API.get('/me');
+    setupNavbar(user);
+    document.getElementById('navAvatar').style.display = '';
+    document.getElementById('navLogout').style.display = '';
+  } catch { localStorage.removeItem('abm_token'); }
+})();
+</script>
+</body>
+</html>

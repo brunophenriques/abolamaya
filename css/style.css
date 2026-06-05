@@ -1743,4 +1743,35 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 
 /* ── Player modal — senior/total labels ──────────────────────────────────────*/
 .pmodal-secondary-label { margin-bottom: 8px; display: block; }
+
+/* ── Site footer ─────────────────────────────────────────────────────────────*/
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 20px 0 28px;
+  margin-top: 48px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.footer-links a { color: var(--muted); text-decoration: none; transition: color .15s; }
+.footer-links a:hover { color: var(--text); }
+
+/* ── Ticket status badges ────────────────────────────────────────────────────*/
+.badge-orange { background: rgba(251,146,60,.15); color: #fb923c; }
+[data-theme="light"] .badge-orange { background: rgba(234,88,12,.12); color: #c2410c; }
+
+/* ── Ticket list (admin) ─────────────────────────────────────────────────────*/
+.ticket-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ticket-row:last-child { border-bottom: none; }
+.ticket-meta { font-size: .75rem; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
 .pmodal-note            { margin-top: 8px; font-size: .65rem; }

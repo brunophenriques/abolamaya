@@ -119,7 +119,7 @@ router.get('/google/callback', async (req, res) => {
     const token = makeToken(user);
     res.redirect(`/oauth.html?token=${token}`);
   } catch (err) {
-    oauthError(res, 'Erro interno: ' + err.message);
+    console.error('[oauth]', err.message); oauthError(res, 'Erro ao autenticar. Tenta novamente mais tarde.');
   }
 });
 
@@ -176,7 +176,7 @@ router.get('/github/callback', async (req, res) => {
     });
     res.redirect(`/oauth.html?token=${makeToken(user)}`);
   } catch (err) {
-    oauthError(res, 'Erro interno: ' + err.message);
+    console.error('[oauth]', err.message); oauthError(res, 'Erro ao autenticar. Tenta novamente mais tarde.');
   }
 });
 

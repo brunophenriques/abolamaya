@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dados & Fontes — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb-info').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb-info" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" style="display:none" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" id="navLogout" style="display:none" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div class="page-header">
+    <h2>Dados &amp; Fontes</h2>
+    <p>De onde vêm os dados e o que podes esperar deles.</p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Resultados dos jogos do Mundial</div>
+    <p style="line-height:1.7">
+      Os resultados da fase de grupos são introduzidos manualmente depois de cada jogo,
+      com base nas fontes oficiais. Depois disso, as previsões são liquidadas automaticamente.
+    </p>
+    <p style="line-height:1.7;margin-top:12px">
+      Pode haver um pequeno atraso entre o fim do jogo e a atualização no site.
+      Se passaram mais de algumas horas e o resultado ainda não apareceu,
+      <a href="support.html" style="color:var(--primary);text-decoration:none">reporta aqui</a>.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Forma recente das seleções</div>
+    <p style="line-height:1.7">
+      Os últimos 5 resultados de cada seleção são recolhidos automaticamente do
+      <strong>Soccerway</strong>, em segundo plano. Os dados são atualizados de 12 em 12 horas.
+    </p>
+    <p style="line-height:1.7;margin-top:12px">
+      Podem existir pequenos desfasamentos ou resultados em falta, especialmente para
+      seleções com menos dados disponíveis no Soccerway. Trata esta informação como
+      indicativa, não como fonte oficial.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Estatísticas de jogadores</div>
+    <p style="line-height:1.7">
+      As estatísticas mostradas (jogos, golos, assistências, cartões) são recolhidas do
+      <strong>Soccerway</strong> e referem-se ao histórico internacional de cada jogador
+      registado nessa plataforma.
+    </p>
+    <div class="card mt-12" style="background:rgba(255,193,7,.07);border-color:rgba(255,193,7,.3)">
+      <p style="line-height:1.7;margin:0;font-size:.9rem">
+        <strong>Nota sobre os totais Soccerway:</strong> os números podem incluir jogos
+        por seleções jovens (sub-XX) e até seleções olímpicas quando o Soccerway os agrega no perfil do jogador.
+        Os valores mostrados são os totais tal como o Soccerway os apresenta, sem filtragem adicional.
+      </p>
+    </div>
+    <p style="line-height:1.7;margin-top:12px">
+      Alguns jogadores podem ter dados em falta, errados ou desatualizados.
+      Usa estas estatísticas como referência, não como registo oficial.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Calendário e plantéis</div>
+    <p style="line-height:1.7">
+      Os horários dos jogos são apresentados em <strong>hora de Portugal (WEST, UTC+1)</strong>.
+      Os plantéis foram recolhidos antes do início do torneio e não refletem alterações
+      tardias de convocatórias.
+    </p>
+  </div>
+
+  <div class="card mt-12">
+    <div class="card-title">Imprecisões e erros</div>
+    <p style="line-height:1.7">
+      Somos uma equipa de imsers humildes e isto é apesar de ter dado muito trabalho, um projeto pequeno e os dados passam por processos automáticos.
+      Podem surgir erros: um resultado mal introduzido, uma stat a 0 quando deveria ter valor,
+      um jogador com o nome trocado, por isso não sejam muito mausinhos;P
+    </p>
+    <p style="line-height:1.7;margin-top:12px">
+      <strong>Se encontrares algo errado, reporta.</strong> É a forma mais direta de o corrigirmos.
+      Cada reporte conta.
+    </p>
+    <a href="support.html" class="btn btn-primary btn-sm" style="margin-top:14px;display:inline-block">Reportar um problema</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html" style="color:var(--primary)">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+(async () => {
+  if (!localStorage.getItem('abm_token')) return;
+  try {
+    const user = await API.get('/me');
+    setupNavbar(user);
+    document.getElementById('navAvatar').style.display = '';
+    document.getElementById('navLogout').style.display = '';
+  } catch { localStorage.removeItem('abm_token'); }
+})();
+</script>
+</body>
+</html>

@@ -40,6 +40,17 @@
   <div id="teamContent"><div class="loading">A carregar seleção...</div></div>
 </main>
 
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
 <script src="js/api.js"></script>
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
@@ -260,20 +271,29 @@ function normPlayerName(s) {
     .replace(/[^a-z]/g, '');
 }
 
-function matchPlayerName(soccerwayName, squadName) {
-  const sw = normPlayerName(soccerwayName);
-  const sq = normPlayerName(squadName);
-  if (sw === sq) return true;
+// Returns 0–1 Jaccard similarity on name tokens.
+// Handles reversed order ("Costa Diogo" ↔ "Diogo Costa"),
+// accents, and single-token names like "Vitinha".
+function nameSimilarity(a, b) {
+  const normA = normPlayerName(a);
+  const normB = normPlayerName(b);
+  if (normA === normB) return 1;
 
-  // Token set comparison (handles "Costa Diogo" ↔ "Diogo Costa")
-  const swToks = new Set(soccerwayName.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
-  const sqToks = new Set(squadName.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
-  const common = [...swToks].filter(t => sqToks.has(t));
-  if (common.length >= Math.min(swToks.size, sqToks.size)) return true;
+  const toksA = new Set(a.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
+  const toksB = new Set(b.split(/\s+/).map(normPlayerName).filter(t => t.length > 1));
 
-  // Substring (e.g. "Ronaldo" matches "Cristiano Ronaldo")
-  return sw.includes(sq) || sq.includes(sw);
+  // Single-token fallback: substring check
+  if (toksA.size <= 1 || toksB.size <= 1) {
+    return (normA.includes(normB) || normB.includes(normA)) ? 0.6 : 0;
+  }
+
+  const common = [...toksA].filter(t => toksB.has(t)).length;
+  const union  = new Set([...toksA, ...toksB]).size;
+  return union > 0 ? common / union : 0;
 }
+
+// Keep for external callers that still use boolean API
+function matchPlayerName(a, b) { return nameSimilarity(a, b) >= 0.5; }
 
 function renderStatsMini(stat) {
   if (!stat || stat.appearances === null) return '';
@@ -292,18 +312,29 @@ function renderStatsMini(stat) {
   }</div>`;
 }
 
-// Find stat for a player using priority: shirt number > player_id > name
+// Find the best-matching stat record for a player.
+// Priority: jersey number (exact) → best similarity score among all records.
 function findStatFor(name, shirtNumber) {
-  // 1. Shirt number (most reliable — no name-reversal issue)
-  if (shirtNumber && statsByNumber[shirtNumber]) return statsByNumber[shirtNumber];
+  if (!statsList.length) return null;
 
-  // 2. Exact normalised name
-  const key = normPlayerName(name);
-  const direct = statsList.find(s => normPlayerName(s.player_name) === key);
-  if (direct) return direct;
+  // 1. Jersey number exact hit — fastest and most reliable path
+  if (shirtNumber && statsByNumber[shirtNumber]) {
+    const byNum = statsByNumber[shirtNumber];
+    // Quick sanity: at least one name token must overlap (avoids wrong hit
+    // if Soccerway assigns a different number to a similarly-named player)
+    if (nameSimilarity(byNum.player_name, name) >= 0.2) return byNum;
+  }
 
-  // 3. Token-set fuzzy name match
-  return statsList.find(s => matchPlayerName(s.player_name, name)) || null;
+  // 2. Best similarity score across all records (handles reversed names,
+  //    missing jersey numbers, accent differences)
+  let best = null, bestScore = 0;
+  for (const s of statsList) {
+    const score = nameSimilarity(s.player_name, name);
+    if (score > bestScore) { bestScore = score; best = s; }
+  }
+
+  // Require ≥50% token overlap to avoid false positives
+  return bestScore >= 0.5 ? best : null;
 }
 
 async function loadPlayerStats(slug) {

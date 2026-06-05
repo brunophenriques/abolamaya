@@ -123,10 +123,47 @@ router.post('/group/:group_id/points', auth, requireAdmin, (req, res) => {
 });
 
 // POST /api/admin/auto-settle
-// Matches past WC fixtures against scraped team_results and scores unsettled predictions.
 router.post('/auto-settle', auth, requireAdmin, (req, res) => {
   const result = autoSettleFromScrape(db);
   res.json({ ok: true, ...result });
+});
+
+// GET /api/admin/users — list all users
+router.get('/users', auth, requireAdmin, (req, res) => {
+  const users = db.prepare(`
+    SELECT u.id, u.username, u.display_name, u.email, u.is_admin, u.banned, u.created_at,
+           COUNT(DISTINCT p.id) AS predictions,
+           COUNT(DISTINCT t.id) AS ticket_count
+    FROM users u
+    LEFT JOIN match_predictions p ON p.user_id = u.id
+    LEFT JOIN tickets t ON t.user_id = u.id
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+  `).all();
+  res.json(users.map(u => ({ ...u, is_admin: !!u.is_admin, banned: !!u.banned })));
+});
+
+// PATCH /api/admin/users/:id/ban — toggle ban
+router.patch('/users/:id/ban', auth, requireAdmin, (req, res) => {
+  const id = parseInt(req.params.id);
+  if (id === req.user.id) return res.status(400).json({ error: 'Não podes suspender a tua própria conta.' });
+  const user = db.prepare('SELECT banned, is_admin FROM users WHERE id=?').get(id);
+  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado.' });
+  if (user.is_admin) return res.status(400).json({ error: 'Não podes suspender outro admin.' });
+  const newBanned = user.banned ? 0 : 1;
+  db.prepare('UPDATE users SET banned=? WHERE id=?').run(newBanned, id);
+  res.json({ ok: true, banned: !!newBanned });
+});
+
+// DELETE /api/admin/users/:id — delete account
+router.delete('/users/:id', auth, requireAdmin, (req, res) => {
+  const id = parseInt(req.params.id);
+  if (id === req.user.id) return res.status(400).json({ error: 'Não podes apagar a tua própria conta.' });
+  const user = db.prepare('SELECT is_admin FROM users WHERE id=?').get(id);
+  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado.' });
+  if (user.is_admin) return res.status(400).json({ error: 'Não podes apagar outro admin.' });
+  db.prepare('DELETE FROM users WHERE id=?').run(id);
+  res.json({ ok: true });
 });
 
 module.exports = router;

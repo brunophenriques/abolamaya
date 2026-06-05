@@ -7,9 +7,9 @@ function auth(req, res, next) {
   if (!h || !h.startsWith('Bearer ')) return res.status(401).json({ error: 'Não autenticado' });
   try {
     const payload = jwt.verify(h.slice(7), JWT_SECRET);
-    // Read is_admin fresh from DB — JWT may be stale if admin was promoted after login
-    const row = db.prepare('SELECT is_admin FROM users WHERE id=?').get(payload.id);
+    const row = db.prepare('SELECT is_admin, banned FROM users WHERE id=?').get(payload.id);
     if (!row) return res.status(401).json({ error: 'Utilizador não encontrado' });
+    if (row.banned) return res.status(403).json({ error: 'Conta suspensa. Contacta a administração.' });
     req.user = { ...payload, is_admin: !!row.is_admin };
     next();
   } catch {
@@ -22,4 +22,16 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { auth, requireAdmin };
+function optionalAuth(req, res, next) {
+  const h = req.headers.authorization;
+  if (h && h.startsWith('Bearer ')) {
+    try {
+      const payload = jwt.verify(h.slice(7), JWT_SECRET);
+      const row = db.prepare('SELECT is_admin FROM users WHERE id=?').get(payload.id);
+      if (row) req.user = { ...payload, is_admin: !!row.is_admin };
+    } catch {}
+  }
+  next();
+}
+
+module.exports = { auth, requireAdmin, optionalAuth };

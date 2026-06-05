@@ -39,7 +39,8 @@ router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
 
     res.json({ ok: true, avatar_url: avatarUrl });
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao processar imagem: ' + err.message });
+    console.error('[upload/avatar]', err.message);
+    res.status(500).json({ error: 'Falha ao processar imagem. Tenta com um ficheiro diferente.' });
   }
 });
 

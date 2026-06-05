@@ -69,4 +69,35 @@ router.post('/:slug/scrape', auth, (req, res) => {
   });
 });
 
+// POST /api/player-stats/scrape-all — scrape all 48 teams sequentially (admin only)
+router.post('/scrape-all', auth, (req, res) => {
+  if (!req.user.is_admin) return res.status(403).json({ error: 'Admin only' });
+
+  const teams    = require('../scraper/teams');
+  const testMode = req.query.test === '1';
+  const limit    = testMode ? 2 : null;
+
+  res.json({
+    ok:      true,
+    message: `Scrape de jogadores iniciado para ${teams.length} seleções${testMode ? ' (teste: 2 por equipa)' : ''}. Pode demorar várias horas. Vê os logs.`,
+    teams:   teams.length,
+  });
+
+  setImmediate(async () => {
+    const { scrapeTeamPlayerNationalStats } = require('../scraper/playerStatsSoccerway');
+    let done = 0, failed = 0;
+    for (const team of teams) {
+      try {
+        console.log(`[scrapeAll] (${done + 1}/${teams.length}) ${team.name}`);
+        await scrapeTeamPlayerNationalStats(db, team, { limit });
+        done++;
+      } catch (err) {
+        console.error(`[scrapeAll] FAILED ${team.name}: ${err.message}`);
+        failed++;
+      }
+    }
+    console.log(`[scrapeAll] Concluído — ${done} OK, ${failed} falharam`);
+  });
+});
+
 module.exports = router;

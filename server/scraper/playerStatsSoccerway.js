@@ -3,7 +3,7 @@ const path = require('path');
 const fs   = require('fs');
 
 // ── Debug flag ────────────────────────────────────────────────────────────────
-const DEBUG = true;
+const DEBUG = false;
 
 const PLAYER_DELAY_MS = 1500;
 const NAV_TIMEOUT_MS  = 30000;
@@ -192,7 +192,7 @@ function buildResult(headers, values, bodyText) {
 // ── Squad page ────────────────────────────────────────────────────────────────
 
 async function scrapeSquadPlayerLinks(page, team) {
-  const squadUrl = `${BASE_URL}/team/${team.soccerwaySlug || team.slug}/${team.soccerwayKey}/squad/`;
+  const squadUrl = team.squadUrl || `${BASE_URL}/team/${team.soccerwaySlug || team.slug}/${team.soccerwayKey}/squad/`;
   console.log(`[playerStats] ${team.name}: squad URL = ${squadUrl}`);
 
   await gotoWithRetry(page, squadUrl, team.name);

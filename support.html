@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportar Problema — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nb-sup').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nb-sup" style="display:none">BM</span>
+      A Bola Maya
+    </a>
+    <div class="navbar-nav">
+      <a href="dashboard.html" class="always">Início</a>
+      <a href="predict.html" class="always">Previsões</a>
+      <a href="leaderboard.html">Classificação</a>
+      <a href="lobby.html">Salas</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" style="display:none" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" id="navLogout" style="display:none" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container" style="padding-bottom:48px">
+  <div class="page-header">
+    <h2>Reportar um Problema</h2>
+    <p>Resultado errado? Stat em falta? Bug visual? Conta-nos.</p>
+  </div>
+
+  <div class="card" style="background:var(--bg-alt);border:none;margin-bottom:20px">
+    <p style="margin:0;line-height:1.7;font-size:.9rem">
+      Somos um projeto pequeno. Cada reporte que recebes ajuda-nos a corrigir mais
+      depressa — não tens de criar conta para enviar um, mas se estiveres
+      autenticado fica associado ao teu perfil.
+    </p>
+  </div>
+
+  <div id="formWrap">
+    <div class="card">
+      <div class="form-group">
+        <label class="muted small">Categoria *</label>
+        <select id="category" class="input">
+          <option value="">-- escolhe uma categoria --</option>
+          <option value="wrong_result">Resultado errado</option>
+          <option value="wrong_player_stat">Estatística de jogador errada</option>
+          <option value="login_issue">Problema de login / conta</option>
+          <option value="prediction_issue">Problema com previsões</option>
+          <option value="visual_bug">Bug visual / layout</option>
+          <option value="other">Outro</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label class="muted small">Título *</label>
+        <input type="text" id="title" class="input" maxlength="150"
+               placeholder="Ex: Resultado Portugal vs Brasil está 3-0 mas foi 1-0">
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label class="muted small">Descrição *</label>
+        <textarea id="description" class="input" rows="5" maxlength="2000"
+                  style="resize:vertical;font-family:inherit"
+                  placeholder="Descreve o problema com o máximo de detalhe que conseguires. Quanto mais concreto, mais fácil é corrigir."></textarea>
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label class="muted small">Página onde aconteceu (opcional)</label>
+        <input type="text" id="page_url" class="input" maxlength="300"
+               placeholder="Ex: team.html?team=portugal">
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label class="muted small">Equipa, jogador ou jogo em causa (opcional)</label>
+        <input type="text" id="reference" class="input" maxlength="200"
+               placeholder="Ex: Cristiano Ronaldo / Portugal vs Czechia (Grupo A)">
+      </div>
+
+      <div id="ticketError" class="form-error" style="display:none;margin-top:12px"></div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn btn-primary" id="submitBtn" onclick="submitTicket()">Enviar reporte</button>
+        <span class="muted small">* campos obrigatórios</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="successWrap" style="display:none">
+    <div class="card text-center" style="padding:40px 24px">
+      <div style="font-size:2.5rem;margin-bottom:12px">✅</div>
+      <p style="font-weight:700;font-size:1.1rem;margin-bottom:8px">Reporte enviado, obrigado!</p>
+      <p class="muted small" style="line-height:1.6">
+        Recebemos o teu reporte e vamos analisar assim que possível.<br>
+        Como somos um projeto pequeno, pode não haver resposta individual,
+        mas cada reporte é lido e ajuda a melhorar.
+      </p>
+      <div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="newTicket()">Enviar outro reporte</button>
+        <a href="dashboard.html" class="btn btn-primary btn-sm">Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html" style="color:var(--primary)">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+(async () => {
+  if (!localStorage.getItem('abm_token')) return;
+  try {
+    const user = await API.get('/me');
+    setupNavbar(user);
+    document.getElementById('navAvatar').style.display = '';
+    document.getElementById('navLogout').style.display = '';
+  } catch { localStorage.removeItem('abm_token'); }
+})();
+</script>
+<script>
+async function submitTicket() {
+  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('ticketError');
+  errEl.style.display = 'none';
+
+  const category    = document.getElementById('category').value;
+  const title       = document.getElementById('title').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const page_url    = document.getElementById('page_url').value.trim();
+  const reference   = document.getElementById('reference').value.trim();
+
+  if (!category)    { showErr('Escolhe uma categoria.'); return; }
+  if (!title)       { showErr('Preenche o título.'); return; }
+  if (!description) { showErr('Preenche a descrição.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'A enviar...';
+
+  try {
+    await API.post('/tickets', { category, title, description, page_url: page_url || null, reference: reference || null });
+    document.getElementById('formWrap').style.display = 'none';
+    document.getElementById('successWrap').style.display = '';
+  } catch (e) {
+    showErr(e.message || 'Erro ao enviar. Tenta novamente.');
+    btn.disabled = false;
+    btn.textContent = 'Enviar reporte';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('ticketError');
+  el.textContent = msg;
+  el.style.display = '';
+}
+
+function newTicket() {
+  document.getElementById('category').value = '';
+  document.getElementById('title').value = '';
+  document.getElementById('description').value = '';
+  document.getElementById('page_url').value = '';
+  document.getElementById('reference').value = '';
+  document.getElementById('ticketError').style.display = 'none';
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitBtn').textContent = 'Enviar reporte';
+  document.getElementById('formWrap').style.display = '';
+  document.getElementById('successWrap').style.display = 'none';
+}
+
+// Pre-fill page URL from query param if passed
+const urlParam = new URLSearchParams(location.search).get('page');
+if (urlParam) document.getElementById('page_url').value = urlParam;
+</script>
+</body>
+</html>

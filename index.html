@@ -24,7 +24,7 @@
       </div>
       <div class="brand-logo" id="authLogoFallback" style="display:none">BM</div>
       <h1>A Bola Maya</h1>
-      <p>Bolão do Mundial 2026</p>
+      <p>Predictions do Mundial 2026</p>
     </div>
 
     <div class="tabs">
@@ -44,6 +44,9 @@
         <input type="password" id="loginPassword" class="input" placeholder="••••••••" autocomplete="current-password">
       </div>
       <button id="loginBtn" class="btn btn-primary btn-full btn-lg">Entrar</button>
+      <div style="text-align:right;margin-top:10px">
+        <a href="forgot-password.html" class="muted small" style="text-decoration:none">Esqueceste a password?</a>
+      </div>
 
       <div class="oauth-divider"><span>ou continuar com</span></div>
       <div class="oauth-btns">
@@ -77,12 +80,29 @@
         <label>Palavra-passe</label>
         <input type="password" id="regPassword" class="input" placeholder="mínimo 6 caracteres" autocomplete="new-password">
       </div>
-      <button id="registerBtn" class="btn btn-primary btn-full btn-lg">Criar Conta</button>
+      <div class="form-group" style="margin-top:14px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;line-height:1.5">
+          <input type="checkbox" id="termsCheck" style="margin-top:3px;flex-shrink:0">
+          <span class="muted small">Li e aceito os <a href="terms.html" target="_blank" style="color:var(--primary)">Termos &amp; Privacidade</a></span>
+        </label>
+      </div>
+      <button id="registerBtn" class="btn btn-primary btn-full btn-lg" style="margin-top:14px">Criar Conta</button>
     </div>
   </div>
   <p class="muted mt-12 small">Mundial 2026 · Fase de Grupos · 11 Jun – 27 Jun</p>
 </div>
 
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
 <script src="js/api.js"></script>
 <script src="js/theme.js"></script>
 <script>
@@ -133,6 +153,7 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
   const pass     = document.getElementById('regPassword').value;
   const errEl    = document.getElementById('regError');
   errEl.style.display = 'none';
+  if (!document.getElementById('termsCheck').checked) { errEl.textContent = 'Tens de aceitar os Termos & Privacidade para criar conta.'; errEl.style.display = ''; return; }
   if (!username || !email || !pass) { errEl.textContent = 'Preenche os campos obrigatórios.'; errEl.style.display = ''; return; }
   btn.disabled = true; btn.textContent = 'A criar conta...';
   try {

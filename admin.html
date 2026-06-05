@@ -45,6 +45,17 @@
   <div id="adminContent"><div class="loading">A verificar permissões...</div></div>
 </main>
 
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="about.html">Sobre</a>
+      <a href="information.html">Dados</a>
+      <a href="terms.html">Termos</a>
+      <a href="support.html">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
 <script src="js/api.js"></script>
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
@@ -90,6 +101,8 @@ function renderPanel() {
       <button class="tab-btn active" onclick="switchTab('matches',this)">Resultados</button>
       <button class="tab-btn"        onclick="switchTab('groups',this)">Pontos de Grupos</button>
       <button class="tab-btn"        onclick="switchTab('selecoes',this)">Seleções</button>
+      <button class="tab-btn"        onclick="switchTab('tickets',this)">Reportes</button>
+      <button class="tab-btn"        onclick="switchTab('users',this)">Utilizadores</button>
     </div>
 
     <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
@@ -146,17 +159,55 @@ function renderPanel() {
         <button class="btn btn-primary btn-sm" onclick="autoSettle()">Liquidar Previsões</button>
       </div>
 
-      <div class="card mt-12" style="padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <span class="muted small">
-            <strong>Estatísticas de jogadores</strong> — manual, nunca automático.
-            Usa o botão <em>Jogadores</em> em cada linha da tabela acima.<br>
-            O botão <em>🧪</em> testa com os primeiros 3 jogadores antes de fazer o plantel completo.
-          </span>
+      <div class="card mt-12">
+        <div class="flex-between" style="margin-bottom:12px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px">Estatísticas de Jogadores</div>
+            <p class="muted small" style="margin:0">
+              Manual, nunca automático. Botão <em>🧪</em> testa com 3 jogadores antes do plantel completo.
+            </p>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="scrapeAllPlayers()"
+            title="Scrape de jogadores para todas as 48 seleções (demora horas)">
+            ↺ Todos os Jogadores
+          </button>
         </div>
-        <div id="pstats-result" style="margin-top:8px"></div>
+        <div id="pstats-result"></div>
       </div>
 
+    <!-- ── Tab: Utilizadores ──────────────────────────────────────────── -->
+    <div id="tabUsers" style="display:none">
+      <div class="card mt-12">
+        <div class="flex-between" style="margin-bottom:14px;gap:10px;flex-wrap:wrap">
+          <div class="card-title" style="margin-bottom:0">Utilizadores</div>
+          <div class="flex gap-8" style="flex:1;max-width:340px">
+            <input type="text" id="userSearch" class="input" style="font-size:.82rem;padding:5px 10px"
+              placeholder="Pesquisar por username ou email…"
+              oninput="filterUsers()">
+            <button class="btn btn-ghost btn-sm" onclick="loadUsers()">↺</button>
+          </div>
+        </div>
+        <div id="userList"><span class="muted small">A carregar...</span></div>
+      </div>
+    </div>
+
+    <!-- ── Tab: Reportes ──────────────────────────────────────────────── -->
+    <div id="tabTickets" style="display:none">
+      <div class="card mt-12">
+        <div class="flex-between" style="margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">Reportes de utilizadores</div>
+          <div class="flex gap-8">
+            <select id="ticketFilter" class="input" style="padding:4px 10px;font-size:.82rem;width:auto" onchange="loadTickets()">
+              <option value="">Todos</option>
+              <option value="open" selected>Em aberto</option>
+              <option value="reviewing">Em análise</option>
+              <option value="resolved">Resolvidos</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadTickets()">↺</button>
+          </div>
+        </div>
+        <div id="ticketList"><span class="muted small">A carregar...</span></div>
+      </div>
     </div>`;
 }
 
@@ -167,8 +218,12 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
   document.getElementById('tabMatches').style.display   = tab === 'matches'  ? '' : 'none';
   document.getElementById('tabGroups').style.display    = tab === 'groups'   ? '' : 'none';
-  document.getElementById('tabSelecoes').style.display  = tab === 'selecoes' ? '' : 'none';
+  document.getElementById('tabSelecoes').style.display  = tab === 'selecoes'  ? '' : 'none';
+  document.getElementById('tabTickets').style.display   = tab === 'tickets'   ? '' : 'none';
+  document.getElementById('tabUsers').style.display     = tab === 'users'     ? '' : 'none';
   if (tab === 'selecoes') loadScrapeStatus();
+  if (tab === 'tickets')  loadTickets();
+  if (tab === 'users')    loadUsers();
 }
 
 // ── Scrape status ─────────────────────────────────────────────────────────────
@@ -347,6 +402,18 @@ async function loadAdminStats() {
 
 // ── Player stats ──────────────────────────────────────────────────────────────
 
+async function scrapeAllPlayers() {
+  if (!confirm('Isto vai fazer scrape dos jogadores de todas as 48 seleções.\nPode demorar várias horas. Continuar?')) return;
+  const resultEl = document.getElementById('pstats-result');
+  if (resultEl) resultEl.innerHTML = '<span class="muted small">A iniciar...</span>';
+  try {
+    const r = await API.post('/player-stats/scrape-all');
+    if (resultEl) resultEl.innerHTML = `<span class="badge badge-green">Iniciado</span> <span class="muted small">${r.message}</span>`;
+  } catch (e) {
+    if (resultEl) resultEl.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
+}
+
 async function refreshPlayerStats(slug, testMode) {
   const resultEl = document.getElementById('pstats-result');
   if (resultEl) resultEl.innerHTML = '<span class="muted small">A iniciar scrape…</span>';
@@ -368,6 +435,177 @@ async function calcGroup(g) {
   try {
     const r = await API.post(`/admin/group/${g}/points`);
     showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+const TICKET_CAT_LABELS = {
+  wrong_result:      'Resultado errado',
+  wrong_player_stat: 'Stat jogador',
+  login_issue:       'Login / conta',
+  prediction_issue:  'Previsões',
+  visual_bug:        'Bug visual',
+  other:             'Outro',
+};
+
+const TICKET_STATUS_BADGES = {
+  open:       '<span class="badge badge-muted">Em aberto</span>',
+  reviewing:  '<span class="badge badge-orange">Em análise</span>',
+  resolved:   '<span class="badge badge-green">Resolvido</span>',
+};
+
+async function loadTickets() {
+  const el = document.getElementById('ticketList');
+  if (!el) return;
+  el.innerHTML = '<span class="muted small">A carregar...</span>';
+  const filter = document.getElementById('ticketFilter')?.value || '';
+  try {
+    const tickets = await API.get(`/tickets/admin${filter ? '?status='+filter : ''}`);
+    if (!tickets.length) {
+      el.innerHTML = '<p class="muted small">Nenhum reporte encontrado.</p>';
+      return;
+    }
+    el.innerHTML = tickets.map(t => `
+      <div class="ticket-row">
+        <div class="flex-between" style="align-items:flex-start;gap:12px">
+          <div style="min-width:0">
+            <span class="badge badge-muted" style="font-size:.7rem;margin-right:6px">${TICKET_CAT_LABELS[t.category] || t.category}</span>
+            <strong style="font-size:.95rem">${escHtml(t.title)}</strong>
+          </div>
+          <div class="flex gap-8" style="flex-shrink:0;align-items:center">
+            ${TICKET_STATUS_BADGES[t.status] || t.status}
+            <select class="input" style="padding:3px 8px;font-size:.78rem;width:auto"
+              onchange="updateTicketStatus(${t.id}, this.value, this)">
+              <option value="open"      ${t.status==='open'      ? 'selected':''}>Em aberto</option>
+              <option value="reviewing" ${t.status==='reviewing' ? 'selected':''}>Em análise</option>
+              <option value="resolved"  ${t.status==='resolved'  ? 'selected':''}>Resolvido</option>
+            </select>
+          </div>
+        </div>
+        <p class="muted" style="margin:8px 0 4px;font-size:.88rem;white-space:pre-wrap;line-height:1.5">${escHtml(t.description)}</p>
+        <div class="ticket-meta">
+          <span>📅 ${new Date(t.created_at).toLocaleString('pt-PT')}</span>
+          ${t.username ? `<span>👤 @${escHtml(t.username)}</span>` : '<span class="muted">Anónimo</span>'}
+          ${t.reference ? `<span>🔖 ${escHtml(t.reference)}</span>` : ''}
+          ${t.page_url  ? `<span>🔗 ${escHtml(t.page_url)}</span>`  : ''}
+        </div>
+      </div>`).join('');
+  } catch (e) {
+    el.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
+}
+
+async function updateTicketStatus(id, status, selectEl) {
+  try {
+    await API.patch(`/tickets/admin/${id}/status`, { status });
+    showToast('Estado atualizado.');
+    loadTickets();
+  } catch (e) {
+    showToast(e.message, 'error');
+    if (selectEl) selectEl.value = selectEl.dataset.prev || 'open';
+  }
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+
+let _allUsers = [];
+
+async function loadUsers() {
+  const el = document.getElementById('userList');
+  if (!el) return;
+  el.innerHTML = '<span class="muted small">A carregar...</span>';
+  try {
+    _allUsers = await API.get('/admin/users');
+    renderUsers(_allUsers);
+  } catch (e) {
+    el.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
+}
+
+function filterUsers() {
+  const q = (document.getElementById('userSearch')?.value || '').toLowerCase().trim();
+  const filtered = q
+    ? _allUsers.filter(u =>
+        u.username.toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.display_name || '').toLowerCase().includes(q))
+    : _allUsers;
+  renderUsers(filtered);
+}
+
+function renderUsers(users) {
+  const el = document.getElementById('userList');
+  if (!el) return;
+  if (!users.length) { el.innerHTML = '<p class="muted small">Nenhum utilizador encontrado.</p>'; return; }
+  el.innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="standings-table" style="width:100%;font-size:.83rem">
+        <thead><tr>
+          <th>ID</th><th>Username</th><th>Email</th><th>Prev.</th><th>Tickets</th><th>Estado</th><th>Criado</th><th></th>
+        </tr></thead>
+        <tbody>${users.map(u => {
+          const spamClass = u.ticket_count >= 5 ? 'style="background:rgba(230,29,37,.12)"'
+                          : u.ticket_count >= 3 ? 'style="background:rgba(251,146,60,.08)"' : '';
+          return `
+            <tr id="urow-${u.id}" ${spamClass}>
+              <td class="muted">${u.id}</td>
+              <td>
+                <strong>${escHtml(u.display_name || u.username)}</strong>
+                <span class="muted" style="display:block;font-size:.75rem">@${escHtml(u.username)}</span>
+              </td>
+              <td class="muted" style="font-size:.78rem">${escHtml(u.email)}</td>
+              <td>${u.predictions}</td>
+              <td>
+                ${u.ticket_count > 0
+                  ? `<span class="badge ${u.ticket_count >= 5 ? 'badge-red' : u.ticket_count >= 3 ? 'badge-orange' : 'badge-muted'}"
+                       title="Tickets enviados">${u.ticket_count}</span>`
+                  : '<span class="muted">—</span>'}
+              </td>
+              <td>
+                ${u.is_admin ? '<span class="badge badge-green">Admin</span>' : ''}
+                ${u.banned   ? '<span class="badge badge-red">Suspenso</span>' : '<span class="badge badge-muted">Ativo</span>'}
+              </td>
+              <td class="muted" style="font-size:.75rem;white-space:nowrap">${new Date(u.created_at).toLocaleDateString('pt-PT')}</td>
+              <td style="white-space:nowrap">
+                ${!u.is_admin ? `
+                  <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem"
+                    onclick="banUser(${u.id},'${escHtml(u.username)}',${u.banned})">
+                    ${u.banned ? 'Reativar' : 'Suspender'}
+                  </button>
+                  <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem;color:var(--primary)"
+                    onclick="deleteUser(${u.id},'${escHtml(u.username)}')">
+                    Apagar
+                  </button>` : ''}
+              </td>
+            </tr>`;}).join('')}
+        </tbody>
+      </table>
+      <p class="muted small" style="margin-top:10px">${users.length} utilizador${users.length !== 1 ? 'es' : ''}</p>
+    </div>`;
+}
+
+async function banUser(id, username, isBanned) {
+  const action = isBanned ? 'reativar' : 'suspender';
+  if (!confirm(`Tens a certeza que queres ${action} @${username}?`)) return;
+  try {
+    const r = await API.patch(`/admin/users/${id}/ban`);
+    showToast(`@${username} ${r.banned ? 'suspenso' : 'reativado'}.`);
+    loadUsers();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteUser(id, username) {
+  if (!confirm(`Apagar a conta de @${username}? Esta ação é irreversível e apaga todas as previsões.`)) return;
+  try {
+    await API.delete(`/admin/users/${id}`);
+    showToast(`Conta @${username} apagada.`);
+    loadUsers();
   } catch (e) { showToast(e.message, 'error'); }
 }
 </script>
