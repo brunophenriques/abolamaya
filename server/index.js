@@ -8,6 +8,7 @@ const { PORT }  = require('./config');
 const { startScheduler } = require('./scraper/scheduler');
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet({
   contentSecurityPolicy: false, // disabled — inline scripts in HTML pages
