@@ -1,19 +1,22 @@
+const dns      = require('dns');
 const nodemailer = require('nodemailer');
 const { SMTP, BASE_URL } = require('./config');
+
+dns.setDefaultResultOrder('ipv4first');
 
 let transporter = null;
 
 if (SMTP.HOST && SMTP.USER && SMTP.PASS) {
   transporter = nodemailer.createTransport({
-    host:               SMTP.HOST,
-    port:               Number(SMTP.PORT) || 587,
-    secure:             false,
-    auth:               { user: SMTP.USER, pass: SMTP.PASS },
-    family:             4,
-    tls:                { rejectUnauthorized: true },
-    connectionTimeout:  10000,
-    greetingTimeout:    10000,
-    socketTimeout:      10000,
+    host:              SMTP.HOST,
+    port:              Number(SMTP.PORT) || 587,
+    secure:            false,
+    auth:              { user: SMTP.USER, pass: SMTP.PASS },
+    family:            4,
+    connectionTimeout: 10000,
+    greetingTimeout:   10000,
+    socketTimeout:     10000,
+    tls:               { rejectUnauthorized: true },
   });
 }
 
@@ -31,6 +34,7 @@ async function sendPasswordReset(toEmail, resetToken) {
     return;
   }
 
+  try {
   await transporter.sendMail({
     from:    SMTP.FROM,
     to:      toEmail,
@@ -64,6 +68,10 @@ async function sendPasswordReset(toEmail, resetToken) {
         <p style="color:#999;font-size:.78rem">A Bola Maya · Predictions do Mundial 2026</p>
       </div>`,
   });
+  } catch (err) {
+    console.error('[email] sendMail failed:', err.message);
+    throw err;
+  }
 }
 
 module.exports = { sendPasswordReset };
