@@ -28,27 +28,13 @@ function getRank(db, uid) {
 }
 
 const ACHIEVEMENTS = [
-  // ── Existing (keep for backward compat) ─────────────────────────────────────
-  {
-    type: 'first_prediction',
-    name: 'Primeira Previsão',
-    icon: '🎯',
-    description: 'Fizeste a tua primeira previsão.',
-    check: (db, uid) => db.prepare('SELECT 1 FROM match_predictions WHERE user_id=? LIMIT 1').get(uid),
-  },
+  // ── Kept originals (not duplicated by new list) ──────────────────────────────
   {
     type: 'first_correct',
     name: 'Acertei!',
     icon: '✅',
     description: 'Acertaste no resultado de um jogo.',
-    check: (db, uid) => db.prepare('SELECT 1 FROM match_predictions WHERE user_id=? AND points_earned>=1 LIMIT 1').get(uid),
-  },
-  {
-    type: 'exact_score',
-    name: 'Marcador Exato',
-    icon: '💎',
-    description: 'Acertaste no marcador exato de um jogo.',
-    check: (db, uid) => db.prepare('SELECT 1 FROM match_predictions WHERE user_id=? AND points_earned=3 LIMIT 1').get(uid),
+    check: (db, uid) => !!db.prepare('SELECT 1 FROM match_predictions WHERE user_id=? AND points_earned>=1 LIMIT 1').get(uid),
   },
   {
     type: 'ten_correct',
@@ -78,13 +64,6 @@ const ACHIEVEMENTS = [
     },
   },
   {
-    type: 'perfect_group',
-    name: 'Mestre do Grupo',
-    icon: '🏆',
-    description: 'Acertaste na ordem completa de um grupo (4/4).',
-    check: (db, uid) => db.prepare('SELECT 1 FROM group_points WHERE user_id=? AND points_earned=4 LIMIT 1').get(uid),
-  },
-  {
     type: 'five_streak',
     name: 'Em Chama',
     icon: '🔥',
@@ -103,15 +82,6 @@ const ACHIEVEMENTS = [
       }
       return false;
     },
-  },
-  {
-    type: 'first_friend',
-    name: 'Não É de Ferro',
-    icon: '👥',
-    description: 'Adicionaste o teu primeiro amigo.',
-    check: (db, uid) => db.prepare(
-      "SELECT 1 FROM friends WHERE (requester_id=? OR addressee_id=?) AND status='accepted' LIMIT 1"
-    ).get(uid, uid),
   },
   {
     type: 'all_predictions',

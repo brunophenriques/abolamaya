@@ -329,6 +329,22 @@ db.exec(`
   )
 `);
 
+// Migrate duplicate achievement types → canonical replacements, then delete old rows.
+// first_prediction → primeiro_sangue, exact_score → nostradamus,
+// perfect_group → oraculo, first_friend → primeiro_amigo
+[
+  ['first_prediction', 'primeiro_sangue'],
+  ['exact_score',      'nostradamus'],
+  ['perfect_group',    'oraculo'],
+  ['first_friend',     'primeiro_amigo'],
+].forEach(([oldType, newType]) => {
+  db.prepare(`
+    INSERT OR IGNORE INTO user_achievements (user_id, type, earned_at)
+    SELECT user_id, ?, earned_at FROM user_achievements WHERE type=?
+  `).run(newType, oldType);
+  db.prepare(`DELETE FROM user_achievements WHERE type=?`).run(oldType);
+});
+
 // Remove rank achievements that were awarded when everyone had 0 points.
 // Safe to run every startup: points only go up, so 0-point users never earned these legitimately.
 const cleaned = db.prepare(`
