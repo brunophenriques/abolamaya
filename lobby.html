@@ -342,9 +342,15 @@ async function loadModalMembers(id, createdBy) {
 
     document.getElementById('modalMembers').innerHTML = `
       <div class="member-list">
-        ${members.map(m => `
+        ${members.map(m => {
+          const mc = m.avatar_color || avatarColor(m.username || '');
+          const mi = (m.display_name || m.username || '?').charAt(0).toUpperCase();
+          const avatarHtml = m.avatar_url
+            ? `<div class="member-avatar" style="background:${mc};overflow:hidden;position:relative"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">${mi}</span><img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()"></div>`
+            : `<div class="member-avatar" style="background:${mc}">${mi}</div>`;
+          return `
           <div class="member-row">
-            <div class="member-avatar">${(m.display_name || m.username).charAt(0).toUpperCase()}</div>
+            ${avatarHtml}
             <div class="member-name ${m.id === user.id ? 'member-me' : ''}">
               ${m.display_name || m.username}
               ${m.id === createdBy ? '<span class="badge badge-gold" style="margin-left:6px;font-size:.62rem">Criador</span>' : ''}
@@ -353,7 +359,8 @@ async function loadModalMembers(id, createdBy) {
             ${isCreator && m.id !== user.id
               ? `<button class="btn btn-danger btn-sm" onclick="kickMember(${id},${m.id},'${m.display_name || m.username}')">Expulsar</button>`
               : ''}
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>
       <p class="muted small mt-12">${members.length} membro${members.length !== 1 ? 's' : ''}</p>`;
   } catch (e) {

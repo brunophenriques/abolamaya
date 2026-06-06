@@ -15,18 +15,27 @@ function setupNavbar(user) {
   // Avatar: custom photo > generated color initial
   const avatarEl = document.getElementById('navAvatar');
   if (avatarEl) {
+    const color   = (typeof avatarColor === 'function')
+      ? (user.avatar_color || avatarColor(user.username || ''))
+      : (user.avatar_color || '#E61D25');
+    const initial = (user.display_name || user.username || '?').charAt(0).toUpperCase();
+
+    // Always set the initial as the base state
+    avatarEl.textContent = initial;
+    avatarEl.style.background = color;
+    avatarEl.style.backgroundImage = '';
+
     if (user.avatar_url) {
-      avatarEl.style.backgroundImage  = `url(${user.avatar_url})`;
-      avatarEl.style.backgroundSize   = 'cover';
-      avatarEl.style.backgroundPosition = 'center';
-      avatarEl.textContent = '';
-    } else {
-      const color = (typeof avatarColor === 'function')
-        ? (user.avatar_color || avatarColor(user.username || ''))
-        : (user.avatar_color || '#E61D25');
-      avatarEl.textContent = (user.display_name || user.username || '?').charAt(0).toUpperCase();
-      avatarEl.style.background = color;
+      const img = new Image();
+      img.onload = () => {
+        avatarEl.style.backgroundImage    = `url(${user.avatar_url})`;
+        avatarEl.style.backgroundSize     = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.textContent = '';
+      };
+      img.src = user.avatar_url;
     }
+
     avatarEl.style.cursor = 'pointer';
     avatarEl.title = 'O meu perfil';
     avatarEl.onclick = () => { window.location.href = `/profile?u=${user.username}`; };

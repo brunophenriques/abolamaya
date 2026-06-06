@@ -78,8 +78,9 @@ function renderSettings() {
     <!-- Avatar -->
     <div class="card" style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
       <div id="settingsAvatar" style="width:64px;height:64px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.6rem;flex-shrink:0;overflow:hidden;cursor:pointer;position:relative" title="Clica para alterar foto" onclick="document.getElementById('avatarInput').click()">
-        ${me.avatar_url ? `<img src="${me.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : initial}
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s" class="avatar-overlay">📷</div>
+        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:900">${initial}</span>
+        ${me.avatar_url ? `<img src="${me.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()">` : ''}
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;z-index:2" class="avatar-overlay">📷</div>
       </div>
       <div>
         <div style="font-weight:700">@${me.username}</div>

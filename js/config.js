@@ -31,10 +31,14 @@ function avatarColor(str) {
   return p[Math.abs(h) % p.length];
 }
 
-// Render a small avatar element (initial + color)
+// Render an avatar circle — photo if available, robust initial fallback
 function renderAvatar(user, size = 32, cls = '') {
-  const color = user.avatar_color || avatarColor(user.username || '');
+  const color   = user.avatar_color || avatarColor(user.username || '');
   const initial = (user.display_name || user.username || '?').charAt(0).toUpperCase();
-  const style = `width:${size}px;height:${size}px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;flex-shrink:0;text-decoration:none;`;
-  return `<div class="avatar-gen ${cls}" style="${style}" title="${user.display_name || user.username}">${initial}</div>`;
+  const base    = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;overflow:hidden;position:relative;text-decoration:none;`;
+  const title   = user.display_name || user.username || '';
+  if (user.avatar_url) {
+    return `<div class="avatar-gen ${cls}" style="${base}" title="${title}"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">${initial}</span><img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()"></div>`;
+  }
+  return `<div class="avatar-gen ${cls}" style="${base}" title="${title}">${initial}</div>`;
 }

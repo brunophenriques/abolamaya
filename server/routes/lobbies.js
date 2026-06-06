@@ -45,7 +45,7 @@ router.get('/:id/members', auth, (req, res) => {
   if (!isMember) return res.status(403).json({ error: 'Sem acesso' });
 
   const members = db.prepare(`
-    SELECT u.id, u.username, u.display_name
+    SELECT u.id, u.username, u.display_name, u.avatar_url, u.avatar_color
     FROM lobby_members lm
     JOIN users u ON u.id = lm.user_id
     WHERE lm.lobby_id = ?

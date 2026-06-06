@@ -109,10 +109,11 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
   document.getElementById('profileContent').innerHTML = `
     <!-- Header -->
     <div class="profile-header">
-      <div class="profile-avatar" style="background:${color};overflow:hidden">
+      <div class="profile-avatar" style="background:${color};overflow:hidden;position:relative">
+        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:900;color:#fff">${initial}</span>
         ${user.avatar_url
-          ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
-          : initial}
+          ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()">`
+          : ''}
       </div>
       <div class="profile-info" style="flex:1;min-width:0">
         <h1>${user.display_name || user.username}
@@ -270,9 +271,13 @@ function renderFriends({ friends, incoming, outgoing }, el) {
 }
 
 function renderAvatarEl(user, size) {
-  const color   = user.avatar_color || avatarColor(user.username);
-  const initial = (user.display_name || user.username).charAt(0).toUpperCase();
-  return `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;flex-shrink:0">${initial}</div>`;
+  const color   = user.avatar_color || avatarColor(user.username || '');
+  const initial = (user.display_name || user.username || '?').charAt(0).toUpperCase();
+  const base    = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${Math.round(size*0.42)}px;overflow:hidden;position:relative`;
+  if (user.avatar_url) {
+    return `<div style="${base}"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">${initial}</span><img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()"></div>`;
+  }
+  return `<div style="${base}">${initial}</div>`;
 }
 
 async function sendFriendRequest(username) {
