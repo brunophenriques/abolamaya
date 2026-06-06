@@ -309,18 +309,35 @@ async function scrapeTeam(team, page) {
     throw new Error('No eventRowLink anchors found — URL may be wrong or page did not render');
   }
 
-  // ── Primary: parse full body text (state machine, handles section headers) ─
-  let rows = parseBodyText(bodyText, allNames, RESULTS_LIMIT);
-
-  // ── Secondary: parse per-container texts from a.eventRowLink ──────────────
-  if (rows.length === 0 && matchRows.length > 0) {
+  // ── Container parser (per a.eventRowLink) — parses each match independently ─
+  function parseContainerRows() {
+    const out = [];
     for (const { competition, containerText } of matchRows) {
-      if (rows.length >= RESULTS_LIMIT) break;
-      // Inject competition as a header and reuse the body text parser
+      if (out.length >= RESULTS_LIMIT) break;
       const r = parseBodyText(`${competition}\n${containerText}`, allNames, 1);
-      if (r.length) rows.push(r[0]);
+      if (r.length) out.push(r[0]);
     }
-    if (rows.length) console.log('[scraper]', team.name, `container parser found ${rows.length} rows`);
+    return out;
+  }
+
+  let rows = [];
+
+  // Teams with a custom resultsUrl (e.g. USA on www.soccerway.com) have a
+  // different page layout — container-first is more reliable than body text.
+  if (team.resultsUrl && matchRows.length > 0) {
+    rows = parseContainerRows();
+    if (rows.length) console.log('[scraper]', team.name, `container-first: ${rows.length} rows`);
+  }
+
+  // ── Primary: parse full body text (state machine, handles section headers) ─
+  if (rows.length === 0) {
+    rows = parseBodyText(bodyText, allNames, RESULTS_LIMIT);
+  }
+
+  // ── Secondary: per-container fallback (when body text parser returns nothing) ─
+  if (rows.length === 0 && matchRows.length > 0) {
+    rows = parseContainerRows();
+    if (rows.length) console.log('[scraper]', team.name, `container fallback: ${rows.length} rows`);
   }
 
   // ── Tertiary: old HTML table format (pre-2024 Soccerway) ─────────────────
