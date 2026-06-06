@@ -45,6 +45,14 @@
   <div id="adminContent"><div class="loading">A verificar permissões...</div></div>
 </main>
 
+<!-- ── Ticket modal ───────────────────────────────────────────────────────── -->
+<div id="ticketModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow:auto;padding:24px 16px"
+  onclick="if(event.target===this)closeTicketModal()">
+  <div style="max-width:560px;margin:0 auto">
+    <div class="card" id="ticketModalContent"></div>
+  </div>
+</div>
+
 <footer class="site-footer">
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
@@ -457,40 +465,34 @@ const TICKET_STATUS_BADGES = {
   resolved:   '<span class="badge badge-green">Resolvido</span>',
 };
 
+let _tickets = [];
+
 async function loadTickets() {
   const el = document.getElementById('ticketList');
   if (!el) return;
   el.innerHTML = '<span class="muted small">A carregar...</span>';
   const filter = document.getElementById('ticketFilter')?.value || '';
   try {
-    const tickets = await API.get(`/tickets/admin${filter ? '?status='+filter : ''}`);
-    if (!tickets.length) {
+    _tickets = await API.get(`/tickets/admin${filter ? '?status='+filter : ''}`);
+    if (!_tickets.length) {
       el.innerHTML = '<p class="muted small">Nenhum reporte encontrado.</p>';
       return;
     }
-    el.innerHTML = tickets.map(t => `
-      <div class="ticket-row">
-        <div class="flex-between" style="align-items:flex-start;gap:12px">
+    el.innerHTML = _tickets.map(t => `
+      <div class="ticket-row" style="cursor:pointer" onclick="openTicketModal(${t.id})">
+        <div class="flex-between" style="align-items:flex-start;gap:12px;pointer-events:none">
           <div style="min-width:0">
             <span class="badge badge-muted" style="font-size:.7rem;margin-right:6px">${TICKET_CAT_LABELS[t.category] || t.category}</span>
             <strong style="font-size:.95rem">${escHtml(t.title)}</strong>
           </div>
           <div class="flex gap-8" style="flex-shrink:0;align-items:center">
             ${TICKET_STATUS_BADGES[t.status] || t.status}
-            <select class="input" style="padding:3px 8px;font-size:.78rem;width:auto"
-              onchange="updateTicketStatus(${t.id}, this.value, this)">
-              <option value="open"      ${t.status==='open'      ? 'selected':''}>Em aberto</option>
-              <option value="reviewing" ${t.status==='reviewing' ? 'selected':''}>Em análise</option>
-              <option value="resolved"  ${t.status==='resolved'  ? 'selected':''}>Resolvido</option>
-            </select>
           </div>
         </div>
-        <p class="muted" style="margin:8px 0 4px;font-size:.88rem;white-space:pre-wrap;line-height:1.5">${escHtml(t.description)}</p>
-        <div class="ticket-meta">
+        <div class="ticket-meta" style="pointer-events:none">
           <span>📅 ${new Date(t.created_at).toLocaleString('pt-PT')}</span>
           ${t.username ? `<span>👤 @${escHtml(t.username)}</span>` : '<span class="muted">Anónimo</span>'}
           ${t.reference ? `<span>🔖 ${escHtml(t.reference)}</span>` : ''}
-          ${t.page_url  ? `<span>🔗 ${escHtml(t.page_url)}</span>`  : ''}
         </div>
       </div>`).join('');
   } catch (e) {
@@ -498,15 +500,58 @@ async function loadTickets() {
   }
 }
 
-async function updateTicketStatus(id, status, selectEl) {
+function openTicketModal(id) {
+  const t = _tickets.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('ticketModalContent').innerHTML = `
+    <div class="flex-between mb-16">
+      <div>
+        <span class="badge badge-muted" style="font-size:.72rem;margin-right:6px">${TICKET_CAT_LABELS[t.category] || t.category}</span>
+        ${TICKET_STATUS_BADGES[t.status] || t.status}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeTicketModal()" style="font-size:1.1rem;padding:4px 10px;line-height:1">&times;</button>
+    </div>
+    <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:14px">${escHtml(t.title)}</h3>
+    <p style="white-space:pre-wrap;line-height:1.65;font-size:.9rem;color:var(--muted);margin-bottom:16px">${escHtml(t.description)}</p>
+    ${t.page_url  ? `<p class="muted small" style="margin-bottom:6px">🔗 <span style="user-select:all">${escHtml(t.page_url)}</span></p>` : ''}
+    ${t.reference ? `<p class="muted small" style="margin-bottom:6px">🔖 ${escHtml(t.reference)}</p>` : ''}
+    <hr class="divider">
+    <div class="ticket-meta" style="margin-bottom:16px">
+      <span>📅 ${new Date(t.created_at).toLocaleString('pt-PT')}</span>
+      ${t.username ? `<span>👤 @${escHtml(t.username)}${t.display_name ? ` (${escHtml(t.display_name)})` : ''}</span>` : '<span>Anónimo</span>'}
+    </div>
+    <div class="flex gap-8" style="align-items:center">
+      <label class="muted small">Estado:</label>
+      <select id="ticketModalStatus" class="input" style="padding:5px 10px;font-size:.85rem;width:auto">
+        <option value="open"      ${t.status==='open'      ? 'selected':''}>Em aberto</option>
+        <option value="reviewing" ${t.status==='reviewing' ? 'selected':''}>Em análise</option>
+        <option value="resolved"  ${t.status==='resolved'  ? 'selected':''}>Resolvido</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="saveTicketModalStatus(${t.id})">Guardar</button>
+    </div>`;
+  document.getElementById('ticketModal').style.display = '';
+}
+
+function closeTicketModal() {
+  document.getElementById('ticketModal').style.display = 'none';
+}
+
+async function saveTicketModalStatus(id) {
+  const status = document.getElementById('ticketModalStatus')?.value;
+  try {
+    await API.patch(`/tickets/admin/${id}/status`, { status });
+    showToast('Estado atualizado.');
+    closeTicketModal();
+    loadTickets();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function updateTicketStatus(id, status) {
   try {
     await API.patch(`/tickets/admin/${id}/status`, { status });
     showToast('Estado atualizado.');
     loadTickets();
-  } catch (e) {
-    showToast(e.message, 'error');
-    if (selectEl) selectEl.value = selectEl.dataset.prev || 'open';
-  }
+  } catch (e) { showToast(e.message, 'error'); }
 }
 
 function escHtml(s) {

@@ -78,24 +78,49 @@ async function refreshNotifications() {
     }
 
     const TYPE_ICON = {
-      friend_request: '👥',
+      friend_request:  '👥',
       friend_accepted: '✅',
-      achievement:    '🏆',
-      match_settled:  '⚽',
+      achievement:     '🏆',
+      match_settled:   '⚽',
     };
+
+    function renderNotif(n) {
+      const icon = TYPE_ICON[n.type] || '🔔';
+      const time = relativeNotifTime(n.created_at);
+      const unread = n.read ? '' : 'notif-unread';
+
+      if (n.type === 'friend_request' && n.body) {
+        return `
+          <div class="notif-row ${unread}" id="notif-${n.id}">
+            <span class="notif-icon">${icon}</span>
+            <div class="notif-body">
+              <div class="notif-title">${n.title}</div>
+              <div class="notif-time muted">${time}</div>
+              <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm" style="font-size:.72rem;padding:3px 10px"
+                  onclick="acceptFriendNotif(${n.body},${n.id})">Aceitar</button>
+                <a href="${n.link || '#'}" class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:3px 10px"
+                  onclick="markRead(${n.id})">Ver perfil</a>
+              </div>
+            </div>
+          </div>`;
+      }
+      return `
+        <a href="${n.link || '#'}" class="notif-row ${unread}" onclick="markRead(${n.id})">
+          <span class="notif-icon">${icon}</span>
+          <div class="notif-body">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-time muted">${time}</div>
+          </div>
+        </a>`;
+    }
+
     panel.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
         <strong style="font-size:.85rem">Notificações</strong>
         <button onclick="markAllRead()" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px">Marcar todas lidas</button>
       </div>
-      ${data.notifications.map(n => `
-        <a href="${n.link || '#'}" class="notif-row ${n.read ? '' : 'notif-unread'}" onclick="markRead(${n.id})">
-          <span class="notif-icon">${TYPE_ICON[n.type] || '🔔'}</span>
-          <div class="notif-body">
-            <div class="notif-title">${n.title}</div>
-            <div class="notif-time muted">${relativeNotifTime(n.created_at)}</div>
-          </div>
-        </a>`).join('')}
+      ${data.notifications.map(renderNotif).join('')}
     `;
   } catch { /* notifications optional */ }
 }
@@ -124,6 +149,19 @@ async function markRead(id) {
 
 async function markAllRead() {
   await API.patch('/notifications/read-all').catch(() => {});
+  refreshNotifications();
+}
+
+async function acceptFriendNotif(friendId, notifId) {
+  const btn = document.querySelector(`#notif-${notifId} .btn-primary`);
+  if (btn) { btn.disabled = true; btn.textContent = 'A aceitar...'; }
+  try {
+    await API.post(`/friends/${friendId}/accept`);
+    await API.patch(`/notifications/${notifId}/read`).catch(() => {});
+    showToast('Pedido de amizade aceite!');
+  } catch (e) {
+    showToast(e.message || 'Erro ao aceitar pedido', 'error');
+  }
   refreshNotifications();
 }
 

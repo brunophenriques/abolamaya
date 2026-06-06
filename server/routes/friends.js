@@ -52,14 +52,15 @@ router.post('/request', auth, (req, res) => {
   if (existing?.status === 'accepted') return res.status(409).json({ error: 'Já são amigos' });
   if (existing?.status === 'pending')  return res.status(409).json({ error: 'Pedido já pendente' });
 
-  db.prepare(`INSERT INTO friends (requester_id,addressee_id) VALUES (?,?)`).run(req.user.id, target.id);
+  const friendRow = db.prepare(`INSERT INTO friends (requester_id,addressee_id) VALUES (?,?)`).run(req.user.id, target.id);
 
-  // Notify the addressee
+  // Notify the addressee — store friend request ID in body for inline accept
   const me = db.prepare('SELECT username, display_name FROM users WHERE id=?').get(req.user.id);
   createNotification(target.id, {
     type:  'friend_request',
     title: `${me.display_name || me.username} enviou-te um pedido de amizade`,
     link:  `/profile.html?u=${me.username}`,
+    body:  String(friendRow.lastInsertRowid),
   });
 
   res.json({ ok: true });
