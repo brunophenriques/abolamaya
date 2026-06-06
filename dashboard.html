@@ -168,8 +168,10 @@ function rankBadge(i) {
           <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
             <td>
-              <strong>${u.display_name || u.username}</strong>
-              <br><span class="lb-sub">@${u.username}</span>
+              <a href="profile.html?u=${u.username}" style="text-decoration:none;color:var(--text)">
+                <strong>${u.display_name || u.username}</strong>
+                <br><span class="lb-sub">@${u.username}</span>
+              </a>
               ${u.id === user.id ? ` <span class="badge badge-red" style="font-size:.62rem">Tu</span>` : ''}
             </td>
             <td>${u.predictions_made}</td>
