@@ -94,14 +94,18 @@ function startScheduler(db) {
 
   console.log('[scheduler] Started — full scrape at 06:00 + 18:00 UTC, matchday checks 00:00–10:00 UTC');
 
-  // ── 3. Startup scrape — only if cache is stale ────────────────────────────
-  setTimeout(() => {
-    if (isCacheStale(db)) {
-      runScrape(db, TEAMS, 'startup');
-    } else {
-      console.log('[scheduler] startup: cache fresh — scrape skipped');
-    }
-  }, 5000);
+  // ── 3. Startup scrape — skipped if SKIP_STARTUP_SCRAPE=true (set on Railway)
+  if (process.env.SKIP_STARTUP_SCRAPE === 'true') {
+    console.log('[scheduler] startup: scrape disabled via SKIP_STARTUP_SCRAPE');
+  } else {
+    setTimeout(() => {
+      if (isCacheStale(db)) {
+        runScrape(db, TEAMS, 'startup');
+      } else {
+        console.log('[scheduler] startup: cache fresh — scrape skipped');
+      }
+    }, 5000);
+  }
 }
 
 module.exports = { startScheduler, runScrape };
