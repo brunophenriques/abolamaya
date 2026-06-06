@@ -80,6 +80,7 @@ async function dismissConsent(page) {
 // ── URL builder ──────────────────────────────────────────────────────────────
 
 function getSoccerwayUrl(team) {
+  if (team.resultsUrl) return team.resultsUrl;
   const slug = team.soccerwaySlug || team.slug;
   return `https://us.soccerway.com/team/${slug}/${team.soccerwayKey}/`;
 }
