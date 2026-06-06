@@ -145,7 +145,7 @@ function rankBadge(i) {
       ? '<span class="group-check">✓</span>'
       : `<span class="muted small">${count}/6</span>`;
     const card = document.createElement('a');
-    card.href = `predict.html?group=${g}`;
+    card.href = `/predict?group=${g}`;
     card.className = `group-card gc-${g}${done ? ' done' : ''}`;
     card.innerHTML = `
       <div class="group-card-header">
@@ -163,10 +163,13 @@ function rankBadge(i) {
   document.getElementById('miniLeaderboard').innerHTML = top.length ? `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
-        <thead><tr><th>#</th><th>Utilizador</th><th>Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th class="lb-avatar"></th><th>Utilizador</th><th>Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
         <tbody>${top.map((u, i) => `
           <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
+            <td class="lb-avatar">
+              <a href="/profile?u=${u.username}" style="text-decoration:none">${renderAvatar(u, 28)}</a>
+            </td>
             <td>
               <a href="/profile?u=${u.username}" style="text-decoration:none;color:var(--text)">
                 <strong>${u.display_name || u.username}</strong>

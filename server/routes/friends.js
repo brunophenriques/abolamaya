@@ -118,7 +118,7 @@ router.get('/leaderboard', auth, (req, res) => {
   const ph  = ids.map(() => '?').join(',');
 
   const rows = db.prepare(`
-    SELECT u.id, u.username, u.display_name, u.avatar_color, u.is_admin,
+    SELECT u.id, u.username, u.display_name, u.avatar_color, u.avatar_url, u.is_admin,
       COALESCE(mp.pts,0)              AS match_points,
       COALESCE(gp.gp,0)              AS group_points,
       COALESCE(mp.pts,0)+COALESCE(gp.gp,0) AS total_points,
