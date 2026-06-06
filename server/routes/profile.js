@@ -2,7 +2,7 @@ const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const db      = require('../db');
 const { auth } = require('../middleware/auth');
-const { getUserAchievements } = require('../middleware/achievements');
+const { getUserAchievements, awardAchievement } = require('../middleware/achievements');
 
 // ── Shared stats helper ───────────────────────────────────────────────────────
 function userStats(userId) {
@@ -53,6 +53,11 @@ router.get('/:username', auth, (req, res) => {
     FROM users WHERE username=?
   `).get(req.params.username.toLowerCase());
   if (!u) return res.status(404).json({ error: 'Utilizador não encontrado' });
+
+  // Hidden achievement: visiting @67machine's profile (not self)
+  if (u.username === '67machine' && req.user.id !== u.id) {
+    setImmediate(() => awardAchievement(db, req.user.id, '67_machine'));
+  }
 
   res.json({
     user:         { ...u, is_admin: !!u.is_admin },

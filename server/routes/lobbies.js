@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const db     = require('../db');
 const { auth } = require('../middleware/auth');
+const { checkAchievements } = require('../middleware/achievements');
 
 // GET /api/lobbies
 router.get('/', auth, (req, res) => {
@@ -21,6 +22,7 @@ router.post('/', auth, (req, res) => {
   const code = Math.random().toString(36).slice(2,8).toUpperCase();
   const r = db.prepare('INSERT INTO lobbies (name,invite_code,created_by) VALUES (?,?,?)').run(name, code, req.user.id);
   db.prepare('INSERT INTO lobby_members (lobby_id,user_id) VALUES (?,?)').run(r.lastInsertRowid, req.user.id);
+  setImmediate(() => checkAchievements(db, req.user.id));
   res.json(db.prepare('SELECT * FROM lobbies WHERE id=?').get(r.lastInsertRowid));
 });
 
@@ -33,6 +35,8 @@ router.post('/join', auth, (req, res) => {
   if (!lobby) return res.status(404).json({ error: 'Código inválido' });
 
   db.prepare('INSERT OR IGNORE INTO lobby_members (lobby_id,user_id) VALUES (?,?)').run(lobby.id, req.user.id);
+  // Check comunidade for lobby creator when someone joins
+  setImmediate(() => checkAchievements(db, lobby.created_by));
   res.json(lobby);
 });
 

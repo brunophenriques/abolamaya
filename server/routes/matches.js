@@ -2,6 +2,7 @@ const router = require('express').Router();
 const db     = require('../db');
 const { auth } = require('../middleware/auth');
 const { PREDICTION_DEADLINE } = require('../config');
+const { checkAchievements } = require('../middleware/achievements');
 
 // GET /api/matches
 router.get('/', (req, res) => {
@@ -40,6 +41,8 @@ router.post('/predictions', auth, (req, res) => {
       }
     })();
     res.json({ ok: true, count: predictions.length });
+    // Check prediction-related achievements async (don't block response)
+    setImmediate(() => checkAchievements(db, req.user.id));
   } catch (e) {
     res.status(400).json({ error: e.message });
   }

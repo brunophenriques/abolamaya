@@ -18,6 +18,8 @@ function teamsMatch(dbTeam, scrapedTeam) {
   return a === b || a.includes(b) || b.includes(a);
 }
 
+const { checkAchievements } = require('./middleware/achievements');
+
 function autoSettleFromScrape(db) {
   // Only matches past their date that haven't been settled yet
   const pending = db.prepare(`
@@ -72,6 +74,10 @@ function autoSettleFromScrape(db) {
       INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, predictions_scored)
       VALUES (?, 'auto', ?, ?, ?)
     `).run(m.id, found.home_score, found.away_score, scored.changes);
+
+    // Award achievements for all users with predictions on this match
+    const affected = db.prepare('SELECT DISTINCT user_id FROM match_predictions WHERE match_id=? AND points_earned IS NOT NULL').all(m.id);
+    for (const { user_id } of affected) checkAchievements(db, user_id);
 
     console.log(`[settle] ${m.home_team} ${found.home_score}–${found.away_score} ${m.away_team} (match ${m.id}) settled`);
     settled++;

@@ -3,6 +3,7 @@ const db     = require('../db');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
 const { logEvent } = require('../logs');
+const { checkAchievements } = require('../middleware/achievements');
 
 // GET /api/admin/stats — dashboard overview
 router.get('/stats', auth, requireAdmin, (req, res) => {
@@ -84,6 +85,12 @@ router.post('/result', auth, requireAdmin, (req, res) => {
     metadata:  { match_id, home_score, away_score, predictions_scored: scored.changes },
   });
 
+  // Check achievements for all users with settled predictions for this match
+  setImmediate(() => {
+    const affected = db.prepare('SELECT DISTINCT user_id FROM match_predictions WHERE match_id=? AND points_earned IS NOT NULL').all(match_id);
+    for (const { user_id } of affected) checkAchievements(db, user_id);
+  });
+
   res.json({ ok: true });
 });
 
@@ -130,6 +137,11 @@ router.post('/group/:group_id/points', auth, requireAdmin, (req, res) => {
       count++;
     }
   })();
+
+  // Check group/rank achievements for all users who got group points
+  setImmediate(() => {
+    for (const uid of Object.keys(byUser)) checkAchievements(db, parseInt(uid));
+  });
 
   logEvent({
     category:  'admin',
