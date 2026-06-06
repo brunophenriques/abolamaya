@@ -1541,8 +1541,9 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 
   /* Profile */
   .profile-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
-  .profile-stats  { grid-template-columns: repeat(3, 1fr); }
-  .profile-stat-value { font-size: 1.3rem; }
+  .profile-stats  { grid-template-columns: repeat(5, 1fr); }
+  .profile-stat-value { font-size: 1.1rem; }
+  .profile-stat-label { font-size: .6rem; }
 
   /* Leaderboard */
   .lb-table .lb-accuracy { display: none; }
@@ -1622,10 +1623,10 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
   /* Profile */
   .profile-avatar { width: 64px; height: 64px; font-size: 1.6rem; }
   .profile-info h1 { font-size: 1.3rem; }
-  .profile-stats  { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .profile-stat   { padding: 10px 8px; }
-  .profile-stat-value { font-size: 1.2rem; }
-  .profile-stat-label { font-size: .62rem; }
+  .profile-stats  { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .profile-stat   { padding: 10px 4px; }
+  .profile-stat-value { font-size: 1rem; }
+  .profile-stat-label { font-size: .55rem; }
 
   /* History table — hide venue/group, keep match + score + result */
   .history-table th:nth-child(n+4),
