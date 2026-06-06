@@ -18,7 +18,9 @@ const upload = multer({
   },
 });
 
-const AVATAR_DIR = path.join(__dirname, '..', '..', 'img', 'avatars');
+// In production (Railway), point AVATARS_DIR at the persistent volume, e.g. /data/avatars.
+// Locally falls back to img/avatars inside the project.
+const AVATAR_DIR = process.env.AVATARS_DIR || path.join(__dirname, '..', '..', 'img', 'avatars');
 if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
 
 // POST /api/upload/avatar

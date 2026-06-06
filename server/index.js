@@ -33,6 +33,12 @@ const ticketLimiter = rateLimit({
   message: { error: 'Demasiados reportes enviados. Tenta mais tarde.' },
 });
 
+// Avatars from persistent volume (AVATARS_DIR=/data/avatars on Railway).
+// Must be registered before the general static middleware so it takes priority.
+if (process.env.AVATARS_DIR) {
+  app.use('/img/avatars', require('express').static(process.env.AVATARS_DIR));
+}
+
 // Serve frontend files
 app.use(express.static(path.join(__dirname, '..')));
 
