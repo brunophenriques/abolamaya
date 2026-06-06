@@ -329,4 +329,29 @@ db.exec(`
   )
 `);
 
+// Remove rank achievements that were awarded when everyone had 0 points.
+// Safe to run every startup: points only go up, so 0-point users never earned these legitimately.
+const cleaned = db.prepare(`
+  DELETE FROM user_achievements
+  WHERE type IN ('top_100','top_25','top_10','rei_da_colina')
+  AND user_id IN (
+    SELECT id FROM users
+    WHERE COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=users.id AND points_earned IS NOT NULL),0)
+        + COALESCE((SELECT SUM(points_earned) FROM group_points       WHERE user_id=users.id),0) < 1
+  )
+`).run();
+if (cleaned.changes > 0) console.log(`[db] Limpeza: ${cleaned.changes} rank achievement(s) inválido(s) removido(s).`);
+
+// Also remove associated notifications for those achievements
+db.prepare(`
+  DELETE FROM notifications
+  WHERE type='achievement'
+  AND (title LIKE '%Top 100%' OR title LIKE '%Top 25%' OR title LIKE '%Top 10%' OR title LIKE '%Rei da Colina%')
+  AND user_id IN (
+    SELECT id FROM users
+    WHERE COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=users.id AND points_earned IS NOT NULL),0)
+        + COALESCE((SELECT SUM(points_earned) FROM group_points       WHERE user_id=users.id),0) < 1
+  )
+`).run();
+
 module.exports = db;

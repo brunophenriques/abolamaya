@@ -3,12 +3,17 @@
 // The `check` function must be idempotent and safe to call frequently.
 // `67_machine` is event-driven (awarded via awardAchievement) — check always returns false.
 
+const RANK_ACH_TYPES = ['top_100', 'top_25', 'top_10', 'rei_da_colina'];
+
+// Returns Infinity if the user has 0 points — rank achievements require real points.
 function getRank(db, uid) {
   const { total } = db.prepare(`
     SELECT
       COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=? AND points_earned IS NOT NULL),0) +
       COALESCE((SELECT SUM(points_earned) FROM group_points WHERE user_id=?),0) AS total
   `).get(uid, uid);
+
+  if (total < 1) return Infinity;
 
   const { rank } = db.prepare(`
     SELECT COUNT(*)+1 AS rank FROM (
