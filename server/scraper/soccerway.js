@@ -24,27 +24,42 @@ const MONTHS = {
   Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12',
 };
 
-// Handles "DD/MM/YY", "DD/MM/YYYY", "Apr 01", "Nov 16, 2025"
+// Handles "DD/MM/YY", "DD/MM/YYYY", "DD.MM.YYYY", "DD.MM. HH:MM", "Apr 01", "Nov 16, 2025"
 function parseSoccerwayDate(raw) {
   if (!raw) return null;
   const s = raw.trim();
 
-  // Legacy format: DD/MM/YY or DD/MM/YYYY
-  const old = s.match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
-  if (old) {
-    const [, d, mo, y] = old;
+  // Legacy slash format: DD/MM/YY or DD/MM/YYYY
+  const slashFmt = s.match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
+  if (slashFmt) {
+    const [, d, mo, y] = slashFmt;
     const year = y.length === 4 ? parseInt(y) : (parseInt(y) < 50 ? 2000 + parseInt(y) : 1900 + parseInt(y));
     return `${year}-${mo}-${d}`;
   }
 
-  // New format: "Apr 01" or "Nov 16, 2025"
+  // European dot format with full year: DD.MM.YYYY (www.soccerway.com)
+  const dotFull = s.match(/^(\d{1,2})\.(\d{2})\.(\d{4})/);
+  if (dotFull) {
+    const [, d, mo, yr] = dotFull;
+    return `${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+
+  // European dot with time, no year: "DD.MM. HH:MM" (www.soccerway.com recent matches)
+  const dotTime = s.match(/^(\d{1,2})\.(\d{2})\.\s+\d/);
+  if (dotTime) {
+    const [, d, mo] = dotTime;
+    const now = new Date();
+    const yr = parseInt(mo) > (now.getMonth() + 1) ? now.getFullYear() - 1 : now.getFullYear();
+    return `${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+
+  // Month abbreviation format: "Apr 01" or "Nov 16, 2025"
   const neo = s.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:,\s*(\d{4}))?$/);
   if (neo) {
     const [, mon, day, yearStr] = neo;
     const mo = MONTHS[mon];
     const d  = day.padStart(2, '0');
     const yr = yearStr ? parseInt(yearStr) : (() => {
-      // Infer year: if month is ahead of today, it was last year
       const now = new Date();
       return parseInt(mo) > (now.getMonth() + 1) ? now.getFullYear() - 1 : now.getFullYear();
     })();
@@ -130,7 +145,10 @@ function parseBodyText(text, allNames, limit) {
   const results   = [];
   const lines     = text.split('\n').map(l => l.trim()).filter(Boolean);
 
-  const isDate    = l => /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:,\s*\d{4})?$/.test(l);
+  const isDate    = l =>
+    /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:,\s*\d{4})?$/.test(l) ||
+    /^\d{1,2}\.\d{2}\.\d{4}/.test(l) ||      // DD.MM.YYYY
+    /^\d{1,2}\.\d{2}\.\s+\d/.test(l);        // DD.MM. HH:MM
   const isTime    = l => /^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(l);
   const isStatus  = l => /^(AET|After\s+SO|Pen\.|Agg\.)$/i.test(l);
   const isScore   = l => /^\d+$/.test(l);
