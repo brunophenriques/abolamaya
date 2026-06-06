@@ -1452,20 +1452,154 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .cj-grid .card { display: flex; flex-direction: column; }
 .cj-grid .card .btn-full { margin-top: auto; }
 
+/* ============================================================
+   RESPONSIVE — 640px (tablets + large phones)
+   ============================================================ */
 @media (max-width: 640px) {
+  /* Layout */
+  .container, .container-wide { padding: 0 16px; }
   .predict-layout { grid-template-columns: 1fr; }
   .group-list     { position: static; }
-  .navbar-nav a:not(.always) { display: none; }
-  .team-name-text { font-size: .76rem; }
-  .score-input    { width: 46px; }
-  .auth-card      { padding: 24px; }
-  .page-header h2 { font-size: 2rem; }
-  .save-bar       { padding: 10px 16px; }
   .groups-standings-grid { grid-template-columns: 1fr; }
   .cj-grid        { grid-template-columns: 1fr !important; }
-  .profile-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+  /* Navbar */
+  .navbar-inner   { padding: 0 14px; gap: 4px; }
+  .navbar-nav a:not(.always) { display: none; }
+  .navbar-nav a   { padding: 6px 9px; font-size: .82rem; }
+
+  /* Page headers */
+  .page-header h2 { font-size: 2rem; }
+  .page-header    { padding-bottom: 16px; }
+
+  /* Predict */
+  .team-name-text { font-size: .74rem; }
+  .score-input    { width: 44px; height: 44px; font-size: 1.1rem; text-align: center; }
+  .save-bar       { padding: 10px 16px; }
+
+  /* Auth */
+  .auth-card      { padding: 20px 16px; }
+
+  /* Profile */
+  .profile-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
   .profile-stats  { grid-template-columns: repeat(3, 1fr); }
+  .profile-stat-value { font-size: 1.3rem; }
+
+  /* Leaderboard */
   .lb-table .lb-accuracy { display: none; }
+  .lb-table th, .lb-table td { padding: 8px 6px; font-size: .82rem; }
+
+  /* Cards */
+  .card           { padding: 14px 14px; }
+  .card-title     { font-size: .95rem; }
+
+  /* Tabs — scrollable */
+  .tabs           { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; flex-wrap: nowrap; }
+  .tab-btn        { flex-shrink: 0; }
+
+  /* Modals */
+  .modal-inner, [style*="max-width:680px"], [style*="max-width:560px"] { max-width: 100% !important; }
+
+  /* Admin stats */
+  .admin-stats    { grid-template-columns: repeat(3, 1fr); }
+
+  /* My lobbies */
+  .lobby-card-prominent { padding: 14px; }
+}
+
+/* ============================================================
+   RESPONSIVE — 480px (phones)
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Layout */
+  .container, .container-wide { padding: 0 12px; }
+
+  /* Navbar — hide brand text, keep logo */
+  .navbar-inner   { padding: 0 12px; height: 54px; }
+  .navbar-brand span.navbar-brand-text,
+  .navbar-brand > :not(.brand-bee-wrap):not(.brand-mark) { display: none; }
+  .navbar-brand   { margin-right: 4px; gap: 0; }
+  .navbar-right   { gap: 4px; }
+  .navbar-right .btn-ghost { font-size: .75rem; padding: 4px 8px; }
+  .theme-toggle   { width: 30px; height: 30px; }
+  .avatar         { width: 30px; height: 30px; font-size: .75rem; }
+
+  /* Page headers */
+  .page-header h2 { font-size: 1.75rem; }
+  .page-header p  { font-size: .82rem; }
+
+  /* Cards */
+  .card           { padding: 12px 12px; border-radius: 10px; }
+
+  /* Stats row on dashboard */
+  .stats-row      { gap: 8px; }
+  .stat-card      { padding: 14px 8px; }
+  .stat-value     { font-size: 1.6rem; }
+
+  /* Predict — bigger touch targets on score inputs */
+  .score-input    { width: 46px; height: 46px; font-size: 1.15rem; padding: 0; }
+  .match-block    { padding: 10px 0; }
+
+  /* Leaderboard — on full leaderboard page hide pts jogos/grupos, keep total */
+  #lbContent .lb-table th:nth-child(5),
+  #lbContent .lb-table td:nth-child(5),
+  #lbContent .lb-table th:nth-child(6),
+  #lbContent .lb-table td:nth-child(6) { display: none; }
+
+  /* Dashboard mini leaderboard — hide Prev, Pts Jogos, Pts Grupos */
+  #miniLeaderboard .lb-table th:nth-child(4),
+  #miniLeaderboard .lb-table td:nth-child(4),
+  #miniLeaderboard .lb-table th:nth-child(5),
+  #miniLeaderboard .lb-table td:nth-child(5),
+  #miniLeaderboard .lb-table th:nth-child(6),
+  #miniLeaderboard .lb-table td:nth-child(6) { display: none; }
+
+  /* Leaderboard pts label shortening handled via font size */
+  .lb-table th, .lb-table td { padding: 8px 5px; font-size: .8rem; }
+  .lb-pts         { font-size: .9rem; }
+  .lb-sub         { font-size: .68rem; }
+
+  /* Profile */
+  .profile-avatar { width: 64px; height: 64px; font-size: 1.6rem; }
+  .profile-info h1 { font-size: 1.3rem; }
+  .profile-stats  { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .profile-stat   { padding: 10px 8px; }
+  .profile-stat-value { font-size: 1.2rem; }
+  .profile-stat-label { font-size: .62rem; }
+
+  /* History table — hide venue/group, keep match + score + result */
+  .history-table th:nth-child(n+4),
+  .history-table td:nth-child(n+4) { display: none; }
+
+  /* Admin */
+  .admin-stats    { grid-template-columns: repeat(2, 1fr); }
+  .admin-stat-value { font-size: 1.4rem; }
+  .standings-table { font-size: .78rem; }
+  .standings-table th, .standings-table td { padding: 6px 5px; }
+
+  /* Tabs */
+  .tabs           { gap: 0; }
+  .tab-btn        { padding: 8px 12px; font-size: .8rem; }
+
+  /* Lobby card */
+  .lobby-card-top { flex-direction: column; gap: 10px; }
+  .lobby-copy-btn { width: 100%; justify-content: center; }
+  .my-lobbies-title { font-size: 1rem; }
+
+  /* Modals — full viewport width, minimal padding */
+  [style*="padding:24px 16px"] { padding: 12px 8px !important; }
+
+  /* Notification bell panel — full width on mobile */
+  .nav-bell-panel { width: calc(100vw - 24px); right: -12px; }
+
+  /* Auth page */
+  .auth-card      { padding: 18px 14px; }
+
+  /* Buttons */
+  .btn-sm         { padding: 5px 10px; font-size: .78rem; }
+
+  /* Footer */
+  .footer-inner   { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 
 /* ── Avatar generated ────────────────────────────────────────────────────────*/
