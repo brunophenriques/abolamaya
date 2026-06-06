@@ -21,13 +21,13 @@
   if (token) {
     localStorage.setItem('abm_token', token);
     msg.textContent = 'Login efetuado! A redirecionar...';
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+    setTimeout(() => { window.location.href = '/dashboard'; }, 800);
   } else if (error) {
     msg.innerHTML = `<p style="color:var(--primary);font-weight:700;margin-bottom:12px">Erro de autenticação</p>
       <p class="muted" style="margin-bottom:20px">${error}</p>
-      <a href="index.html" class="btn btn-primary btn-sm">Voltar ao login</a>`;
+      <a href="/" class="btn btn-primary btn-sm">Voltar ao login</a>`;
   } else {
-    window.location.href = 'index.html';
+    window.location.href = '/';
   }
 </script>
 </body>

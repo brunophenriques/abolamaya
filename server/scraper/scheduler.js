@@ -2,6 +2,7 @@ const cron                   = require('node-cron');
 const { scrapeAllTeams }     = require('./soccerway');
 const { autoSettleFromScrape } = require('../settle');
 const TEAMS                  = require('./teams');
+const { logEvent }           = require('../logs');
 
 // ── Scrape lock ───────────────────────────────────────────────────────────────
 let running = false;
@@ -20,13 +21,38 @@ async function runScrape(db, teams = TEAMS, label = 'scheduled') {
     console.log(`[scheduler] ${label}: done in ${secs}s — ${scraped} OK, ${failed.length} failed`);
     if (failed.length) {
       console.warn('[scheduler] Failed teams:', failed.map(f => `${f.team} (${f.error})`).join('; '));
+      logEvent({
+        category: 'scraper',
+        severity: 'warning',
+        message:  `Scrape (${label}) concluído em ${secs}s — ${scraped} OK, ${failed.length} falhou: ${failed.map(f => f.team).join(', ')}`,
+        metadata: { label, scraped, failed_count: failed.length, failed_teams: failed.map(f => ({ team: f.team, error: f.error })) },
+      });
+    } else {
+      logEvent({
+        category: 'scraper',
+        message:  `Scrape (${label}) concluído em ${secs}s — ${scraped} seleções atualizadas`,
+        metadata: { label, scraped, duration_s: parseFloat(secs) },
+      });
     }
 
     // After each scrape, settle any WC matches whose results are now in team_results
-    const { settled } = autoSettleFromScrape(db);
-    if (settled) console.log(`[scheduler] ${label}: auto-settled ${settled} match(es)`);
+    const { settled, skipped } = autoSettleFromScrape(db);
+    if (settled) {
+      console.log(`[scheduler] ${label}: auto-settled ${settled} match(es)`);
+      logEvent({
+        category: 'settle',
+        message:  `Auto-settle após scrape (${label}): ${settled} jogo(s) liquidado(s), ${skipped} ignorado(s)`,
+        metadata: { label, settled, skipped },
+      });
+    }
   } catch (err) {
     console.error(`[scheduler] ${label}: unexpected error — ${err.message}`);
+    logEvent({
+      category: 'scraper',
+      severity: 'error',
+      message:  `Erro inesperado no scrape (${label}): ${err.message}`,
+      metadata: { label, error: err.message },
+    });
   } finally {
     running = false;
   }

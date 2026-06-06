@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const db     = require('../db');
 const { auth, requireAdmin, optionalAuth } = require('../middleware/auth');
+const { logEvent } = require('../logs');
 
 const VALID_CATEGORIES = ['wrong_result','wrong_player_stat','login_issue','prediction_issue','visual_bug','other'];
 const VALID_STATUSES   = ['open','reviewing','resolved'];
@@ -26,6 +27,14 @@ router.post('/', optionalAuth, (req, res) => {
     reference?.trim() || null
   );
 
+  logEvent({
+    category:  'ticket',
+    message:   `Ticket criado: [${category}] ${title.trim()}`,
+    actorId:   req.user?.id ?? null,
+    actorName: req.user?.username ?? 'anónimo',
+    metadata:  { ticket_id: result.lastInsertRowid, category, title: title.trim() },
+  });
+
   res.json({ id: result.lastInsertRowid, message: 'Ticket enviado, obrigado!' });
 });
 
@@ -47,6 +56,13 @@ router.patch('/admin/:id/status', auth, requireAdmin, (req, res) => {
     `UPDATE tickets SET status=?, updated_at=datetime('now') WHERE id=?`
   ).run(status, req.params.id);
   if (info.changes === 0) return res.status(404).json({ error: 'Ticket não encontrado.' });
+  logEvent({
+    category:  'ticket',
+    message:   `Estado do ticket #${req.params.id} alterado para "${status}"`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { ticket_id: parseInt(req.params.id), status },
+  });
   res.json({ ok: true });
 });
 

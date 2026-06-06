@@ -1,12 +1,12 @@
 async function requireAuth() {
-  if (!localStorage.getItem('abm_token')) { window.location.href = 'index.html'; return null; }
+  if (!localStorage.getItem('abm_token')) { window.location.href = '/'; return null; }
   try {
     const user = await API.get('/me');
     setupNavbar(user);
     return user;
   } catch {
     localStorage.removeItem('abm_token');
-    window.location.href = 'index.html';
+    window.location.href = '/';
     return null;
   }
 }
@@ -29,7 +29,7 @@ function setupNavbar(user) {
     }
     avatarEl.style.cursor = 'pointer';
     avatarEl.title = 'O meu perfil';
-    avatarEl.onclick = () => { window.location.href = `profile.html?u=${user.username}`; };
+    avatarEl.onclick = () => { window.location.href = `/profile?u=${user.username}`; };
   }
   // Admin link
   const adminLink = document.getElementById('navAdminLink');
@@ -176,7 +176,7 @@ document.addEventListener('click', e => {
 
 function logout() {
   localStorage.removeItem('abm_token');
-  window.location.href = 'index.html';
+  window.location.href = '/';
 }
 
 function formatDate(dateStr) {

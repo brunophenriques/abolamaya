@@ -299,6 +299,22 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS system_logs (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    category   TEXT NOT NULL,
+    message    TEXT NOT NULL,
+    severity   TEXT NOT NULL DEFAULT 'info',
+    actor_id   INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    actor_name TEXT,
+    metadata   TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_system_logs_created  ON system_logs(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_system_logs_category ON system_logs(category);
+  CREATE INDEX IF NOT EXISTS idx_system_logs_severity ON system_logs(severity);
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS tickets (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,

@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
       <div class="brand-bee-wrap">
         <img src="img/logo.png" alt="BM" class="brand-bee"
              onerror="this.parentElement.style.display='none';document.getElementById('nb1').style.display='flex'">
@@ -19,11 +19,11 @@
       A Bola Maya
     </a>
     <div class="navbar-nav">
-      <a href="dashboard.html" class="active always">Início</a>
-      <a href="predict.html" class="always">Previsões</a>
-      <a href="leaderboard.html">Classificação</a>
-      <a href="lobby.html">Salas</a>
-      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/dashboard" class="active always">Início</a>
+      <a href="/predict" class="always">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -61,7 +61,7 @@
   <!-- Groups -->
   <div class="flex-between mb-8">
     <h3 class="fw-bold">Os teus grupos</h3>
-    <a href="predict.html" class="btn btn-primary btn-sm">Previsões</a>
+    <a href="/predict" class="btn btn-primary btn-sm">Previsões</a>
   </div>
   <div class="group-grid" id="groupGrid"><div class="loading">A carregar...</div></div>
 
@@ -69,7 +69,7 @@
   <hr class="divider" style="margin-top:28px">
   <div class="flex-between mb-16">
     <h3 class="fw-bold">Classificação global</h3>
-    <a href="leaderboard.html" class="btn btn-ghost btn-sm">Ver tudo</a>
+    <a href="/leaderboard" class="btn btn-ghost btn-sm">Ver tudo</a>
   </div>
   <div id="miniLeaderboard"><div class="loading">A carregar...</div></div>
 </main>
@@ -78,10 +78,10 @@
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
     <span class="footer-links">
-      <a href="about.html">Sobre</a>
-      <a href="information.html">Dados</a>
-      <a href="terms.html">Termos</a>
-      <a href="support.html">Reportar Problema</a>
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
     </span>
   </div>
 </footer>
@@ -152,7 +152,7 @@ function rankBadge(i) {
         <span class="group-label">${GROUP_LABELS[g]}</span>${statusHtml}
       </div>
       <div class="group-teams">
-        ${[...info.teams].map(t => `<a href="team.html?team=${teamSlug(t)}" class="group-team team-link" onclick="event.stopPropagation()">${t}</a>`).join('')}
+        ${[...info.teams].map(t => `<a href="/team?team=${teamSlug(t)}" class="group-team team-link" onclick="event.stopPropagation()">${t}</a>`).join('')}
       </div>`;
     grid.appendChild(card);
   }
@@ -168,7 +168,7 @@ function rankBadge(i) {
           <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
             <td>
-              <a href="profile.html?u=${u.username}" style="text-decoration:none;color:var(--text)">
+              <a href="/profile?u=${u.username}" style="text-decoration:none;color:var(--text)">
                 <strong>${u.display_name || u.username}</strong>
                 <br><span class="lb-sub">@${u.username}</span>
               </a>

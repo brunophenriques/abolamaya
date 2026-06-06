@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
       <div class="brand-bee-wrap">
         <img src="img/logo.png" alt="BM" class="brand-bee"
              onerror="this.parentElement.style.display='none';document.getElementById('nb6').style.display='flex'">
@@ -19,11 +19,11 @@
       A Bola Maya
     </a>
     <div class="navbar-nav">
-      <a href="dashboard.html" class="always">Início</a>
-      <a href="predict.html" class="always">Previsões</a>
-      <a href="leaderboard.html">Classificação</a>
-      <a href="lobby.html">Salas</a>
-      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/dashboard" class="always">Início</a>
+      <a href="/predict" class="always">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -44,10 +44,10 @@
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
     <span class="footer-links">
-      <a href="about.html">Sobre</a>
-      <a href="information.html">Dados</a>
-      <a href="terms.html">Termos</a>
-      <a href="support.html">Reportar Problema</a>
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
     </span>
   </div>
 </footer>
@@ -101,7 +101,7 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
   ].filter(Boolean).join(' ');
 
   const friendBtn = isOwn
-    ? `<a href="settings.html" class="btn btn-ghost btn-sm">⚙ Definições</a>`
+    ? `<a href="/settings" class="btn btn-ghost btn-sm">⚙ Definições</a>`
     : `<button class="btn btn-primary btn-sm" onclick="sendFriendRequest('${user.username}')">+ Amigo</button>`;
 
   document.title = `${user.display_name || user.username} — A Bola Maya`;
@@ -248,7 +248,7 @@ function renderFriends({ friends, incoming, outgoing }, el) {
   } else {
     html += `<div class="friend-grid">`;
     html += friends.map(f => `
-      <a href="profile.html?u=${f.username}" class="friend-card">
+      <a href="/profile?u=${f.username}" class="friend-card">
         ${renderAvatarEl(f, 36)}
         <div style="min-width:0">
           <div class="friend-name">${f.display_name || f.username}</div>

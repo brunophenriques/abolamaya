@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
       <div class="brand-bee-wrap">
         <img src="img/logo.png" alt="BM" class="brand-bee"
              onerror="this.parentElement.style.display='none';document.getElementById('nb3').style.display='flex'">
@@ -19,11 +19,11 @@
       A Bola Maya
     </a>
     <div class="navbar-nav">
-      <a href="dashboard.html">Início</a>
-      <a href="predict.html">Previsões</a>
-      <a href="leaderboard.html" class="active always">Classificação</a>
-      <a href="lobby.html">Salas</a>
-      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/dashboard">Início</a>
+      <a href="/predict">Previsões</a>
+      <a href="/leaderboard" class="active always">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -55,10 +55,10 @@
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
     <span class="footer-links">
-      <a href="about.html">Sobre</a>
-      <a href="information.html">Dados</a>
-      <a href="terms.html">Termos</a>
-      <a href="support.html">Reportar Problema</a>
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
     </span>
   </div>
 </footer>
@@ -141,10 +141,10 @@ function renderTable(rows) {
           return `<tr class="${rankCls} ${meCls}">
             <td class="lb-rank">${rank}</td>
             <td class="lb-avatar">
-              <a href="profile.html?u=${u.username}" style="text-decoration:none">${miniAvatar(u)}</a>
+              <a href="/profile?u=${u.username}" style="text-decoration:none">${miniAvatar(u)}</a>
             </td>
             <td>
-              <a href="profile.html?u=${u.username}" style="text-decoration:none;color:var(--text)">
+              <a href="/profile?u=${u.username}" style="text-decoration:none;color:var(--text)">
                 <strong>${u.display_name || u.username}</strong> ${adminBadge}
                 ${u.id === user.id ? '<span class="badge badge-red" style="font-size:.62rem">Tu</span>' : ''}
               </a>

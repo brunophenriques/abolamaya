@@ -20,7 +20,7 @@ const API = (() => {
 
     if (res.status === 401) {
       localStorage.removeItem('abm_token');
-      window.location.href = 'index.html';
+      window.location.href = '/';
       return null;
     }
 

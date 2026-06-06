@@ -2,6 +2,7 @@ const router = require('express').Router();
 const db     = require('../db');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
+const { logEvent } = require('../logs');
 
 // GET /api/admin/stats — dashboard overview
 router.get('/stats', auth, requireAdmin, (req, res) => {
@@ -72,6 +73,17 @@ router.post('/result', auth, requireAdmin, (req, res) => {
     VALUES (?, 'admin', ?, ?, ?)
   `).run(match_id, home_score, away_score, scored.changes);
 
+  const matchRow = db.prepare('SELECT home_team,away_team FROM matches WHERE id=?').get(match_id);
+  logEvent({
+    category:  'admin',
+    message:   matchRow
+      ? `Resultado introduzido: ${matchRow.home_team} ${home_score}–${away_score} ${matchRow.away_team} (${scored.changes} previsões pontuadas)`
+      : `Resultado introduzido: jogo #${match_id} ${home_score}–${away_score} (${scored.changes} previsões pontuadas)`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { match_id, home_score, away_score, predictions_scored: scored.changes },
+  });
+
   res.json({ ok: true });
 });
 
@@ -119,12 +131,27 @@ router.post('/group/:group_id/points', auth, requireAdmin, (req, res) => {
     }
   })();
 
+  logEvent({
+    category:  'admin',
+    message:   `Pontos do Grupo ${group_id} calculados para ${count} utilizadores (ordem real: ${actualOrder.join(', ')})`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { group_id, count, actual_order: actualOrder },
+  });
+
   res.json({ ok: true, count, actual_order: actualOrder });
 });
 
 // POST /api/admin/auto-settle
 router.post('/auto-settle', auth, requireAdmin, (req, res) => {
   const result = autoSettleFromScrape(db);
+  logEvent({
+    category:  'settle',
+    message:   `Auto-settle manual: ${result.settled} jogo(s) liquidado(s), ${result.skipped} ignorado(s)`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  result,
+  });
   res.json({ ok: true, ...result });
 });
 
@@ -151,7 +178,17 @@ router.patch('/users/:id/ban', auth, requireAdmin, (req, res) => {
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado.' });
   if (user.is_admin) return res.status(400).json({ error: 'Não podes suspender outro admin.' });
   const newBanned = user.banned ? 0 : 1;
+  const targetUser = db.prepare('SELECT username FROM users WHERE id=?').get(id);
   db.prepare('UPDATE users SET banned=? WHERE id=?').run(newBanned, id);
+  logEvent({
+    category:  'admin',
+    message:   newBanned
+      ? `Utilizador @${targetUser?.username} (#${id}) suspenso`
+      : `Utilizador @${targetUser?.username} (#${id}) reativado`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { target_user_id: id, banned: !!newBanned },
+  });
   res.json({ ok: true, banned: !!newBanned });
 });
 
@@ -159,11 +196,44 @@ router.patch('/users/:id/ban', auth, requireAdmin, (req, res) => {
 router.delete('/users/:id', auth, requireAdmin, (req, res) => {
   const id = parseInt(req.params.id);
   if (id === req.user.id) return res.status(400).json({ error: 'Não podes apagar a tua própria conta.' });
-  const user = db.prepare('SELECT is_admin FROM users WHERE id=?').get(id);
+  const user = db.prepare('SELECT is_admin, username FROM users WHERE id=?').get(id);
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado.' });
   if (user.is_admin) return res.status(400).json({ error: 'Não podes apagar outro admin.' });
   db.prepare('DELETE FROM users WHERE id=?').run(id);
+  logEvent({
+    category:  'admin',
+    severity:  'warning',
+    message:   `Conta apagada: @${user.username} (#${id})`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { deleted_user_id: id, deleted_username: user.username },
+  });
   res.json({ ok: true });
+});
+
+// GET /api/admin/logs — paginated system log viewer
+router.get('/logs', auth, requireAdmin, (req, res) => {
+  const { category, severity, limit = 100, offset = 0 } = req.query;
+  const VALID_CATS = ['scraper','settle','admin','ticket','auth'];
+  const VALID_SEV  = ['info','warning','error'];
+
+  const conditions = [];
+  const params     = [];
+
+  if (category && VALID_CATS.includes(category)) { conditions.push('category=?'); params.push(category); }
+  if (severity && VALID_SEV.includes(severity))   { conditions.push('severity=?'); params.push(severity); }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows  = db.prepare(
+    `SELECT id, category, message, severity, actor_id, actor_name, metadata, created_at
+     FROM system_logs ${where}
+     ORDER BY created_at DESC
+     LIMIT ? OFFSET ?`
+  ).all(...params, Math.min(parseInt(limit) || 100, 500), parseInt(offset) || 0);
+
+  const total = db.prepare(`SELECT COUNT(*) AS n FROM system_logs ${where}`).get(...params).n;
+
+  res.json({ logs: rows, total });
 });
 
 module.exports = router;

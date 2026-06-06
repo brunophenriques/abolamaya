@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
       <div class="brand-bee-wrap">
         <img src="img/logo.png" alt="BM" class="brand-bee"
              onerror="this.parentElement.style.display='none';document.getElementById('nb4').style.display='flex'">
@@ -19,11 +19,11 @@
       A Bola Maya
     </a>
     <div class="navbar-nav">
-      <a href="dashboard.html">Início</a>
-      <a href="predict.html">Previsões</a>
-      <a href="leaderboard.html">Classificação</a>
-      <a href="lobby.html" class="active always">Salas</a>
-      <a href="admin.html" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/dashboard">Início</a>
+      <a href="/predict">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby" class="active always">Salas</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -102,16 +102,126 @@
   </div>
 </div>
 
-<style>@media(max-width:560px){.cj-grid{grid-template-columns:1fr!important}}</style>
+<style>
+@media(max-width:560px){.cj-grid{grid-template-columns:1fr!important}}
+
+/* ── My lobbies section ───────────────────────────────────── */
+.my-lobbies-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 14px;
+}
+.my-lobbies-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 0;
+}
+.my-lobbies-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.my-lobbies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Prominent lobby card ─────────────────────────────────── */
+.lobby-card-prominent {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.lobby-card-prominent:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+}
+.lobby-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.lobby-card-info { flex: 1; min-width: 0; }
+.lobby-card-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lobby-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lobby-member-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .8rem;
+  color: var(--muted);
+}
+.lobby-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: monospace;
+  font-size: .88rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s, border-color .12s;
+  flex-shrink: 0;
+}
+.lobby-copy-btn:hover {
+  background: var(--card-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.lobby-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lobby-card-actions .btn-primary {
+  padding: 7px 18px;
+  font-size: .88rem;
+}
+</style>
 
 <footer class="site-footer">
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
     <span class="footer-links">
-      <a href="about.html">Sobre</a>
-      <a href="information.html">Dados</a>
-      <a href="terms.html">Termos</a>
-      <a href="support.html">Reportar Problema</a>
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
     </span>
   </div>
 </footer>
@@ -141,22 +251,41 @@ async function loadLobbies() {
     return;
   }
   el.innerHTML = `
-    <p class="muted small mb-8">As tuas salas (${lobbies.length})</p>
-    ${lobbies.map(lb => `
-      <div class="lobby-card">
-        <div class="lobby-header">
-          <div>
-            <span class="lobby-name">${lb.name}</span>
-            <span class="muted small" style="margin-left:8px">${lb.member_count} membro${lb.member_count !== 1 ? 's' : ''}</span>
+    <div class="my-lobbies-header">
+      <h3 class="my-lobbies-title">As tuas salas</h3>
+      <span class="my-lobbies-count">${lobbies.length}</span>
+    </div>
+    <div class="my-lobbies-list">
+      ${lobbies.map(lb => {
+        const isOwner = lb.created_by === user.id;
+        const safeName = lb.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        return `
+        <div class="lobby-card lobby-card-prominent">
+          <div class="lobby-card-top">
+            <div class="lobby-card-info">
+              <div class="lobby-card-name">${lb.name}</div>
+              <div class="lobby-card-meta">
+                <span class="lobby-member-count">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  ${lb.member_count} membro${lb.member_count !== 1 ? 's' : ''}
+                </span>
+                ${isOwner
+                  ? '<span class="badge badge-gold" style="font-size:.65rem;padding:2px 7px">Criador</span>'
+                  : '<span class="badge badge-muted" style="font-size:.65rem;padding:2px 7px">Membro</span>'}
+              </div>
+            </div>
+            <button class="lobby-copy-btn" onclick="copyLobbyCode('${lb.invite_code}',this)" title="Copiar código de convite">
+              <span class="lobby-code-text">${lb.invite_code}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
           </div>
-          <span class="lobby-code" onclick="copyCode(this)" title="Clica para copiar">${lb.invite_code}</span>
-        </div>
-        <div class="flex gap-8 mt-8">
-          <button class="btn btn-ghost btn-sm" onclick="openLobby(${lb.id},'${lb.name}','${lb.invite_code}',${lb.created_by})">Abrir sala</button>
-          ${lb.created_by === user.id ? `<span class="badge badge-gold" style="font-size:.65rem">Criador</span>` : ''}
-          ${lb.created_by === user.id ? `<button class="btn btn-danger btn-sm" onclick="deleteLobby(${lb.id})">Eliminar</button>` : ''}
-        </div>
-      </div>`).join('')}`;
+          <div class="lobby-card-actions">
+            <button class="btn btn-primary btn-sm" onclick="openLobby(${lb.id},'${safeName}','${lb.invite_code}',${lb.created_by})">Abrir sala</button>
+            ${isOwner ? `<button class="btn btn-danger btn-sm" onclick="deleteLobby(${lb.id})">Eliminar</button>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 async function createLobby() {
@@ -282,6 +411,14 @@ function modalTab(tab, btn) {
 
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 function copyCode(el) { navigator.clipboard.writeText(el.textContent).then(() => showToast('Código copiado!')); }
+
+function copyLobbyCode(code, btn) {
+  navigator.clipboard.writeText(code).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span style="font-size:.75rem;font-weight:700;color:var(--green,#22c55e)">Copiado!</span>';
+    setTimeout(() => { btn.innerHTML = orig; }, 1800);
+  });
+}
 </script>
 </body>
 </html>

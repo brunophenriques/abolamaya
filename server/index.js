@@ -39,6 +39,33 @@ if (process.env.AVATARS_DIR) {
   app.use('/img/avatars', require('express').static(process.env.AVATARS_DIR));
 }
 
+// ── Clean URLs ────────────────────────────────────────────────────────────────
+// Pages that get a clean URL (no .html suffix)
+const CLEAN_ROUTES = [
+  'dashboard', 'predict', 'leaderboard', 'lobby', 'admin',
+  'settings', 'support', 'about', 'information', 'terms',
+  'profile', 'team', 'reset-password', 'forgot-password', '404',
+];
+
+// Redirect /page.html → /page  (301 permanent)
+app.use((req, res, next) => {
+  const m = req.path.match(/^\/([^/?#]+)\.html$/);
+  if (m && CLEAN_ROUTES.includes(m[1])) {
+    const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, `/${m[1]}${qs}`);
+  }
+  next();
+});
+
+// Serve /page → page.html
+app.use((req, res, next) => {
+  const m = req.path.match(/^\/([^/?#.]+)$/);
+  if (m && CLEAN_ROUTES.includes(m[1])) {
+    return res.sendFile(path.join(__dirname, '..', `${m[1]}.html`));
+  }
+  next();
+});
+
 // Serve frontend files
 app.use(express.static(path.join(__dirname, '..')));
 

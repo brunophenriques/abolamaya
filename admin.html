@@ -10,7 +10,7 @@
 <body>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="dashboard.html" class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
       <div class="brand-bee-wrap">
         <img src="img/logo.png" alt="BM" class="brand-bee"
              onerror="this.parentElement.style.display='none';document.getElementById('nb5').style.display='flex'">
@@ -19,11 +19,11 @@
       A Bola Maya
     </a>
     <div class="navbar-nav">
-      <a href="dashboard.html">Início</a>
-      <a href="predict.html">Previsões</a>
-      <a href="leaderboard.html">Classificação</a>
-      <a href="lobby.html">Salas</a>
-      <a href="admin.html" class="active" id="navAdminLink">Admin</a>
+      <a href="/dashboard">Início</a>
+      <a href="/predict">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/admin" class="active" id="navAdminLink">Admin</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -57,10 +57,10 @@
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
     <span class="footer-links">
-      <a href="about.html">Sobre</a>
-      <a href="information.html">Dados</a>
-      <a href="terms.html">Termos</a>
-      <a href="support.html">Reportar Problema</a>
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
     </span>
   </div>
 </footer>
@@ -111,6 +111,7 @@ function renderPanel() {
       <button class="tab-btn"        onclick="switchTab('selecoes',this)">Seleções</button>
       <button class="tab-btn"        onclick="switchTab('tickets',this)">Reportes</button>
       <button class="tab-btn"        onclick="switchTab('users',this)">Utilizadores</button>
+      <button class="tab-btn"        onclick="switchTab('logs',this)">Logs</button>
     </div>
 
     <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
@@ -201,6 +202,33 @@ function renderPanel() {
       </div>
     </div>
 
+    <!-- ── Tab: Logs ─────────────────────────────────────────────────── -->
+    <div id="tabLogs" style="display:none">
+      <div class="card mt-12">
+        <div class="flex-between" style="margin-bottom:16px;gap:10px;flex-wrap:wrap">
+          <div class="card-title" style="margin-bottom:0">Logs do sistema</div>
+          <div class="flex gap-8" style="flex-wrap:wrap">
+            <select id="logCatFilter" class="input" style="padding:4px 10px;font-size:.82rem;width:auto" onchange="loadLogs()">
+              <option value="">Todas as categorias</option>
+              <option value="scraper">Scraper</option>
+              <option value="settle">Liquidação</option>
+              <option value="admin">Admin</option>
+              <option value="ticket">Ticket</option>
+              <option value="auth">Auth</option>
+            </select>
+            <select id="logSevFilter" class="input" style="padding:4px 10px;font-size:.82rem;width:auto" onchange="loadLogs()">
+              <option value="">Todas as severidades</option>
+              <option value="info">Info</option>
+              <option value="warning">Warning</option>
+              <option value="error">Error</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadLogs()">↺</button>
+          </div>
+        </div>
+        <div id="logList"><span class="muted small">A carregar...</span></div>
+      </div>
+    </div>
+
     <!-- ── Tab: Reportes ──────────────────────────────────────────────── -->
     <div id="tabTickets" style="display:none">
       <div class="card mt-12">
@@ -231,9 +259,11 @@ function switchTab(tab, btn) {
   document.getElementById('tabSelecoes').style.display  = tab === 'selecoes'  ? '' : 'none';
   document.getElementById('tabTickets').style.display   = tab === 'tickets'   ? '' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? '' : 'none';
+  document.getElementById('tabLogs').style.display      = tab === 'logs'      ? '' : 'none';
   if (tab === 'selecoes') loadScrapeStatus();
   if (tab === 'tickets')  loadTickets();
   if (tab === 'users')    loadUsers();
+  if (tab === 'logs')     loadLogs();
 }
 
 // ── Scrape status ─────────────────────────────────────────────────────────────
@@ -268,7 +298,7 @@ function renderScrapeStatus(data, el) {
       : '<span class="badge badge-muted">Sem dados</span>';
 
     return `<tr>
-      <td><a href="team.html?team=${t.slug}" style="font-weight:600;color:var(--primary);text-decoration:none" title="Ver página de ${t.name}">${t.code}</a></td>
+      <td><a href="/team?team=${t.slug}" style="font-weight:600;color:var(--primary);text-decoration:none" title="Ver página de ${t.name}">${t.code}</a></td>
       <td>${t.name}</td>
       <td>${statusBadge}</td>
       <td class="muted" style="font-size:.8rem">${ageTxt}</td>
@@ -654,6 +684,70 @@ async function deleteUser(id, username) {
     showToast(`Conta @${username} apagada.`);
     loadUsers();
   } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ── Logs ──────────────────────────────────────────────────────────────────────
+
+const LOG_SEV_BADGE = {
+  info:    '<span class="badge badge-muted"  style="font-size:.68rem;min-width:56px;text-align:center">info</span>',
+  warning: '<span class="badge badge-orange" style="font-size:.68rem;min-width:56px;text-align:center">warning</span>',
+  error:   '<span class="badge badge-red"    style="font-size:.68rem;min-width:56px;text-align:center">error</span>',
+};
+
+const LOG_CAT_LABELS = {
+  scraper: 'Scraper',
+  settle:  'Liquidação',
+  admin:   'Admin',
+  ticket:  'Ticket',
+  auth:    'Auth',
+};
+
+async function loadLogs() {
+  const el = document.getElementById('logList');
+  if (!el) return;
+  el.innerHTML = '<span class="muted small">A carregar...</span>';
+  const cat = document.getElementById('logCatFilter')?.value  || '';
+  const sev = document.getElementById('logSevFilter')?.value  || '';
+  const qs  = new URLSearchParams();
+  if (cat) qs.set('category', cat);
+  if (sev) qs.set('severity', sev);
+  qs.set('limit', '200');
+  try {
+    const { logs, total } = await API.get(`/admin/logs?${qs}`);
+    if (!logs.length) {
+      el.innerHTML = '<p class="muted small">Sem logs correspondentes.</p>';
+      return;
+    }
+    el.innerHTML = `
+      <p class="muted small" style="margin-bottom:10px">${total} entradas no total</p>
+      <div style="overflow-x:auto">
+        <table class="standings-table" style="width:100%;font-size:.82rem">
+          <thead><tr>
+            <th style="width:140px">Data</th>
+            <th style="width:72px">Sev.</th>
+            <th style="width:80px">Cat.</th>
+            <th>Mensagem</th>
+            <th style="width:110px">Actor</th>
+          </tr></thead>
+          <tbody>${logs.map(l => {
+            const dt   = new Date(l.created_at).toLocaleString('pt-PT', { dateStyle:'short', timeStyle:'short' });
+            const actor = l.actor_name ? `@${escHtml(l.actor_name)}` : '<span class="muted">—</span>';
+            const cat  = LOG_CAT_LABELS[l.category] || l.category;
+            const sev  = LOG_SEV_BADGE[l.severity] || l.severity;
+            return `<tr>
+              <td class="muted" style="white-space:nowrap;font-size:.75rem">${dt}</td>
+              <td>${sev}</td>
+              <td class="muted" style="font-size:.78rem">${cat}</td>
+              <td style="word-break:break-word">${escHtml(l.message)}</td>
+              <td class="muted" style="font-size:.78rem">${actor}</td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    el.innerHTML = `<span class="form-error">${e.message}</span>`;
+  }
 }
 </script>
 </body>
