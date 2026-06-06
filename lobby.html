@@ -42,7 +42,9 @@
     <p>Joga contra os teus amigos. Podes estar em várias salas ao mesmo tempo.</p>
   </div>
 
-  <div class="cj-grid">
+  <div id="lobbyList"><div class="loading">A carregar...</div></div>
+
+  <div class="cj-grid" style="margin-top:28px">
     <div class="card card-accent-red" style="display:flex;flex-direction:column">
       <div class="card-title">Criar sala</div>
       <div class="form-group" style="flex:1">
@@ -61,8 +63,6 @@
       <button class="btn btn-blue btn-full" onclick="joinLobby()">Entrar</button>
     </div>
   </div>
-
-  <div id="lobbyList"><div class="loading">A carregar...</div></div>
 </main>
 
 <!-- Lobby modal -->

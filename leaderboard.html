@@ -106,10 +106,14 @@ async function switchTab(tab, btn) {
 function miniAvatar(u) {
   const color   = u.avatar_color || avatarColor(u.username || '');
   const initial = (u.display_name || u.username || '?').charAt(0).toUpperCase();
+  const base    = `width:30px;height:30px;border-radius:50%;flex-shrink:0;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem;overflow:hidden;position:relative`;
   if (u.avatar_url) {
-    return `<div style="width:30px;height:30px;border-radius:50%;overflow:hidden;flex-shrink:0;background:${color}"><img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='${initial}'"></div>`;
+    return `<div style="${base}">
+      <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">${initial}</span>
+      <img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1" onerror="this.remove()">
+    </div>`;
   }
-  return `<div style="width:30px;height:30px;background:${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem;flex-shrink:0">${initial}</div>`;
+  return `<div style="${base}">${initial}</div>`;
 }
 
 function renderTable(rows) {
