@@ -87,9 +87,11 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
   const color   = user.avatar_color || avatarColor(user.username);
   const initial = (user.display_name || user.username).charAt(0).toUpperCase();
   const joinedDate = user.created_at ? new Date(user.created_at.replace(' ', 'T')) : null;
-  const joined = (joinedDate && !isNaN(joinedDate))
-    ? joinedDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
-    : '—';
+  const joined = user.username === '67machine'
+    ? 'o dia 0'
+    : (joinedDate && !isNaN(joinedDate))
+      ? joinedDate.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })
+      : '—';
 
   const badges = [
     user.is_admin ? `<span class="user-badge badge-admin">👑 Admin</span>` : '',
