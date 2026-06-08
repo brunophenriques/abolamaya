@@ -209,6 +209,14 @@ const ACHIEVEMENTS = [
     hidden: true,
     check: () => false, // event-driven only — awarded via awardAchievement()
   },
+  {
+    type: 'glimpse_of_the_guru',
+    name: 'Glimpse of the Guru',
+    icon: '<img src="/img/worldcup.png" style="width:1rem;height:1rem;object-fit:contain;vertical-align:middle;" alt="trophy">',
+    description: 'Encontraste o Guru do Mundial.',
+    hidden: true,
+    check: () => false, // event-driven only — awarded via awardAchievement()
+  },
 ];
 
 // ── Core functions ────────────────────────────────────────────────────────────

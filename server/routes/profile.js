@@ -59,6 +59,11 @@ router.get('/:username', auth, (req, res) => {
     setImmediate(() => awardAchievement(db, req.user.id, '67_machine'));
   }
 
+  // Hidden achievement: visiting @gurudomundial's profile (not self — he can't earn it)
+  if (u.username === 'gurudomundial' && req.user.id !== u.id) {
+    setImmediate(() => awardAchievement(db, req.user.id, 'glimpse_of_the_guru'));
+  }
+
   res.json({
     user:         { ...u, is_admin: !!u.is_admin },
     stats:        userStats(u.id),
