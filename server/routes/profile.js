@@ -64,8 +64,20 @@ router.get('/:username', auth, (req, res) => {
     setImmediate(() => awardAchievement(db, req.user.id, 'glimpse_of_the_guru'));
   }
 
+  let friendship_status = null;
+  if (req.user.id !== u.id) {
+    const fr = db.prepare(`
+      SELECT status, requester_id FROM friends
+      WHERE (requester_id=? AND addressee_id=?) OR (requester_id=? AND addressee_id=?)
+    `).get(req.user.id, u.id, u.id, req.user.id);
+    if (fr) {
+      if (fr.status === 'accepted') friendship_status = 'friends';
+      else friendship_status = fr.requester_id === req.user.id ? 'pending_sent' : 'pending_received';
+    }
+  }
+
   res.json({
-    user:         { ...u, is_admin: !!u.is_admin },
+    user:         { ...u, is_admin: !!u.is_admin, friendship_status },
     stats:        userStats(u.id),
     achievements: getUserAchievements(db, u.id),
   });

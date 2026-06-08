@@ -101,7 +101,11 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
 
   const friendBtn = isOwn
     ? `<a href="/settings" class="btn btn-ghost btn-sm">⚙ Definições</a>`
-    : `<button class="btn btn-primary btn-sm" onclick="sendFriendRequest('${user.username}')">+ Amigo</button>`;
+    : user.friendship_status === 'friends'
+      ? `<button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green);cursor:default;" disabled>✓ Amigos</button>`
+      : user.friendship_status === 'pending_sent'
+        ? `<button class="btn btn-ghost btn-sm" disabled>Pedido enviado</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="sendFriendRequest('${user.username}')">+ Amigo</button>`;
 
   document.title = `${user.display_name || user.username} — A Bola Maya`;
 
