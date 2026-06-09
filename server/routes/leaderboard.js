@@ -8,13 +8,15 @@ const LB_QUERY = `
     COALESCE(gp.pts,     0) AS group_points,
     COALESCE(mp.pts, 0) + COALESCE(gp.pts, 0) AS total_points,
     COALESCE(mp.cnt,     0) AS predictions_made,
-    COALESCE(mp.correct, 0) AS correct_predictions
+    COALESCE(mp.correct, 0) AS correct_predictions,
+    COALESCE(mp.exact,   0) AS exact_predictions
   FROM users u
   LEFT JOIN (
     SELECT user_id,
       SUM(COALESCE(points_earned,0))                          AS pts,
       COUNT(*)                                                AS cnt,
-      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)    AS correct
+      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)    AS correct,
+      SUM(CASE WHEN points_earned  = 3 THEN 1 ELSE 0 END)    AS exact
     FROM match_predictions GROUP BY user_id
   ) mp ON mp.user_id = u.id
   LEFT JOIN (
@@ -36,7 +38,7 @@ function enrich(rows) {
 // GET /api/leaderboard
 router.get('/', auth, (req, res) => {
   res.json(enrich(
-    db.prepare(LB_QUERY + ' ORDER BY total_points DESC, match_points DESC, u.username').all()
+    db.prepare(LB_QUERY + ' ORDER BY total_points DESC, exact_predictions ASC, match_points DESC, u.username').all()
   ));
 });
 
@@ -50,7 +52,7 @@ router.get('/lobby/:id', auth, (req, res) => {
     db.prepare(`
       ${LB_QUERY}
       JOIN lobby_members lm ON lm.user_id=u.id AND lm.lobby_id=?
-      ORDER BY total_points DESC, match_points DESC, u.username
+      ORDER BY total_points DESC, exact_predictions ASC, match_points DESC, u.username
     `).all(req.params.id)
   ));
 });

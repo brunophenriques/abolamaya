@@ -53,6 +53,9 @@
   <div id="countdownWrap" class="countdown" style="display:none">
     O Mundial começa em <strong id="countdownVal"></strong>
   </div>
+  <div id="ctaWrap" style="display:none;text-align:center;margin:12px 0">
+    <a href="/predict" class="btn btn-primary" style="font-weight:800;letter-spacing:.04em">FAZ AS PREVISÕES AGORA</a>
+  </div>
 
   <!-- Stats -->
   <div class="stats-row">
@@ -112,6 +115,7 @@ function rankBadge(i) {
   if (timer) {
     document.getElementById('countdownWrap').style.display = '';
     document.getElementById('countdownVal').textContent = timer;
+    document.getElementById('ctaWrap').style.display = '';
   }
 
   const [lb, matches, preds] = await Promise.all([

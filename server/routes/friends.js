@@ -123,18 +123,20 @@ router.get('/leaderboard', auth, (req, res) => {
       COALESCE(gp.gp,0)              AS group_points,
       COALESCE(mp.pts,0)+COALESCE(gp.gp,0) AS total_points,
       COALESCE(mp.cnt,0)             AS predictions_made,
-      COALESCE(mp.correct,0)        AS correct_predictions
+      COALESCE(mp.correct,0)         AS correct_predictions,
+      COALESCE(mp.exact,0)           AS exact_predictions
     FROM users u
     LEFT JOIN (
       SELECT user_id,
         SUM(COALESCE(points_earned,0)) pts, COUNT(*) cnt,
-        SUM(CASE WHEN points_earned>=1 THEN 1 ELSE 0 END) correct
+        SUM(CASE WHEN points_earned>=1 THEN 1 ELSE 0 END) correct,
+        SUM(CASE WHEN points_earned =3 THEN 1 ELSE 0 END) exact
       FROM match_predictions GROUP BY user_id
     ) mp ON mp.user_id=u.id
     LEFT JOIN (SELECT user_id, SUM(points_earned) gp FROM group_points GROUP BY user_id) gp
            ON gp.user_id=u.id
     WHERE u.id IN (${ph})
-    ORDER BY total_points DESC, match_points DESC, u.username
+    ORDER BY total_points DESC, exact_predictions ASC, match_points DESC, u.username
   `).all(...ids);
 
   res.json(rows.map((r, i) => ({
