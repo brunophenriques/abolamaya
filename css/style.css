@@ -1988,17 +1988,3 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .announce-body   { font-size: .92rem; line-height: 1.7; color: var(--text); margin-bottom: 22px; }
 .announce-actions { display: flex; justify-content: center; }
 
-/* ── Leaderboard layout with prize panel ─────────────────────────────────────*/
-.lb-layout { display: flex; gap: 16px; align-items: flex-start; }
-.lb-main { flex: 1; min-width: 0; }
-.lb-prize-card {
-  width: 230px; flex-shrink: 0; position: sticky; top: 80px;
-  background: var(--card); border: 1.5px solid var(--gold); border-radius: 14px;
-  padding: 18px 16px;
-}
-.lb-prize-title { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
-.lb-prize-body  { font-size: .82rem; line-height: 1.65; color: var(--text); }
-@media (max-width: 768px) {
-  .lb-layout { flex-direction: column; }
-  .lb-prize-card { width: 100%; position: static; order: -1; }
-}
