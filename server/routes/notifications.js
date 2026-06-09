@@ -29,6 +29,12 @@ router.patch('/:id/read', auth, (req, res) => {
   res.json({ ok: true });
 });
 
+// DELETE /api/notifications — clear all notifications for the current user
+router.delete('/', auth, (req, res) => {
+  db.prepare('DELETE FROM notifications WHERE user_id=?').run(req.user.id);
+  res.json({ ok: true });
+});
+
 // Helper (used by other routes, not an HTTP endpoint) to create a notification
 function createNotification(userId, { type, title, body = null, link = null }) {
   db.prepare(`

@@ -947,6 +947,21 @@ a.group-team:hover { color: var(--text); text-decoration: none; }
 .toast-error   { border-left-color: var(--primary); }
 .toast-info    { border-left-color: var(--blue); }
 
+/* ── Achievement toast ───────────────────────────────────────────────────────*/
+.ach-toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  background: var(--card); border: 1.5px solid var(--gold);
+  border-radius: var(--radius); padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .25s, transform .25s;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45); max-width: 280px;
+}
+.ach-toast.show { opacity: 1; transform: translateY(0); }
+.ach-toast-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+.ach-toast-label { font-size: .68rem; color: var(--gold); font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+.ach-toast-name  { font-size: .88rem; font-weight: 700; color: var(--text); margin-top: 3px; }
+
 /* ============================================================
    UTILITIES
    ============================================================ */

@@ -47,8 +47,12 @@ function setupNavbar(user) {
   setupNotificationBell(user);
 }
 
+let _bellUser = null;
+let _bellInitialized = false;
+const _shownAchievementToasts = new Set();
+
 async function setupNotificationBell(user) {
-  // Inject bell before the avatar if not already present
+  _bellUser = user;
   const right = document.querySelector('.navbar-right');
   if (!right || document.getElementById('navBell')) return;
 
@@ -65,6 +69,8 @@ async function setupNotificationBell(user) {
   right.insertBefore(bell, right.firstChild);
 
   await refreshNotifications();
+  _bellInitialized = true;
+  setInterval(refreshNotifications, 30000);
 }
 
 async function refreshNotifications() {
@@ -79,6 +85,18 @@ async function refreshNotifications() {
       badge.style.display = '';
     } else {
       badge.style.display = 'none';
+    }
+
+    // Achievement toasts for new ones since page load
+    if (_bellInitialized) {
+      for (const n of data.notifications) {
+        if (n.type === 'achievement' && !_shownAchievementToasts.has(n.id)) {
+          _shownAchievementToasts.add(n.id);
+          showAchievementToast(n);
+        }
+      }
+    } else {
+      data.notifications.forEach(n => { if (n.type === 'achievement') _shownAchievementToasts.add(n.id); });
     }
 
     if (!data.notifications.length) {
@@ -127,7 +145,10 @@ async function refreshNotifications() {
     panel.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
         <strong style="font-size:.85rem">Notificações</strong>
-        <button onclick="markAllRead()" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px">Marcar todas lidas</button>
+        <div style="display:flex;gap:6px">
+          <button onclick="markAllRead()" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px">Lidas</button>
+          <button onclick="clearNotifications()" class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px;color:var(--muted)">Limpar</button>
+        </div>
       </div>
       ${data.notifications.map(renderNotif).join('')}
     `;
@@ -159,6 +180,27 @@ async function markRead(id) {
 async function markAllRead() {
   await API.patch('/notifications/read-all').catch(() => {});
   refreshNotifications();
+}
+
+async function clearNotifications() {
+  await API.delete('/notifications').catch(() => {});
+  refreshNotifications();
+}
+
+function showAchievementToast(notif) {
+  const link = notif.link || (_bellUser ? `/profile?u=${_bellUser.username}` : '#');
+  const el = document.createElement('div');
+  el.className = 'ach-toast';
+  el.innerHTML = `
+    <div class="ach-toast-icon">🏆</div>
+    <div>
+      <div class="ach-toast-label">Achievement desbloqueado!</div>
+      <div class="ach-toast-name">${notif.title.replace(/^.*Achievement desbloqueado:\s*/, '')}</div>
+    </div>`;
+  el.onclick = () => { window.location.href = link; };
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 5000);
 }
 
 async function acceptFriendNotif(friendId, notifId) {
