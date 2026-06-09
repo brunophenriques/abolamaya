@@ -156,7 +156,7 @@ function rankBadge(i) {
       <div class="group-teams">
         ${[...info.teams].map(t => `<a href="/team?team=${teamSlug(t)}" class="group-team team-link" onclick="event.stopPropagation()">${t}</a>`).join('')}
       </div>
-      <div style="margin-top:6px">${groupDeadlineHtml(info.matches)}</div>`;
+`;
     grid.appendChild(card);
   }
 

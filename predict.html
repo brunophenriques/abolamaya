@@ -227,13 +227,22 @@ function renderMatchRow(m) {
         <div class="score-box"><span class="match-actual-score">${p.home_score !== '' ? p.home_score : '—'} : ${p.away_score !== '' ? p.away_score : '—'}</span></div>
         <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
-      <div class="match-meta">${meta}</div>
+      <div class="match-meta" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${meta}</span>
+        <span style="font-size:.72rem;color:var(--muted)">Encerrado</span>
+      </div>
     </div>`;
 
   const isSaved = userPreds[m.id] !== undefined
     && String(userPreds[m.id].home_score) === p.home_score
     && String(userPreds[m.id].away_score) === p.away_score
     && p.home_score !== '';
+
+  const timeLeft = timeUntilMatchLock(m.match_date, m.match_time);
+  const diff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 - Date.now();
+  const deadlineHtml = timeLeft
+    ? `<span style="font-size:.72rem;font-weight:600;color:${diff < 3600000 ? 'var(--primary)' : diff < 86400000 ? 'var(--gold)' : 'var(--muted)'}">${timeLeft}</span>`
+    : '';
 
   return `
     <div class="match-block">
@@ -247,7 +256,10 @@ function renderMatchRow(m) {
         </div>
         <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
-      <div class="match-meta">${meta}</div>
+      <div class="match-meta" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${meta}</span>
+        ${deadlineHtml}
+      </div>
     </div>`;
 }
 
