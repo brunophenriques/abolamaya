@@ -51,10 +51,7 @@
   </div>
 
   <div id="countdownWrap" class="countdown" style="display:none">
-    Previsões encerram em <strong id="countdownVal"></strong>
-  </div>
-  <div id="lockedBanner" class="locked-banner" style="display:none">
-    Previsões encerradas — boa sorte!
+    O Mundial começa em <strong id="countdownVal"></strong>
   </div>
 
   <!-- Stats -->
@@ -111,12 +108,10 @@ function rankBadge(i) {
 
   document.getElementById('welcomeMsg').textContent = `Olá, ${user.display_name || user.username}!`;
 
-  const timer = timeUntilDeadline();
+  const timer = timeUntilFirstMatch();
   if (timer) {
     document.getElementById('countdownWrap').style.display = '';
     document.getElementById('countdownVal').textContent = timer;
-  } else {
-    document.getElementById('lockedBanner').style.display = '';
   }
 
   const [lb, matches, preds] = await Promise.all([
@@ -134,10 +129,11 @@ function rankBadge(i) {
   const predSet = new Set((preds || []).map(p => p.match_id));
   const groups = {};
   for (const m of matches || []) {
-    if (!groups[m.group_id]) groups[m.group_id] = { teams: new Set(), ids: [] };
+    if (!groups[m.group_id]) groups[m.group_id] = { teams: new Set(), ids: [], matches: [] };
     groups[m.group_id].teams.add(m.home_team);
     groups[m.group_id].teams.add(m.away_team);
     groups[m.group_id].ids.push(m.id);
+    groups[m.group_id].matches.push(m);
   }
 
   const grid = document.getElementById('groupGrid');
@@ -159,7 +155,8 @@ function rankBadge(i) {
       </div>
       <div class="group-teams">
         ${[...info.teams].map(t => `<a href="/team?team=${teamSlug(t)}" class="group-team team-link" onclick="event.stopPropagation()">${t}</a>`).join('')}
-      </div>`;
+      </div>
+      <div style="margin-top:6px">${groupDeadlineHtml(info.matches)}</div>`;
     grid.appendChild(card);
   }
 

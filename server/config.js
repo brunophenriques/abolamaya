@@ -12,7 +12,6 @@ module.exports = {
   JWT_SECRET,
   PORT:                process.env.PORT || 3000,
   BASE_URL,
-  PREDICTION_DEADLINE: new Date('2026-06-11T18:00:00Z'),
   API_FOOTBALL_KEY:    process.env.API_FOOTBALL_KEY || null,
 
   SMTP: {

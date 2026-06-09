@@ -50,7 +50,7 @@
 
   <div id="lockedBanner" class="locked-banner" style="display:none">Previsões encerradas.</div>
   <div id="countdownWrap" class="countdown" style="display:none">
-    Encerram em <strong id="countdownVal"></strong>
+    O Mundial começa em <strong id="countdownVal"></strong>
   </div>
 
   <!-- Filter bar -->
@@ -104,7 +104,6 @@
 <script src="js/scoring.js"></script>
 <script src="js/theme.js"></script>
 <script>
-const locked = isPredictionLocked();
 let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {};
 let activeFilter = null;
 
@@ -124,13 +123,8 @@ function formatDateLong(dateStr) {
   user = await requireAuth();
   if (!user) return;
 
-  if (locked) {
-    document.getElementById('lockedBanner').style.display = '';
-  } else {
-    const t = timeUntilDeadline();
-    if (t) { document.getElementById('countdownWrap').style.display = ''; document.getElementById('countdownVal').textContent = t; }
-    document.getElementById('saveBar').style.display = '';
-  }
+  // will set after matches load
+
 
   const [matches, preds] = await Promise.all([API.get('/matches'), API.get('/matches/predictions')]);
 
@@ -146,6 +140,15 @@ function formatDateLong(dateStr) {
     localPreds[m.id] = userPreds[m.id]
       ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score) }
       : { home_score: '', away_score: '' };
+  }
+
+  const allLocked = allMatchesList.every(m => isMatchLocked(m.match_date, m.match_time));
+  if (allLocked) {
+    document.getElementById('lockedBanner').style.display = '';
+  } else {
+    const t = timeUntilFirstMatch();
+    if (t) { document.getElementById('countdownWrap').style.display = ''; document.getElementById('countdownVal').textContent = t; }
+    document.getElementById('saveBar').style.display = '';
   }
 
   document.getElementById('filterBar').style.display = '';
@@ -199,16 +202,15 @@ function renderSchedule() {
       </div>`;
     scheduleEl.appendChild(dayEl);
 
-    if (!locked) {
-      for (const m of ms) {
-        ['home','away'].forEach(side => {
-          document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
-            localPreds[m.id][`${side}_score`] = e.target.value;
-            updateGroupStandings(m.group_id);
-            updateSaveBar();
-          });
+    for (const m of ms) {
+      if (isMatchLocked(m.match_date, m.match_time)) continue;
+      ['home','away'].forEach(side => {
+        document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
+          localPreds[m.id][`${side}_score`] = e.target.value;
+          updateGroupStandings(m.group_id);
+          updateSaveBar();
         });
-      }
+      });
     }
   }
 }
@@ -216,8 +218,9 @@ function renderSchedule() {
 function renderMatchRow(m) {
   const p = localPreds[m.id] || { home_score: '', away_score: '' };
   const meta = `<span class="match-group-chip">${GROUP_LABELS[m.group_id]}</span> ${m.match_time} (PT) · ${m.venue}`;
+  const matchLocked = isMatchLocked(m.match_date, m.match_time);
 
-  if (locked) return `
+  if (matchLocked) return `
     <div class="match-block">
       <div class="match-row">
         <div class="team-home"><span class="team-name-text">${teamLink(m.home_team, m.home_flag)}</span></div>
@@ -304,6 +307,7 @@ async function saveAll() {
   const btn = document.getElementById('saveAllBtn');
   const predictions = [];
   for (const m of allMatchesList) {
+    if (isMatchLocked(m.match_date, m.match_time)) continue;
     const p = localPreds[m.id];
     if (!p || p.home_score === '' || p.away_score === '') continue;
     const h = parseInt(p.home_score), a = parseInt(p.away_score);

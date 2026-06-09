@@ -1,11 +1,23 @@
-const PREDICTION_DEADLINE = new Date('2026-06-11T18:00:00Z'); // 1h antes do 1º jogo
+// First kickoff: 2026-06-11 19:00 PT = 18:00 UTC
+const FIRST_MATCH_UTC = new Date('2026-06-11T18:00:00Z');
 
-function isPredictionLocked() {
-  return Date.now() > PREDICTION_DEADLINE.getTime();
+// match_date = "YYYY-MM-DD", match_time = "HH:MM" — both PT (UTC+1 in June)
+// A match locks 1 hour before kickoff
+function isMatchLocked(matchDate, matchTime) {
+  const kickoff = new Date(`${matchDate}T${matchTime}:00+01:00`);
+  return Date.now() >= kickoff.getTime() - 3600000;
 }
 
-function timeUntilDeadline() {
-  const diff = PREDICTION_DEADLINE.getTime() - Date.now();
+function timeUntilFirstMatch() {
+  return _fmtDiff(FIRST_MATCH_UTC.getTime() - Date.now());
+}
+
+function timeUntilMatchLock(matchDate, matchTime) {
+  const lockAt = new Date(`${matchDate}T${matchTime}:00+01:00`).getTime() - 3600000;
+  return _fmtDiff(lockAt - Date.now());
+}
+
+function _fmtDiff(diff) {
   if (diff <= 0) return null;
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
@@ -13,6 +25,33 @@ function timeUntilDeadline() {
   if (d > 0) return `${d}d ${h}h ${m}m`;
   if (h > 0) return `${h}h ${m}m`;
   return `${m}m`;
+}
+
+// Returns an HTML snippet for the earliest open match deadline in a group
+function groupDeadlineHtml(groupMatches) {
+  const open = groupMatches
+    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 }))
+    .filter(({ lockAt }) => Date.now() < lockAt)
+    .sort((a, b) => a.lockAt - b.lockAt)[0];
+
+  if (!open) return '<span style="font-size:.7rem;color:var(--muted)">Encerrado</span>';
+
+  const diff = open.lockAt - Date.now();
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+
+  if (diff < 3600000) {
+    return `<span style="font-size:.7rem;color:var(--primary);font-weight:700">fecha em ${m}m</span>`;
+  } else if (diff < 86400000) {
+    const txt = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    return `<span style="font-size:.7rem;color:var(--gold)">fecha em ${txt}</span>`;
+  } else {
+    const lockDate = new Date(open.lockAt);
+    const dateStr = lockDate.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', timeZone: 'Europe/Lisbon' });
+    const timeStr = lockDate.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Lisbon' });
+    return `<span style="font-size:.7rem;color:var(--muted)">até ${dateStr} ${timeStr}</span>`;
+  }
 }
 
 const GROUP_LABELS = {
