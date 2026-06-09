@@ -194,5 +194,24 @@ function rankBadge(i) {
     </div>` : '<div class="card text-center" style="padding:32px"><p class="muted">Ainda sem dados.</p></div>';
 })();
 </script>
+<!-- Announcement modal -->
+<div class="announce-overlay" id="announceOverlay" style="display:none">
+  <div class="announce-box">
+    <div class="announce-title">🚨 Notícia Importante 🚨</div>
+    <p class="announce-body">Após um investimento parcial do grandessíssimo Guru do Mundial, a equipa de A Bola Maya veio anunciar que ao jogador que tiver a maior pontuação neste fim do mundial será lhe atribuído uma camisola de uma seleção à sua escolha (poderá depender do stock do chinês das camisolas)</p>
+    <div class="announce-actions">
+      <a href="/leaderboard" class="btn btn-primary">Ver Leaderboard</a>
+    </div>
+  </div>
+</div>
+<script>
+if (!localStorage.getItem('abm_announce_v1')) {
+  document.getElementById('announceOverlay').style.display = 'flex';
+  localStorage.setItem('abm_announce_v1', '1');
+}
+document.getElementById('announceOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+</script>
 </body>
 </html>
