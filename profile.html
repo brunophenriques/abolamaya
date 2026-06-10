@@ -147,7 +147,10 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
 
     <!-- Prediction history -->
     <div class="card">
-      <div class="card-title">Histórico de Previsões</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="card-title" style="margin-bottom:0;flex-shrink:0">Histórico de Previsões</div>
+        <div id="historyFilters" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto"></div>
+      </div>
       <div id="historyContainer"></div>
     </div>
 
@@ -204,21 +207,25 @@ function renderHistorySection() {
 
   const hasFilters = _histFilter.group || _histFilter.team;
 
-  container.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      <select class="input" style="padding:5px 8px;font-size:.8rem;flex:1;min-width:120px" onchange="setHistFilter('group',this.value||null)">
+  const filtersEl = document.getElementById('historyFilters');
+  if (filtersEl) {
+    filtersEl.innerHTML = `
+      <select class="input" style="padding:3px 6px;font-size:.75rem" onchange="setHistFilter('group',this.value||null)">
         <option value="">Todos os grupos</option>
         ${groups.map(g => `<option value="${g}" ${_histFilter.group===g?'selected':''}>${GROUP_LABELS[g]||g}</option>`).join('')}
       </select>
-      <select class="input" style="padding:5px 8px;font-size:.8rem;flex:1;min-width:140px" onchange="setHistFilter('team',this.value||null)">
+      <select class="input" style="padding:3px 6px;font-size:.75rem" onchange="setHistFilter('team',this.value||null)">
         <option value="">Todas as seleções</option>
         ${teams.map(t => `<option value="${t}" ${_histFilter.team===t?'selected':''}>${t}</option>`).join('')}
       </select>
-      <button class="btn btn-ghost btn-sm" onclick="setHistFilter('sortAsc',!${_histFilter.sortAsc})" title="Ordenar por data" style="flex-shrink:0">
+      <button class="btn btn-ghost btn-sm" onclick="setHistFilter('sortAsc',!${_histFilter.sortAsc})" style="font-size:.75rem;padding:3px 8px">
         Data ${_histFilter.sortAsc ? '↑' : '↓'}
       </button>
-      ${hasFilters ? `<button class="btn btn-ghost btn-sm" onclick="clearHistFilters()" style="flex-shrink:0;color:var(--muted)">✕ Limpar</button>` : ''}
-    </div>
+      ${hasFilters ? `<button class="btn btn-ghost btn-sm" onclick="clearHistFilters()" style="font-size:.75rem;padding:3px 8px;color:var(--muted)">✕</button>` : ''}
+    `;
+  }
+
+  container.innerHTML = `
     ${renderHistoryTable(shown)}
     ${!_histFilter.showAll && total > 10 ? `
       <div style="text-align:center;margin-top:14px">
