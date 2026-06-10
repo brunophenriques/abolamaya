@@ -2002,10 +2002,14 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .history-filters {
   display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; flex-shrink: 0;
 }
-.history-filters select,
-.history-filters .btn {
+.history-filters select {
   font-size: .75rem; padding: 3px 7px;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; appearance: auto;
 }
+.history-filters select:hover { background: var(--bg-hover); color: var(--text); }
+.history-filters .btn { font-size: .75rem; padding: 3px 8px; }
 @media (max-width: 640px) {
   .history-header { flex-wrap: wrap; gap: 8px; }
   .history-header-line { display: none; }
