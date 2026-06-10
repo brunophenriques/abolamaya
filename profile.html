@@ -210,18 +210,18 @@ function renderHistorySection() {
   const filtersEl = document.getElementById('historyFilters');
   if (filtersEl) {
     filtersEl.innerHTML = `
-      <select class="input" style="padding:3px 6px;font-size:.75rem" onchange="setHistFilter('group',this.value||null)">
+      <select onchange="setHistFilter('group',this.value||null)">
         <option value="">Todos os grupos</option>
         ${groups.map(g => `<option value="${g}" ${_histFilter.group===g?'selected':''}>${GROUP_LABELS[g]||g}</option>`).join('')}
       </select>
-      <select class="input" style="padding:3px 6px;font-size:.75rem" onchange="setHistFilter('team',this.value||null)">
+      <select onchange="setHistFilter('team',this.value||null)">
         <option value="">Todas as seleções</option>
         ${teams.map(t => `<option value="${t}" ${_histFilter.team===t?'selected':''}>${t}</option>`).join('')}
       </select>
-      <button class="btn btn-ghost btn-sm" onclick="setHistFilter('sortAsc',!${_histFilter.sortAsc})" style="font-size:.75rem;padding:3px 8px">
+      <button class="btn btn-ghost btn-sm" onclick="setHistFilter('sortAsc',!${_histFilter.sortAsc})">
         Data ${_histFilter.sortAsc ? '↑' : '↓'}
       </button>
-      ${hasFilters ? `<button class="btn btn-ghost btn-sm" onclick="clearHistFilters()" style="font-size:.75rem;padding:3px 8px;color:var(--muted)">✕</button>` : ''}
+      ${hasFilters ? `<button class="btn btn-ghost btn-sm" onclick="clearHistFilters()">✕</button>` : ''}
     `;
   }
 
