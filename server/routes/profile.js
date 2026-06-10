@@ -99,7 +99,6 @@ router.get('/:username/history', auth, (req, res) => {
     JOIN matches m ON m.id = mp.match_id
     WHERE mp.user_id = ?
     ORDER BY m.match_date DESC, m.id DESC
-    LIMIT 30
   `).all(u.id);
 
   res.json({ predictions });

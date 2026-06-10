@@ -148,7 +148,7 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
     <!-- Prediction history -->
     <div class="card">
       <div class="card-title">Histórico de Previsões</div>
-      ${renderHistory(predictions)}
+      <div id="historyContainer"></div>
     </div>
 
     <!-- Achievements -->
@@ -167,6 +167,7 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
     ${isOwn ? renderFriendsSection() : ''}
   `;
 
+  initHistory(predictions);
   if (isOwn) loadFriends();
 }
 
@@ -177,9 +178,75 @@ function statCard(value, label) {
   </div>`;
 }
 
-function renderHistory(predictions) {
+let _allPredictions = [];
+let _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
+
+function initHistory(predictions) {
+  _allPredictions = predictions;
+  _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
+  renderHistorySection();
+}
+
+function renderHistorySection() {
+  const container = document.getElementById('historyContainer');
+  if (!container) return;
+
+  const groups = [...new Set(_allPredictions.map(p => p.group_id))].sort();
+  const teams  = [...new Set(_allPredictions.flatMap(p => [p.home_team, p.away_team]))].sort();
+
+  let filtered = _allPredictions;
+  if (_histFilter.group) filtered = filtered.filter(p => p.group_id === _histFilter.group);
+  if (_histFilter.team)  filtered = filtered.filter(p => p.home_team === _histFilter.team || p.away_team === _histFilter.team);
+  if (_histFilter.sortAsc) filtered = [...filtered].sort((a, b) => a.match_date.localeCompare(b.match_date) || a.match_id - b.match_id);
+
+  const total = filtered.length;
+  const shown = _histFilter.showAll ? filtered : filtered.slice(0, 10);
+
+  const hasFilters = _histFilter.group || _histFilter.team;
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <select class="input" style="padding:5px 8px;font-size:.8rem;flex:1;min-width:120px" onchange="setHistFilter('group',this.value||null)">
+        <option value="">Todos os grupos</option>
+        ${groups.map(g => `<option value="${g}" ${_histFilter.group===g?'selected':''}>${GROUP_LABELS[g]||g}</option>`).join('')}
+      </select>
+      <select class="input" style="padding:5px 8px;font-size:.8rem;flex:1;min-width:140px" onchange="setHistFilter('team',this.value||null)">
+        <option value="">Todas as seleções</option>
+        ${teams.map(t => `<option value="${t}" ${_histFilter.team===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="setHistFilter('sortAsc',!${_histFilter.sortAsc})" title="Ordenar por data" style="flex-shrink:0">
+        Data ${_histFilter.sortAsc ? '↑' : '↓'}
+      </button>
+      ${hasFilters ? `<button class="btn btn-ghost btn-sm" onclick="clearHistFilters()" style="flex-shrink:0;color:var(--muted)">✕ Limpar</button>` : ''}
+    </div>
+    ${renderHistoryTable(shown)}
+    ${!_histFilter.showAll && total > 10 ? `
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" onclick="setHistFilter('showAll',true)">Ver todas (${total})</button>
+      </div>` : ''}
+    ${_histFilter.showAll && total > 10 ? `
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" onclick="setHistFilter('showAll',false)" style="color:var(--muted)">Ver menos</button>
+      </div>` : ''}
+  `;
+}
+
+function setHistFilter(key, value) {
+  _histFilter[key] = value;
+  if (key === 'group' || key === 'team') _histFilter.showAll = false;
+  renderHistorySection();
+}
+
+function clearHistFilters() {
+  _histFilter.group = null;
+  _histFilter.team  = null;
+  _histFilter.showAll = false;
+  renderHistorySection();
+}
+
+function renderHistoryTable(predictions) {
   if (!predictions.length)
-    return '<p class="muted small" style="padding:12px 0">Ainda sem previsões.</p>';
+    return '<p class="muted small" style="padding:12px 0">Nenhuma previsão encontrada.</p>';
 
   const rows = predictions.map(p => {
     const hasResult  = p.status === 'finished';
