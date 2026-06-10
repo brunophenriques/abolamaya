@@ -1986,6 +1986,32 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .ticket-meta { font-size: .75rem; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
 .pmodal-note            { margin-top: 8px; font-size: .65rem; }
 
+/* ── Profile history header ──────────────────────────────────────────────────*/
+.history-header {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; margin-bottom: 14px;
+}
+.history-header-title {
+  font-size: .72rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+  white-space: nowrap; flex-shrink: 0;
+}
+.history-header-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+.history-filters {
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; flex-shrink: 0;
+}
+.history-filters select,
+.history-filters .btn {
+  font-size: .75rem; padding: 3px 7px;
+}
+@media (max-width: 640px) {
+  .history-header { flex-wrap: wrap; gap: 8px; }
+  .history-header-line { display: none; }
+  .history-filters { flex-wrap: wrap; width: 100%; }
+}
+
 /* ── Announcement modal ──────────────────────────────────────────────────────*/
 .announce-overlay {
   position: fixed; inset: 0; z-index: 2000;

@@ -147,9 +147,10 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
 
     <!-- Prediction history -->
     <div class="card">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0;flex-shrink:0">Histórico de Previsões</div>
-        <div id="historyFilters" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto"></div>
+      <div class="history-header">
+        <span class="history-header-title">Histórico de Previsões</span>
+        <span class="history-header-line"></span>
+        <div class="history-filters" id="historyFilters"></div>
       </div>
       <div id="historyContainer"></div>
     </div>
