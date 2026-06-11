@@ -2,10 +2,10 @@
 const FIRST_MATCH_UTC = new Date('2026-06-11T18:00:00Z');
 
 // match_date = "YYYY-MM-DD", match_time = "HH:MM" — both PT (UTC+1 in June)
-// A match locks 1 hour before kickoff
+// A match locks 15 minutes before kickoff
 function isMatchLocked(matchDate, matchTime) {
   const kickoff = new Date(`${matchDate}T${matchTime}:00+01:00`);
-  return Date.now() >= kickoff.getTime() - 3600000;
+  return Date.now() >= kickoff.getTime() - 900000;
 }
 
 function timeUntilFirstMatch() {
@@ -13,7 +13,7 @@ function timeUntilFirstMatch() {
 }
 
 function timeUntilMatchLock(matchDate, matchTime) {
-  const lockAt = new Date(`${matchDate}T${matchTime}:00+01:00`).getTime() - 3600000;
+  const lockAt = new Date(`${matchDate}T${matchTime}:00+01:00`).getTime() - 900000;
   return _fmtDiff(lockAt - Date.now());
 }
 
@@ -30,7 +30,7 @@ function _fmtDiff(diff) {
 function nextOpenMatchInfo(matches) {
   const now  = Date.now();
   const next = (matches || [])
-    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 }))
+    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 900000 }))
     .filter(({ lockAt }) => now < lockAt)
     .sort((a, b) => a.lockAt - b.lockAt)[0];
   return next ? { match: next.m, lockAt: next.lockAt } : null;
@@ -45,7 +45,7 @@ function renderNextLockCountdown(matches) {
   if (!info) { wrap.style.display = 'none'; return; }
   const { match: m, lockAt } = info;
   const diff    = lockAt - Date.now();
-  const urgent  = diff < 3600000;
+  const urgent  = diff < 1800000;
   const timeStr = _fmtDiff(diff) || '< 1m';
   val.innerHTML = `${m.home_flag} ${m.home_team} vs ${m.away_team} ${m.away_flag} · encerra em <strong>${timeStr}</strong>`;
   wrap.className = urgent ? 'countdown countdown-urgent' : 'countdown';
@@ -56,7 +56,7 @@ function renderNextLockCountdown(matches) {
 // Returns an HTML snippet for the earliest open match deadline in a group
 function groupDeadlineHtml(groupMatches) {
   const open = groupMatches
-    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 }))
+    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 900000 }))
     .filter(({ lockAt }) => Date.now() < lockAt)
     .sort((a, b) => a.lockAt - b.lockAt)[0];
 

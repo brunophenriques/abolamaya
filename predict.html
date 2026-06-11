@@ -239,7 +239,7 @@ function renderMatchRow(m) {
     && p.home_score !== '';
 
   const timeLeft = timeUntilMatchLock(m.match_date, m.match_time);
-  const diff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 - Date.now();
+  const diff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 900000 - Date.now();
   const deadlineHtml = timeLeft
     ? `<span style="font-size:.72rem;font-weight:600;color:${diff < 3600000 ? 'var(--primary)' : diff < 86400000 ? 'var(--gold)' : 'var(--muted)'}">${timeLeft}</span>`
     : '';

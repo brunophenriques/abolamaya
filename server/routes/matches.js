@@ -44,7 +44,7 @@ router.post('/predictions', auth, (req, res) => {
         const m = matchMap[p.match_id];
         if (!m) throw new Error('Jogo não encontrado');
         const kickoff = new Date(`${m.match_date}T${m.match_time}:00+01:00`);
-        if (Date.now() >= kickoff.getTime() - 3600000) continue; // locked — skip silently
+        if (Date.now() >= kickoff.getTime() - 900000) continue; // locked — skip silently
         upsert.run(req.user.id, p.match_id, p.home_score, p.away_score);
         saved++;
       }
