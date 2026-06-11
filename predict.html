@@ -332,7 +332,7 @@ async function saveAll() {
   try {
     await API.post('/matches/predictions', { predictions });
     for (const p of predictions) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
-    showToast(`${predictions.length} previsão${predictions.length !== 1 ? 'ões' : ''} guardada${predictions.length !== 1 ? 's' : ''}!`);
+    showToast(`${predictions.length} ${predictions.length !== 1 ? 'previsões guardadas' : 'previsão guardada'}!`);
     renderSchedule();
     updateSaveBar();
   } catch (e) {
