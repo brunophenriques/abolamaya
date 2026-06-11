@@ -13,10 +13,11 @@ const LB_QUERY = `
   FROM users u
   LEFT JOIN (
     SELECT user_id,
-      SUM(COALESCE(points_earned,0))                          AS pts,
-      COUNT(*)                                                AS cnt,
-      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)    AS correct,
-      SUM(CASE WHEN points_earned  = 3 THEN 1 ELSE 0 END)    AS exact
+      SUM(COALESCE(points_earned,0))                                  AS pts,
+      COUNT(*)                                                        AS cnt,
+      SUM(CASE WHEN points_earned IS NOT NULL THEN 1 ELSE 0 END)     AS settled,
+      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)            AS correct,
+      SUM(CASE WHEN points_earned  = 3 THEN 1 ELSE 0 END)            AS exact
     FROM match_predictions GROUP BY user_id
   ) mp ON mp.user_id = u.id
   LEFT JOIN (
@@ -30,8 +31,8 @@ function enrich(rows) {
     ...r,
     is_admin: !!r.is_admin,
     rank:     i + 1,
-    accuracy: r.predictions_made > 0
-      ? Math.round((r.correct_predictions / r.predictions_made) * 100) : 0,
+    accuracy: r.settled > 0
+      ? Math.round((r.correct_predictions / r.settled) * 100) : 0,
   }));
 }
 

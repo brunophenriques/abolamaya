@@ -129,6 +129,7 @@ router.get('/leaderboard', auth, (req, res) => {
     LEFT JOIN (
       SELECT user_id,
         SUM(COALESCE(points_earned,0)) pts, COUNT(*) cnt,
+        SUM(CASE WHEN points_earned IS NOT NULL THEN 1 ELSE 0 END) settled,
         SUM(CASE WHEN points_earned>=1 THEN 1 ELSE 0 END) correct,
         SUM(CASE WHEN points_earned =3 THEN 1 ELSE 0 END) exact
       FROM match_predictions GROUP BY user_id
@@ -143,8 +144,8 @@ router.get('/leaderboard', auth, (req, res) => {
     ...r,
     is_admin: !!r.is_admin,
     rank:     i + 1,
-    accuracy: r.predictions_made > 0
-      ? Math.round((r.correct_predictions / r.predictions_made) * 100) : 0,
+    accuracy: r.settled > 0
+      ? Math.round((r.correct_predictions / r.settled) * 100) : 0,
   })));
 });
 

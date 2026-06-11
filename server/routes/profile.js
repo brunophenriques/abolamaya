@@ -8,10 +8,11 @@ const { getUserAchievements, awardAchievement } = require('../middleware/achieve
 function userStats(userId) {
   const mp = db.prepare(`
     SELECT
-      COUNT(*)                                                      AS total,
-      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)          AS correct,
-      SUM(CASE WHEN points_earned  = 3 THEN 1 ELSE 0 END)          AS exact,
-      COALESCE(SUM(points_earned), 0)                               AS match_pts
+      COUNT(*)                                                              AS total,
+      SUM(CASE WHEN points_earned IS NOT NULL THEN 1 ELSE 0 END)           AS settled,
+      SUM(CASE WHEN points_earned >= 1 THEN 1 ELSE 0 END)                  AS correct,
+      SUM(CASE WHEN points_earned  = 3 THEN 1 ELSE 0 END)                  AS exact,
+      COALESCE(SUM(points_earned), 0)                                       AS match_pts
     FROM match_predictions WHERE user_id = ?
   `).get(userId);
 
@@ -42,7 +43,7 @@ function userStats(userId) {
     group_points:        gp.gp || 0,
     total_points,
     rank,
-    accuracy: mp.total > 0 ? Math.round((mp.correct / mp.total) * 100) : 0,
+    accuracy: mp.settled > 0 ? Math.round((mp.correct / mp.settled) * 100) : 0,
   };
 }
 
