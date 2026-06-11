@@ -2,12 +2,12 @@
 const FIRST_MATCH_UTC = new Date('2026-06-11T18:00:00Z');
 
 // match_date = "YYYY-MM-DD", match_time = "HH:MM" — both PT (UTC+1 in June)
-// A match locks 15 minutes before kickoff.
+// A match locks 5 minutes before kickoff.
 // Exception: 2026-06-11 20:00 (México vs África do Sul) — open until 10 min after kickoff.
 function getMatchLockAt(matchDate, matchTime) {
   const kickoff = new Date(`${matchDate}T${matchTime}:00+01:00`).getTime();
   if (matchDate === '2026-06-11' && matchTime === '20:00') return kickoff + 600000;
-  return kickoff - 900000;
+  return kickoff - 300000;
 }
 
 function isMatchLocked(matchDate, matchTime) {
