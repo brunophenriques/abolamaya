@@ -7,9 +7,10 @@ const LB_QUERY = `
     COALESCE(mp.pts,     0) AS match_points,
     COALESCE(gp.pts,     0) AS group_points,
     COALESCE(mp.pts, 0) + COALESCE(gp.pts, 0) AS total_points,
-    COALESCE(mp.cnt,     0) AS predictions_made,
-    COALESCE(mp.correct, 0) AS correct_predictions,
-    COALESCE(mp.exact,   0) AS exact_predictions
+    COALESCE(mp.cnt,      0) AS predictions_made,
+    COALESCE(mp.settled,  0) AS settled,
+    COALESCE(mp.correct,  0) AS correct_predictions,
+    COALESCE(mp.exact,    0) AS exact_predictions
   FROM users u
   LEFT JOIN (
     SELECT user_id,
