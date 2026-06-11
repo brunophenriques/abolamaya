@@ -50,7 +50,7 @@
 
   <div id="lockedBanner" class="locked-banner" style="display:none">Previsões encerradas.</div>
   <div id="countdownWrap" class="countdown" style="display:none">
-    O Mundial começa em <strong id="countdownVal"></strong>
+    <span id="countdownVal"></span>
   </div>
 
   <!-- Filter bar -->
@@ -146,8 +146,8 @@ function formatDateLong(dateStr) {
   if (allLocked) {
     document.getElementById('lockedBanner').style.display = '';
   } else {
-    const t = timeUntilFirstMatch();
-    if (t) { document.getElementById('countdownWrap').style.display = ''; document.getElementById('countdownVal').textContent = t; }
+    renderNextLockCountdown(allMatchesList);
+    setInterval(() => renderNextLockCountdown(allMatchesList), 30000);
     document.getElementById('saveBar').style.display = '';
   }
 

@@ -699,6 +699,8 @@ a.group-team:hover { color: var(--text); text-decoration: none; }
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: .3; transform: scale(.7); }
 }
+.countdown-urgent { color: var(--primary); background: var(--red-bg); border-color: rgba(230,29,37,.25); }
+.countdown-urgent::before { background: var(--primary); }
 
 .locked-banner {
   background: var(--red-bg);

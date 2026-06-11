@@ -27,6 +27,32 @@ function _fmtDiff(diff) {
   return `${m}m`;
 }
 
+function nextOpenMatchInfo(matches) {
+  const now  = Date.now();
+  const next = (matches || [])
+    .map(m => ({ m, lockAt: new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 3600000 }))
+    .filter(({ lockAt }) => now < lockAt)
+    .sort((a, b) => a.lockAt - b.lockAt)[0];
+  return next ? { match: next.m, lockAt: next.lockAt } : null;
+}
+
+function renderNextLockCountdown(matches) {
+  const wrap = document.getElementById('countdownWrap');
+  const val  = document.getElementById('countdownVal');
+  const cta  = document.getElementById('ctaWrap');
+  if (!wrap) return;
+  const info = nextOpenMatchInfo(matches);
+  if (!info) { wrap.style.display = 'none'; return; }
+  const { match: m, lockAt } = info;
+  const diff    = lockAt - Date.now();
+  const urgent  = diff < 3600000;
+  const timeStr = _fmtDiff(diff) || '< 1m';
+  val.innerHTML = `${m.home_flag} ${m.home_team} vs ${m.away_team} ${m.away_flag} · encerra em <strong>${timeStr}</strong>`;
+  wrap.className = urgent ? 'countdown countdown-urgent' : 'countdown';
+  wrap.style.display = '';
+  if (cta) cta.style.display = '';
+}
+
 // Returns an HTML snippet for the earliest open match deadline in a group
 function groupDeadlineHtml(groupMatches) {
   const open = groupMatches
