@@ -341,5 +341,33 @@ async function saveAll() {
   setLoading(btn, false);
 }
 </script>
+
+<!-- Exception popup: México vs África do Sul open until 20:10 PT -->
+<div class="announce-overlay" id="exceptionOverlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="announce-box" style="border-color:var(--primary)">
+    <div class="announce-title" style="color:var(--primary)">⚡ Exceção — México vs África do Sul</div>
+    <p class="announce-body" style="text-align:center">
+      Excecionalmente, podes ainda votar neste jogo até às <strong>20:10 (PT)</strong> — 10 minutos após o início do jogo.
+      <br><br>
+      <span style="font-size:.82rem;color:var(--muted)">Esta exceção aplica-se apenas a este jogo.</span>
+    </p>
+    <div class="announce-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('exceptionOverlay').style.display='none'">Percebi, vou votar!</button>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  const start = new Date('2026-06-11T18:45:00Z').getTime(); // 19:45 PT — when normal lock kicks in
+  const end   = new Date('2026-06-11T19:10:00Z').getTime(); // 20:10 PT — exception deadline
+  const now   = Date.now();
+  if (now >= start && now < end && !sessionStorage.getItem('abm_exc_dismissed')) {
+    document.getElementById('exceptionOverlay').style.display = 'flex';
+  }
+  document.getElementById('exceptionOverlay').addEventListener('click', function(e) {
+    if (e.target === this || e.target.closest('button')) sessionStorage.setItem('abm_exc_dismissed', '1');
+  });
+})();
+</script>
 </body>
 </html>

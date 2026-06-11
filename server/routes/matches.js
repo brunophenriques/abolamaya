@@ -43,8 +43,10 @@ router.post('/predictions', auth, (req, res) => {
         if (p.home_score < 0 || p.away_score < 0) throw new Error('Marcador inválido');
         const m = matchMap[p.match_id];
         if (!m) throw new Error('Jogo não encontrado');
-        const kickoff = new Date(`${m.match_date}T${m.match_time}:00+01:00`);
-        if (Date.now() >= kickoff.getTime() - 900000) continue; // locked — skip silently
+        const kickoff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime();
+        const isException = m.match_date === '2026-06-11' && m.match_time === '20:00';
+        const lockAt = isException ? kickoff + 600000 : kickoff - 900000;
+        if (Date.now() >= lockAt) continue; // locked — skip silently
         upsert.run(req.user.id, p.match_id, p.home_score, p.away_score);
         saved++;
       }
