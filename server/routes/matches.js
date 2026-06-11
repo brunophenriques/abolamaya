@@ -17,7 +17,7 @@ router.get('/predictions', auth, (req, res) => {
 });
 
 // POST /api/matches/predictions  — upsert batch
-// Each match locks 1 hour before kickoff (match_date + match_time in PT = UTC+1).
+// Each match locks 15 minutes before kickoff (match_date + match_time in PT = UTC+1).
 // Locked matches in the batch are silently skipped; valid ones are saved.
 router.post('/predictions', auth, (req, res) => {
   const { predictions } = req.body;
