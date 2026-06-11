@@ -3,29 +3,6 @@
 // The `check` function must be idempotent and safe to call frequently.
 // `67_machine` is event-driven (awarded via awardAchievement) — check always returns false.
 
-const RANK_ACH_TYPES = ['top_100', 'top_25', 'top_10', 'rei_da_colina'];
-
-// Returns Infinity if the user has 0 points — rank achievements require real points.
-function getRank(db, uid) {
-  const { total } = db.prepare(`
-    SELECT
-      COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=? AND points_earned IS NOT NULL),0) +
-      COALESCE((SELECT SUM(points_earned) FROM group_points WHERE user_id=?),0) AS total
-  `).get(uid, uid);
-
-  if (total < 1) return Infinity;
-
-  const { rank } = db.prepare(`
-    SELECT COUNT(*)+1 AS rank FROM (
-      SELECT u.id,
-        COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=u.id AND points_earned IS NOT NULL),0) +
-        COALESCE((SELECT SUM(points_earned) FROM group_points WHERE user_id=u.id),0) AS total
-      FROM users u WHERE (u.banned IS NULL OR u.banned=0)
-    ) WHERE total > ?
-  `).get(total);
-
-  return rank;
-}
 
 const ACHIEVEMENTS = [
   // ── Kept originals (not duplicated by new list) ──────────────────────────────
@@ -163,34 +140,6 @@ const ACHIEVEMENTS = [
       }
       return false;
     },
-  },
-  {
-    type: 'top_100',
-    name: 'Top 100',
-    icon: '🌍',
-    description: 'Entraste nos 100 primeiros na classificação global.',
-    check: (db, uid) => getRank(db, uid) <= 100,
-  },
-  {
-    type: 'top_25',
-    name: 'Top 25',
-    icon: '🥈',
-    description: 'Entraste no Top 25 global.',
-    check: (db, uid) => getRank(db, uid) <= 25,
-  },
-  {
-    type: 'top_10',
-    name: 'Top 10',
-    icon: '🥇',
-    description: 'Entraste na elite dos previsores.',
-    check: (db, uid) => getRank(db, uid) <= 10,
-  },
-  {
-    type: 'rei_da_colina',
-    name: 'Rei da Colina',
-    icon: '👑',
-    description: 'Atingiste o 1.º lugar global.',
-    check: (db, uid) => getRank(db, uid) === 1,
   },
   {
     type: 'nostradamus',
