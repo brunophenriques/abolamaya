@@ -159,9 +159,16 @@ function renderTable(rows) {
             ? `<span class="rank-badge rank-${i+1}">${i+1}</span>`
             : `<span style="color:var(--muted)">${i+1}</span>`;
           const adminBadge = u.is_admin ? `<span class="lb-admin" title="Admin">👑</span>` : '';
-          const accuracyLabel = u.predictions_made > 0 ? `${u.accuracy}%` : '—';
+          const accuracyLabel = u.settled > 0 ? `${u.accuracy}%` : '—';
+          const curr = i + 1;
+          let changeEl = '';
+          if (u.prev_rank != null) {
+            if (u.prev_rank > curr)      changeEl = `<span style="color:var(--green);font-size:.65rem;font-weight:700;line-height:1">↑</span>`;
+            else if (u.prev_rank < curr) changeEl = `<span style="color:var(--primary);font-size:.65rem;font-weight:700;line-height:1">↓</span>`;
+            else                         changeEl = `<span style="color:var(--gold);font-size:.65rem;font-weight:700;line-height:1">—</span>`;
+          }
           return `<tr class="${rankCls} ${meCls}">
-            <td class="lb-rank">${rank}</td>
+            <td class="lb-rank" style="white-space:nowrap">${changeEl} ${rank}</td>
             <td class="lb-avatar">
               <a href="/profile?u=${u.username}" style="text-decoration:none">${miniAvatar(u)}</a>
             </td>

@@ -49,11 +49,37 @@ function calcStandings(matches, preds) {
   });
 }
 
+function snapshotRanks() {
+  const rows = db.prepare(`
+    SELECT u.id,
+      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+      COALESCE(mp.exact,0) AS exact,
+      COALESCE(mp.pts,0) AS match_pts
+    FROM users u
+    LEFT JOIN (
+      SELECT user_id,
+        SUM(COALESCE(points_earned,0)) pts,
+        SUM(CASE WHEN points_earned=3 THEN 1 ELSE 0 END) exact
+      FROM match_predictions GROUP BY user_id
+    ) mp ON mp.user_id=u.id
+    LEFT JOIN (SELECT user_id, SUM(COALESCE(points_earned,0)) pts FROM group_points GROUP BY user_id) gp ON gp.user_id=u.id
+    WHERE (u.banned IS NULL OR u.banned=0)
+    ORDER BY total DESC, exact ASC, match_pts DESC, u.username
+  `).all();
+  const snap = db.prepare(`
+    INSERT INTO rank_snapshots (user_id, prev_rank) VALUES (?,?)
+    ON CONFLICT(user_id) DO UPDATE SET prev_rank=excluded.prev_rank, snapped_at=datetime('now')
+  `);
+  db.transaction(() => rows.forEach((r, i) => snap.run(r.id, i + 1)))();
+}
+
 // POST /api/admin/result  { match_id, home_score, away_score }
 router.post('/result', auth, requireAdmin, (req, res) => {
   const { match_id, home_score, away_score } = req.body;
   if (typeof home_score !== 'number' || typeof away_score !== 'number' || home_score < 0 || away_score < 0)
     return res.status(400).json({ error: 'Marcador inválido' });
+
+  snapshotRanks();
 
   db.prepare("UPDATE matches SET home_score=?,away_score=?,status='finished' WHERE id=?")
     .run(home_score, away_score, match_id);

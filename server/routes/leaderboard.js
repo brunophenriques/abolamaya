@@ -10,7 +10,8 @@ const LB_QUERY = `
     COALESCE(mp.cnt,      0) AS predictions_made,
     COALESCE(mp.settled,  0) AS settled,
     COALESCE(mp.correct,  0) AS correct_predictions,
-    COALESCE(mp.exact,    0) AS exact_predictions
+    COALESCE(mp.exact,    0) AS exact_predictions,
+    rs.prev_rank
   FROM users u
   LEFT JOIN (
     SELECT user_id,
@@ -25,6 +26,7 @@ const LB_QUERY = `
     SELECT user_id, SUM(COALESCE(points_earned,0)) AS pts
     FROM group_points GROUP BY user_id
   ) gp ON gp.user_id = u.id
+  LEFT JOIN rank_snapshots rs ON rs.user_id = u.id
 `;
 
 function enrich(rows) {

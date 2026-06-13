@@ -329,6 +329,14 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS rank_snapshots (
+    user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    prev_rank  INTEGER NOT NULL,
+    snapped_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
 // Migrate duplicate achievement types → canonical replacements, then delete old rows.
 // first_prediction → primeiro_sangue, exact_score → nostradamus,
 // perfect_group → oraculo, first_friend → primeiro_amigo
