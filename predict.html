@@ -233,11 +233,6 @@ function renderMatchRow(m) {
       </div>
     </div>`;
 
-  const isSaved = userPreds[m.id] !== undefined
-    && String(userPreds[m.id].home_score) === p.home_score
-    && String(userPreds[m.id].away_score) === p.away_score
-    && p.home_score !== '';
-
   const timeLeft = timeUntilMatchLock(m.match_date, m.match_time);
   const diff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 300000 - Date.now();
   const deadlineHtml = timeLeft
@@ -252,7 +247,6 @@ function renderMatchRow(m) {
           <input type="number" min="0" max="20" id="score-home-${m.id}" class="score-input" value="${p.home_score}" placeholder="0">
           <span class="score-sep">:</span>
           <input type="number" min="0" max="20" id="score-away-${m.id}" class="score-input" value="${p.away_score}" placeholder="0">
-          ${isSaved ? `<span style="position:absolute;right:-22px;color:var(--green);font-size:.75rem;font-weight:700">✓</span>` : ''}
         </div>
         <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
