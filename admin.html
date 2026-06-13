@@ -122,10 +122,10 @@ function renderPanel() {
 
     <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
     <div id="tabMatches">
-      ${Object.entries(byDate).map(([date, ms]) => `
+      ${Object.entries(byDate).sort(([a],[b]) => a.localeCompare(b)).map(([date, ms]) => `
         <div class="card mt-12">
           <div class="card-title">${formatDate(date)}</div>
-          ${ms.map(renderAdminMatch).join('')}
+          ${ms.sort((a,b) => a.match_time.localeCompare(b.match_time)).map(renderAdminMatch).join('')}
         </div>`).join('')}
     </div>
 
