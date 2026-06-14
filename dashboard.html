@@ -65,6 +65,9 @@
     <div class="stat-card"><div class="stat-value" id="statGroup">—</div><div class="stat-label">Pts Grupos</div></div>
   </div>
 
+  <!-- Next match card -->
+  <div id="nextMatchCard" style="display:none;margin-bottom:24px"></div>
+
   <!-- Groups -->
   <div class="flex-between mb-8">
     <h3 class="fw-bold">Os teus grupos</h3>
@@ -106,6 +109,93 @@ function rankBadge(i) {
   return String(i + 1);
 }
 
+async function renderNextMatchCard(matches, preds) {
+  const wrap = document.getElementById('nextMatchCard');
+  if (!wrap) return;
+
+  const info = nextOpenMatchInfo(matches);
+  if (!info) return;
+
+  const { match: m, lockAt } = info;
+  const diff   = lockAt - Date.now();
+  const urgent = diff < 1800000;
+  const timeStr = (() => {
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const mn = Math.floor((diff % 3600000) / 60000);
+    if (d > 0) return `${d}d ${h}h`;
+    if (h > 0) return `${h}h ${mn}m`;
+    return `${mn}m`;
+  })();
+
+  const myPred = preds.find(p => p.match_id === m.id);
+  const myPredHtml = myPred
+    ? `<span class="nm-my-pred">A tua previsão: <strong>${myPred.home_score}–${myPred.away_score}</strong></span>`
+    : `<a href="/predict?group=${m.group_id}" class="btn btn-primary btn-sm" style="font-size:.78rem;padding:4px 12px">Fazer previsão</a>`;
+
+  wrap.style.display = '';
+  wrap.innerHTML = `
+    <div class="card nm-card">
+      <div class="nm-header">
+        <span class="nm-label">Próximo Jogo</span>
+        <span class="nm-timer ${urgent ? 'nm-urgent' : ''}">⏱ ${timeStr}</span>
+      </div>
+      <div class="nm-teams">
+        <div class="nm-team nm-team-home">
+          <span class="nm-flag">${m.home_flag}</span>
+          <span class="nm-name">${m.home_team}</span>
+        </div>
+        <div class="nm-vs">VS</div>
+        <div class="nm-team nm-team-away">
+          <span class="nm-flag">${m.away_flag}</span>
+          <span class="nm-name">${m.away_team}</span>
+        </div>
+      </div>
+      <div class="nm-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+      <div class="nm-footer">
+        ${myPredHtml}
+      </div>
+      <div class="nm-popular" id="nmPopular"><span class="muted small">A carregar previsões...</span></div>
+    </div>`;
+
+  try {
+    const pop = await API.get(`/matches/${m.id}/popular`);
+    const el = document.getElementById('nmPopular');
+    if (!el) return;
+    if (!pop.total || !pop.result_split) {
+      el.innerHTML = '<span class="muted small">Ainda sem previsões dos jogadores.</span>';
+      return;
+    }
+    const { home, draw, away } = pop.result_split;
+    const topScore = pop.top_score
+      ? `${m.home_flag} <strong>${pop.top_score.home}–${pop.top_score.away}</strong> ${m.away_flag} · escolhido por ${pop.top_score.count} jogador${pop.top_score.count !== 1 ? 'es' : ''}`
+      : '';
+    el.innerHTML = `
+      <div class="nm-pop-title">O que toda a gente pensa? <span class="muted" style="font-weight:400;font-size:.78rem">${pop.total} previsões</span></div>
+      ${topScore ? `<div class="nm-pop-top">${topScore}</div>` : ''}
+      <div class="nm-bars">
+        <div class="nm-bar-row">
+          <span class="nm-bar-label">${m.home_team.split(' ')[0]}</span>
+          <div class="nm-bar-track"><div class="nm-bar-fill nm-bar-home" style="width:${home.pct}%"></div></div>
+          <span class="nm-bar-pct">${home.pct}%</span>
+        </div>
+        <div class="nm-bar-row">
+          <span class="nm-bar-label">Empate</span>
+          <div class="nm-bar-track"><div class="nm-bar-fill nm-bar-draw" style="width:${draw.pct}%"></div></div>
+          <span class="nm-bar-pct">${draw.pct}%</span>
+        </div>
+        <div class="nm-bar-row">
+          <span class="nm-bar-label">${m.away_team.split(' ')[0]}</span>
+          <div class="nm-bar-track"><div class="nm-bar-fill nm-bar-away" style="width:${away.pct}%"></div></div>
+          <span class="nm-bar-pct">${away.pct}%</span>
+        </div>
+      </div>`;
+  } catch {
+    const el = document.getElementById('nmPopular');
+    if (el) el.innerHTML = '';
+  }
+}
+
 (async () => {
   const user = await requireAuth();
   if (!user) return;
@@ -120,6 +210,8 @@ function rankBadge(i) {
 
   renderNextLockCountdown(matches || []);
   setInterval(() => renderNextLockCountdown(matches || []), 30000);
+
+  renderNextMatchCard(matches || [], preds || []);
 
   const me = (lb || []).find(u => u.id === user.id);
   document.getElementById('statTotal').textContent = me ? me.total_points : 0;

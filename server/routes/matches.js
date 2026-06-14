@@ -16,6 +16,40 @@ router.get('/predictions', auth, (req, res) => {
   );
 });
 
+// GET /api/matches/:id/popular  — prediction distribution for a match
+router.get('/:id/popular', auth, (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: 'ID inválido' });
+
+  const total = db.prepare('SELECT COUNT(*) AS n FROM match_predictions WHERE match_id=?').get(id).n;
+  if (!total) return res.json({ total: 0, top_score: null, result_split: null });
+
+  const top = db.prepare(`
+    SELECT home_score, away_score, COUNT(*) AS cnt
+    FROM match_predictions WHERE match_id=?
+    GROUP BY home_score, away_score
+    ORDER BY cnt DESC LIMIT 1
+  `).get(id);
+
+  const split = db.prepare(`
+    SELECT
+      SUM(CASE WHEN home_score > away_score THEN 1 ELSE 0 END) AS home_wins,
+      SUM(CASE WHEN home_score = away_score THEN 1 ELSE 0 END) AS draws,
+      SUM(CASE WHEN home_score < away_score THEN 1 ELSE 0 END) AS away_wins
+    FROM match_predictions WHERE match_id=?
+  `).get(id);
+
+  res.json({
+    total,
+    top_score: top ? { home: top.home_score, away: top.away_score, count: top.cnt } : null,
+    result_split: {
+      home: { count: split.home_wins, pct: Math.round(split.home_wins * 100 / total) },
+      draw: { count: split.draws,     pct: Math.round(split.draws     * 100 / total) },
+      away: { count: split.away_wins, pct: Math.round(split.away_wins * 100 / total) },
+    },
+  });
+});
+
 // POST /api/matches/predictions  — upsert batch
 // Each match locks 5 minutes before kickoff (match_date + match_time in PT = UTC+1).
 // Locked matches in the batch are silently skipped; valid ones are saved.
