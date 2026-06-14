@@ -441,22 +441,22 @@ a:hover { text-decoration: underline; }
 /* ── Real result side block ──────────────────────────────────────────────────*/
 .rr-block {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 10px 20px; border-left: 2px solid var(--border);
-  min-width: 86px; flex-shrink: 0; gap: 2px;
+  padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px;
+  min-width: 80px; flex-shrink: 0; gap: 2px; text-align: center;
 }
 .rr-label { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .rr-score { font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; }
 
-.rr-exact  { border-left-color: var(--green);   background: rgba(60,172,59,.08); }
+.rr-exact  { border-color: var(--green);   background: rgba(60,172,59,.1); }
 .rr-exact  .rr-label, .rr-exact  .rr-score { color: var(--green); }
 
-.rr-result { border-left-color: var(--gold);    background: rgba(245,166,35,.08); }
+.rr-result { border-color: var(--gold);    background: rgba(245,166,35,.1); }
 .rr-result .rr-label, .rr-result .rr-score { color: var(--gold); }
 
-.rr-wrong  { border-left-color: var(--primary); background: rgba(230,29,37,.08); }
+.rr-wrong  { border-color: var(--primary); background: rgba(230,29,37,.1); }
 .rr-wrong  .rr-label, .rr-wrong  .rr-score { color: var(--primary); }
 
-.rr-none   { border-left-color: var(--border); }
+.rr-none   { border-color: var(--border); }
 .rr-none   .rr-label, .rr-none   .rr-score { color: var(--muted); }
 
 /* ============================================================
