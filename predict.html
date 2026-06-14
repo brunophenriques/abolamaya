@@ -221,18 +221,40 @@ function renderMatchRow(m) {
   const meta = `<span class="match-group-chip">${GROUP_LABELS[m.group_id]}</span> ${m.match_time} (PT) · ${m.venue}`;
   const matchLocked = isMatchLocked(m.match_date, m.match_time);
 
-  if (matchLocked) return `
+  if (matchLocked) {
+    const isFinished = m.status === 'finished';
+    const hasPred    = p.home_score !== '' && p.home_score !== undefined && p.home_score !== null;
+
+    const centerScore = isFinished
+      ? `<span class="match-actual-score" style="color:var(--text)">${m.home_score} : ${m.away_score}</span>`
+      : `<span class="match-actual-score">${hasPred ? `${p.home_score} : ${p.away_score}` : '— : —'}</span>`;
+
+    let rightMeta = '<span style="font-size:.72rem;color:var(--muted)">Encerrado</span>';
+    if (isFinished) {
+      const pts = p.points_earned;
+      const ptsBadge = pts === 3 ? `<span class="pts-badge pts-3">+3</span>`
+                     : pts === 1 ? `<span class="pts-badge pts-1">+1</span>`
+                     : pts === 0 ? `<span class="pts-badge pts-0">+0</span>`
+                     : '';
+      const predText = hasPred
+        ? `<span style="font-size:.72rem;color:var(--muted)">A tua: ${p.home_score}:${p.away_score}</span>`
+        : `<span style="font-size:.72rem;color:var(--muted)">Sem previsão</span>`;
+      rightMeta = `<span style="display:flex;align-items:center;gap:6px">${predText}${ptsBadge}</span>`;
+    }
+
+    return `
     <div class="match-block">
       <div class="match-row">
         <div class="team-home"><span class="team-name-text">${teamLink(m.home_team, m.home_flag)}</span></div>
-        <div class="score-box"><span class="match-actual-score">${p.home_score !== '' ? p.home_score : '—'} : ${p.away_score !== '' ? p.away_score : '—'}</span></div>
+        <div class="score-box">${centerScore}</div>
         <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
       </div>
       <div class="match-meta" style="display:flex;justify-content:space-between;align-items:center">
         <span>${meta}</span>
-        <span style="font-size:.72rem;color:var(--muted)">Encerrado</span>
+        ${rightMeta}
       </div>
     </div>`;
+  }
 
   const timeLeft = timeUntilMatchLock(m.match_date, m.match_time);
   const diff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime() - 300000 - Date.now();
