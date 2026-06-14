@@ -441,8 +441,8 @@ a:hover { text-decoration: underline; }
 /* ── Real result side block ──────────────────────────────────────────────────*/
 .rr-block {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px;
-  min-width: 80px; flex-shrink: 0; gap: 2px; text-align: center;
+  padding: 0 14px; border: 1px solid var(--border); border-radius: 8px;
+  width: 86px; height: 62px; flex-shrink: 0; gap: 2px; text-align: center;
 }
 .rr-label { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
 .rr-score { font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; }
