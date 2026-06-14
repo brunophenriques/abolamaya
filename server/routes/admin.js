@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db     = require('../db');
-const { auth, requireAdmin } = require('../middleware/auth');
+const { auth, requireAdmin, requireHelper } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
 const { logEvent } = require('../logs');
 const { checkAchievements } = require('../middleware/achievements');
@@ -74,7 +74,7 @@ function snapshotRanks() {
 }
 
 // POST /api/admin/result  { match_id, home_score, away_score }
-router.post('/result', auth, requireAdmin, (req, res) => {
+router.post('/result', auth, requireHelper, (req, res) => {
   const { match_id, home_score, away_score } = req.body;
   if (typeof home_score !== 'number' || typeof away_score !== 'number' || home_score < 0 || away_score < 0)
     return res.status(400).json({ error: 'Marcador inválido' });
@@ -121,7 +121,7 @@ router.post('/result', auth, requireAdmin, (req, res) => {
 });
 
 // POST /api/admin/group/:group_id/points
-router.post('/group/:group_id/points', auth, requireAdmin, (req, res) => {
+router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
   const { group_id } = req.params;
   const matches = db.prepare('SELECT * FROM matches WHERE group_id=?').all(group_id);
 
@@ -196,7 +196,7 @@ router.post('/auto-settle', auth, requireAdmin, (req, res) => {
 // GET /api/admin/users — list all users
 router.get('/users', auth, requireAdmin, (req, res) => {
   const users = db.prepare(`
-    SELECT u.id, u.username, u.display_name, u.email, u.is_admin, u.banned, u.created_at,
+    SELECT u.id, u.username, u.display_name, u.email, u.is_admin, u.is_helper, u.banned, u.created_at,
            COUNT(DISTINCT p.id) AS predictions,
            COUNT(DISTINCT t.id) AS ticket_count
     FROM users u
@@ -205,7 +205,7 @@ router.get('/users', auth, requireAdmin, (req, res) => {
     GROUP BY u.id
     ORDER BY u.created_at DESC
   `).all();
-  res.json(users.map(u => ({ ...u, is_admin: !!u.is_admin, banned: !!u.banned })));
+  res.json(users.map(u => ({ ...u, is_admin: !!u.is_admin, is_helper: !!u.is_helper, banned: !!u.banned })));
 });
 
 // PATCH /api/admin/users/:id/ban — toggle ban
@@ -228,6 +228,27 @@ router.patch('/users/:id/ban', auth, requireAdmin, (req, res) => {
     metadata:  { target_user_id: id, banned: !!newBanned },
   });
   res.json({ ok: true, banned: !!newBanned });
+});
+
+// PATCH /api/admin/users/:id/helper — toggle helper role
+router.patch('/users/:id/helper', auth, requireAdmin, (req, res) => {
+  const id = parseInt(req.params.id);
+  if (id === req.user.id) return res.status(400).json({ error: 'Não podes alterar o teu próprio role.' });
+  const user = db.prepare('SELECT is_admin, is_helper, username FROM users WHERE id=?').get(id);
+  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado.' });
+  if (user.is_admin) return res.status(400).json({ error: 'Admins não podem ser helpers.' });
+  const newHelper = user.is_helper ? 0 : 1;
+  db.prepare('UPDATE users SET is_helper=? WHERE id=?').run(newHelper, id);
+  logEvent({
+    category:  'admin',
+    message:   newHelper
+      ? `@${user.username} (#${id}) promovido a helper`
+      : `@${user.username} (#${id}) removido de helper`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { target_user_id: id, is_helper: !!newHelper },
+  });
+  res.json({ ok: true, is_helper: !!newHelper });
 });
 
 // DELETE /api/admin/users/:id — delete account

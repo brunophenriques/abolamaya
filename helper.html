@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helper — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/dashboard" class="navbar-brand">
+      <div class="brand-bee-wrap">
+        <img src="img/logo.png" alt="BM" class="brand-bee"
+             onerror="this.parentElement.style.display='none';document.getElementById('nbh').style.display='flex'">
+      </div>
+      <span class="brand-mark" id="nbh" style="display:none">BM</span>
+      <span class="navbar-brand-text">A Bola Maya</span>
+    </a>
+    <div class="navbar-nav">
+      <a href="/dashboard">Início</a>
+      <a href="/predict">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/helper" class="active" id="navHelperLink" style="display:none">Helper</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar" title="O meu perfil">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+      <button class="nav-hamburger" id="navHamburger" onclick="toggleNavMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h2>Painel de Helper</h2>
+    <p>Introduz resultados reais e calcula pontos de grupo.</p>
+  </div>
+  <div id="helperContent"><div class="loading">A verificar permissões...</div></div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links">
+      <a href="/about">Sobre</a>
+      <a href="/information">Dados</a>
+      <a href="/terms">Termos</a>
+      <a href="/support">Reportar Problema</a>
+    </span>
+  </div>
+</footer>
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let user, allMatches = [], groupMatches = {};
+
+(async () => {
+  user = await requireAuth();
+  if (!user) return;
+  if (!user.is_helper && !user.is_admin) {
+    document.getElementById('helperContent').innerHTML = `
+      <div class="card text-center" style="padding:48px">
+        <p style="font-size:1.8rem;font-weight:900;color:var(--primary);letter-spacing:-.03em;margin-bottom:8px">Acesso negado</p>
+        <p class="muted small">Não tens permissões de helper. Contacta o admin.</p>
+      </div>`;
+    return;
+  }
+
+  allMatches = await API.get('/matches') || [];
+  for (const m of allMatches) {
+    if (!groupMatches[m.group_id]) groupMatches[m.group_id] = [];
+    groupMatches[m.group_id].push(m);
+  }
+  renderPanel();
+})();
+
+function renderPanel() {
+  const byDate = {};
+  for (const m of allMatches) {
+    if (!byDate[m.match_date]) byDate[m.match_date] = [];
+    byDate[m.match_date].push(m);
+  }
+
+  document.getElementById('helperContent').innerHTML = `
+    <div class="tabs" id="helperTabs">
+      <button class="tab-btn active" onclick="switchTab('matches',this)">Resultados</button>
+      <button class="tab-btn"        onclick="switchTab('groups',this)">Pontos de Grupos</button>
+    </div>
+
+    <!-- ── Tab: Resultados ───────────────────────────────────────────────── -->
+    <div id="tabMatches">
+      ${Object.entries(byDate).sort(([a],[b]) => a.localeCompare(b)).map(([date, ms]) => `
+        <div class="card mt-12">
+          <div class="card-title">${formatDate(date)}</div>
+          ${ms.sort((a,b) => a.match_time.localeCompare(b.match_time)).map(renderHelperMatch).join('')}
+        </div>`).join('')}
+    </div>
+
+    <!-- ── Tab: Pontos de Grupos ─────────────────────────────────────────── -->
+    <div id="tabGroups" style="display:none">
+      ${ALL_GROUPS.map(g => {
+        const ms       = groupMatches[g] || [];
+        const finished = ms.filter(m => m.status === 'finished').length;
+        const done     = finished === 6;
+        return `<div class="card mt-12">
+          <div class="flex-between">
+            <div class="card-title" style="margin-bottom:0">${GROUP_LABELS[g]}</div>
+            <div class="flex gap-8">
+              ${done ? '<span class="badge badge-green">Completo</span>' : `<span class="badge badge-muted">${finished}/6</span>`}
+              <button class="btn btn-primary btn-sm" onclick="calcGroup('${g}')" ${done ? '' : 'disabled'}>Calcular pontos</button>
+            </div>
+          </div>
+          ${done ? renderActualStandings(g) : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('#helperTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabMatches').style.display = tab === 'matches' ? '' : 'none';
+  document.getElementById('tabGroups').style.display  = tab === 'groups'  ? '' : 'none';
+}
+
+function renderActualStandings(g) {
+  const ms = groupMatches[g] || [];
+  const predsMap = {};
+  for (const m of ms) predsMap[m.id] = { home_score: m.home_score, away_score: m.away_score };
+  const el = document.createElement('div');
+  el.className = 'mt-12';
+  renderStandingsTable(calcStandings(ms, predsMap), el);
+  return el.innerHTML;
+}
+
+function renderHelperMatch(m) {
+  const hv    = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
+  const av    = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
+  const badge = m.status === 'finished'
+    ? '<span class="badge badge-green">Concluído</span>'
+    : '<span class="badge badge-muted">Agendado</span>';
+
+  return `
+    <div class="match-block">
+      <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
+        <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
+        <div class="score-box">
+          <input type="number" min="0" max="20" id="hh-${m.id}" class="score-input" value="${hv}" placeholder="—">
+          <span class="score-sep">:</span>
+          <input type="number" min="0" max="20" id="ha-${m.id}" class="score-input" value="${av}" placeholder="—">
+        </div>
+        <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
+        <div class="flex gap-8" style="flex-shrink:0">
+          ${badge}
+          <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
+        </div>
+      </div>
+      <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+    </div>`;
+}
+
+async function saveResult(id) {
+  const h = parseInt(document.getElementById(`hh-${id}`)?.value);
+  const a = parseInt(document.getElementById(`ha-${id}`)?.value);
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador inválido.', 'error'); return; }
+  try {
+    await API.post('/admin/result', { match_id: id, home_score: h, away_score: a });
+    const idx = allMatches.findIndex(m => m.id === id);
+    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].status = 'finished'; }
+    const gid = allMatches[idx]?.group_id;
+    if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
+    renderPanel();
+    showToast(`Resultado guardado (${h}–${a})!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function calcGroup(g) {
+  try {
+    const r = await API.post(`/admin/group/${g}/points`);
+    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+</script>
+</body>
+</html>

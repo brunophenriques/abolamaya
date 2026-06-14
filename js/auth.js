@@ -43,6 +43,9 @@ function setupNavbar(user) {
   // Admin link
   const adminLink = document.getElementById('navAdminLink');
   if (adminLink && user.is_admin) adminLink.style.display = '';
+  // Helper link
+  const helperLink = document.getElementById('navHelperLink');
+  if (helperLink && (user.is_helper || user.is_admin)) helperLink.style.display = '';
   // Notification bell
   setupNotificationBell(user);
 }

@@ -29,6 +29,7 @@
       <a href="/leaderboard">Classificação</a>
       <a href="/lobby">Salas</a>
       <a href="/admin" class="active" id="navAdminLink">Admin</a>
+      <a href="/helper" id="navHelperLink" style="display:none">Helper</a>
     </div>
     <div class="navbar-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
@@ -651,12 +652,17 @@ function renderUsers(users) {
                   : '<span class="muted">—</span>'}
               </td>
               <td>
-                ${u.is_admin ? '<span class="badge badge-green">Admin</span>' : ''}
-                ${u.banned   ? '<span class="badge badge-red">Suspenso</span>' : '<span class="badge badge-muted">Ativo</span>'}
+                ${u.is_admin  ? '<span class="badge badge-green">Admin</span>' : ''}
+                ${u.is_helper ? '<span class="badge badge-orange">Helper</span>' : ''}
+                ${u.banned    ? '<span class="badge badge-red">Suspenso</span>' : (!u.is_admin ? '<span class="badge badge-muted">Ativo</span>' : '')}
               </td>
               <td class="muted" style="font-size:.75rem;white-space:nowrap">${new Date(u.created_at).toLocaleDateString('pt-PT')}</td>
               <td style="white-space:nowrap">
                 ${!u.is_admin ? `
+                  <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem"
+                    onclick="toggleHelper(${u.id},'${escHtml(u.username)}',${!!u.is_helper})">
+                    ${u.is_helper ? 'Remover Helper' : 'Helper'}
+                  </button>
                   <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem"
                     onclick="banUser(${u.id},'${escHtml(u.username)}',${u.banned})">
                     ${u.banned ? 'Reativar' : 'Suspender'}
@@ -671,6 +677,16 @@ function renderUsers(users) {
       </table>
       <p class="muted small" style="margin-top:10px">${users.length} utilizador${users.length !== 1 ? 'es' : ''}</p>
     </div>`;
+}
+
+async function toggleHelper(id, username, isHelper) {
+  const action = isHelper ? 'remover helper de' : 'tornar helper';
+  if (!confirm(`Tens a certeza que queres ${action} @${username}?`)) return;
+  try {
+    const r = await API.patch(`/admin/users/${id}/helper`);
+    showToast(`@${username} ${r.is_helper ? 'é agora helper' : 'deixou de ser helper'}.`);
+    loadUsers();
+  } catch (e) { showToast(e.message, 'error'); }
 }
 
 async function banUser(id, username, isBanned) {

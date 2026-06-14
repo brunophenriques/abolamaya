@@ -42,7 +42,7 @@ if (process.env.AVATARS_DIR) {
 // ── Clean URLs ────────────────────────────────────────────────────────────────
 // Pages that get a clean URL (no .html suffix)
 const CLEAN_ROUTES = [
-  'dashboard', 'predict', 'leaderboard', 'lobby', 'admin',
+  'dashboard', 'predict', 'leaderboard', 'lobby', 'admin', 'helper',
   'settings', 'support', 'about', 'information', 'terms',
   'profile', 'team', 'reset-password', 'forgot-password', '404',
 ];
@@ -88,10 +88,10 @@ app.use('/api/auth',           require('./routes/oauth'));   // OAuth callbacks 
 // GET /api/me
 app.get('/api/me', auth, (req, res) => {
   const user = db.prepare(
-    'SELECT id,username,display_name,is_admin,bio,avatar_color,avatar_url,created_at,profile_public,history_public FROM users WHERE id=?'
+    'SELECT id,username,display_name,is_admin,is_helper,bio,avatar_color,avatar_url,created_at,profile_public,history_public FROM users WHERE id=?'
   ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
-  res.json({ ...user, is_admin: !!user.is_admin });
+  res.json({ ...user, is_admin: !!user.is_admin, is_helper: !!user.is_helper });
 });
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
