@@ -101,7 +101,8 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
       : '—';
 
   const badges = [
-    user.is_admin ? `<span class="user-badge badge-admin">👑 Admin</span>` : '',
+    user.is_admin  ? `<span class="user-badge badge-admin">👑 Admin</span>` : '',
+    user.is_helper ? `<span class="user-badge badge-helper">👷 Helper</span>` : '',
     stats.total_points >= 50 ? `<span class="user-badge badge-top">⭐ Top Predictor</span>` : '',
   ].filter(Boolean).join(' ');
 

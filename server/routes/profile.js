@@ -50,7 +50,7 @@ function userStats(userId) {
 // GET /api/profile/:username
 router.get('/:username', auth, (req, res) => {
   const u = db.prepare(`
-    SELECT id, username, display_name, bio, avatar_color, avatar_url, is_admin, created_at
+    SELECT id, username, display_name, bio, avatar_color, avatar_url, is_admin, is_helper, created_at
     FROM users WHERE username=?
   `).get(req.params.username.toLowerCase());
   if (!u) return res.status(404).json({ error: 'Utilizador não encontrado' });
@@ -78,7 +78,7 @@ router.get('/:username', auth, (req, res) => {
   }
 
   res.json({
-    user:         { ...u, is_admin: !!u.is_admin, friendship_status },
+    user:         { ...u, is_admin: !!u.is_admin, is_helper: !!u.is_helper, friendship_status },
     stats:        userStats(u.id),
     achievements: getUserAchievements(db, u.id),
   });
