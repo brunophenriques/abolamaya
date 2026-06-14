@@ -139,7 +139,7 @@ function formatDateLong(dateStr) {
   }
   for (const m of allMatchesList) {
     localPreds[m.id] = userPreds[m.id]
-      ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score) }
+      ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score), points_earned: userPreds[m.id].points_earned }
       : { home_score: '', away_score: '' };
   }
 
