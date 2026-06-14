@@ -438,6 +438,27 @@ a:hover { text-decoration: underline; }
 .pts-1 { background: var(--green-bg); color: var(--green); }
 .pts-0 { background: var(--bg-hover); color: var(--muted); }
 
+/* ── Real result side block ──────────────────────────────────────────────────*/
+.rr-block {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px 20px; border-left: 2px solid var(--border);
+  min-width: 86px; flex-shrink: 0; gap: 2px;
+}
+.rr-label { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+.rr-score { font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; }
+
+.rr-exact  { border-left-color: var(--green);   background: rgba(60,172,59,.08); }
+.rr-exact  .rr-label, .rr-exact  .rr-score { color: var(--green); }
+
+.rr-result { border-left-color: var(--gold);    background: rgba(245,166,35,.08); }
+.rr-result .rr-label, .rr-result .rr-score { color: var(--gold); }
+
+.rr-wrong  { border-left-color: var(--primary); background: rgba(230,29,37,.08); }
+.rr-wrong  .rr-label, .rr-wrong  .rr-score { color: var(--primary); }
+
+.rr-none   { border-left-color: var(--border); }
+.rr-none   .rr-label, .rr-none   .rr-score { color: var(--muted); }
+
 /* ============================================================
    STANDINGS TABLE
    ============================================================ */
