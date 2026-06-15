@@ -397,6 +397,7 @@ function renderAdminMatch(m) {
         <div class="flex gap-8" style="flex-shrink:0">
           ${badge}
           <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
+          ${m.status === 'finished' ? `<button class="btn btn-ghost btn-sm" title="Corrigir snapshot de ranks (usa quando submeteste o resultado duas vezes)" onclick="fixSnapshot(${m.id})">↺ Ranks</button>` : ''}
         </div>
       </div>
       <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
@@ -415,6 +416,14 @@ async function saveResult(id) {
     if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
     renderPanel();
     showToast(`Resultado guardado (${h}–${a})!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function fixSnapshot(matchId) {
+  if (!confirm('Corrigir snapshot de ranks para este jogo?\n\nUsa isto quando submeteste o resultado duas vezes — corrige as setas (↑↓) na classificação.')) return;
+  try {
+    await API.post('/admin/resnapshot', { exclude_match_id: matchId });
+    showToast('Snapshot corrigido! As setas da classificação estão agora correctas.');
   } catch (e) { showToast(e.message, 'error'); }
 }
 

@@ -73,6 +73,67 @@ function snapshotRanks() {
   db.transaction(() => rows.forEach((r, i) => snap.run(r.id, i + 1)))();
 }
 
+// POST /api/admin/resnapshot  { exclude_match_id }
+// Re-takes the "before this match" rank snapshot by temporarily nulling a match's points.
+// Use when a result was accidentally submitted twice (second run overwrites the snapshot).
+router.post('/resnapshot', auth, requireAdmin, (req, res) => {
+  const { exclude_match_id } = req.body;
+  if (!exclude_match_id) return res.status(400).json({ error: 'exclude_match_id obrigatório' });
+
+  db.transaction(() => {
+    // Temporarily clear points for this match
+    db.prepare('UPDATE match_predictions SET points_earned=NULL WHERE match_id=?').run(exclude_match_id);
+
+    // Snapshot ranks as they were before this match
+    const rows = db.prepare(`
+      SELECT u.id,
+        COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+        COALESCE(mp.exact,0) AS exact,
+        COALESCE(mp.pts,0) AS match_pts
+      FROM users u
+      LEFT JOIN (
+        SELECT user_id,
+          SUM(COALESCE(points_earned,0)) pts,
+          SUM(CASE WHEN points_earned=3 THEN 1 ELSE 0 END) exact
+        FROM match_predictions GROUP BY user_id
+      ) mp ON mp.user_id=u.id
+      LEFT JOIN (SELECT user_id, SUM(COALESCE(points_earned,0)) pts FROM group_points GROUP BY user_id) gp ON gp.user_id=u.id
+      WHERE (u.banned IS NULL OR u.banned=0)
+      ORDER BY total DESC, exact ASC, match_pts DESC, u.username
+    `).all();
+    const snap = db.prepare(`
+      INSERT INTO rank_snapshots (user_id, prev_rank) VALUES (?,?)
+      ON CONFLICT(user_id) DO UPDATE SET prev_rank=excluded.prev_rank, snapped_at=datetime('now')
+    `);
+    rows.forEach((r, i) => snap.run(r.id, i + 1));
+
+    // Restore correct points
+    const matchRow = db.prepare('SELECT home_score, away_score FROM matches WHERE id=?').get(exclude_match_id);
+    if (matchRow && matchRow.home_score != null) {
+      const actual = Math.sign(matchRow.home_score - matchRow.away_score);
+      db.prepare(`
+        UPDATE match_predictions
+        SET points_earned = CASE
+          WHEN home_score=? AND away_score=? THEN 3
+          WHEN (CASE WHEN home_score>away_score THEN 1 WHEN home_score=away_score THEN 0 ELSE -1 END)=? THEN 1
+          ELSE 0
+        END
+        WHERE match_id=?
+      `).run(matchRow.home_score, matchRow.away_score, actual, exclude_match_id);
+    }
+  })();
+
+  const matchRow = db.prepare('SELECT home_team, away_team FROM matches WHERE id=?').get(exclude_match_id);
+  logEvent({
+    category: 'admin',
+    message: `Snapshot de ranks corrigido (excluindo jogo #${exclude_match_id}: ${matchRow?.home_team} vs ${matchRow?.away_team})`,
+    actorId: req.user.id, actorName: req.user.username,
+    metadata: { exclude_match_id },
+  });
+
+  res.json({ ok: true });
+});
+
 // POST /api/admin/result  { match_id, home_score, away_score }
 router.post('/result', auth, requireHelper, (req, res) => {
   const { match_id, home_score, away_score } = req.body;
