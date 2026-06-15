@@ -31,7 +31,7 @@ const API = (() => {
     } catch {
       throw new Error(`Servidor não encontrado. Abre http://localhost:3000 depois de correr "npm start".`);
     }
-    if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+    if (!res.ok) { const err = new Error(data.error || `Erro ${res.status}`); Object.assign(err, data); throw err; }
     return data;
   }
 

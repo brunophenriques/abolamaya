@@ -86,8 +86,12 @@ router.get('/:username', auth, (req, res) => {
 
 // GET /api/profile/:username/history
 router.get('/:username/history', auth, (req, res) => {
-  const u = db.prepare('SELECT id FROM users WHERE username=?').get(req.params.username.toLowerCase());
+  const u = db.prepare('SELECT id, history_public FROM users WHERE username=?').get(req.params.username.toLowerCase());
   if (!u) return res.status(404).json({ error: 'Utilizador não encontrado' });
+
+  const isOwn = u.id === req.user.id;
+  if (!isOwn && !u.history_public)
+    return res.status(403).json({ error: 'Este utilizador desativou a visibilidade do histórico de previsões.', private: true });
 
   const predictions = db.prepare(`
     SELECT

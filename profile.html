@@ -76,7 +76,7 @@ let me, targetUser;
   try {
     const [profileData, historyData] = await Promise.all([
       API.get(`/profile/${username}`),
-      API.get(`/profile/${username}/history`),
+      API.get(`/profile/${username}/history`).catch(e => e.private ? { predictions: null } : Promise.reject(e)),
     ]);
     targetUser = profileData.user;
     renderProfile(profileData, historyData, isOwn);
@@ -187,6 +187,16 @@ let _allPredictions = [];
 let _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
 
 function initHistory(predictions) {
+  if (predictions === null) {
+    const container = document.getElementById('historyContainer');
+    const filtersEl = document.getElementById('historyFilters');
+    if (filtersEl) filtersEl.innerHTML = '';
+    if (container) container.innerHTML = `
+      <div style="padding:24px 0;text-align:center">
+        <p class="muted" style="font-size:.88rem">🔒 Este utilizador desativou a visibilidade do histórico de previsões.</p>
+      </div>`;
+    return;
+  }
   _allPredictions = predictions;
   _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
   renderHistorySection();
