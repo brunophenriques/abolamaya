@@ -192,7 +192,7 @@ function renderSchedule() {
   scheduleEl.innerHTML = '';
 
   for (const date of Object.keys(byDate).sort()) {
-    const ms = byDate[date];
+    const ms = byDate[date].sort((a, b) => a.match_time.localeCompare(b.match_time));
 
     const dayEl = document.createElement('div');
     dayEl.className = 'match-day';
