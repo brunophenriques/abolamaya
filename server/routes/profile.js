@@ -99,7 +99,7 @@ router.get('/:username/history', auth, (req, res) => {
       mp.points_earned, mp.updated_at,
       m.home_team, m.away_team, m.home_flag, m.away_flag,
       m.home_score AS actual_home, m.away_score AS actual_away,
-      m.match_date, m.group_id, m.status
+      m.match_date, m.match_time, m.group_id, m.status
     FROM match_predictions mp
     JOIN matches m ON m.id = mp.match_id
     WHERE mp.user_id = ?

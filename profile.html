@@ -212,7 +212,7 @@ function renderHistorySection() {
   let filtered = _allPredictions;
   if (_histFilter.group) filtered = filtered.filter(p => p.group_id === _histFilter.group);
   if (_histFilter.team)  filtered = filtered.filter(p => p.home_team === _histFilter.team || p.away_team === _histFilter.team);
-  if (_histFilter.sortAsc) filtered = [...filtered].sort((a, b) => a.match_date.localeCompare(b.match_date) || a.match_id - b.match_id);
+  if (_histFilter.sortAsc) filtered = [...filtered].sort((a, b) => a.match_date.localeCompare(b.match_date) || (a.match_time || '').localeCompare(b.match_time || ''));
 
   const total = filtered.length;
   const shown = _histFilter.showAll ? filtered : filtered.slice(0, 10);
