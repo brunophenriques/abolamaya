@@ -90,7 +90,7 @@ let me, targetUser;
   }
 })();
 
-function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
+function renderProfile({ user, stats, achievements }, { predictions, partial }, isOwn) {
   const color   = user.avatar_color || avatarColor(user.username);
   const initial = (user.display_name || user.username).charAt(0).toUpperCase();
   const joinedDate = user.created_at ? new Date(user.created_at.replace(' ', 'T')) : null;
@@ -172,7 +172,7 @@ function renderProfile({ user, stats, achievements }, { predictions }, isOwn) {
     ${isOwn ? renderFriendsSection() : ''}
   `;
 
-  initHistory(predictions);
+  initHistory(predictions, partial);
   if (isOwn) loadFriends();
 }
 
@@ -185,8 +185,9 @@ function statCard(value, label) {
 
 let _allPredictions = [];
 let _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
+let _historyPartial = false;
 
-function initHistory(predictions) {
+function initHistory(predictions, partial = false) {
   if (predictions === null) {
     const container = document.getElementById('historyContainer');
     const filtersEl = document.getElementById('historyFilters');
@@ -199,6 +200,7 @@ function initHistory(predictions) {
   }
   _allPredictions = predictions;
   _histFilter = { group: null, team: null, sortAsc: false, showAll: false };
+  _historyPartial = partial;
   renderHistorySection();
 }
 
@@ -238,6 +240,10 @@ function renderHistorySection() {
   }
 
   container.innerHTML = `
+    ${_historyPartial ? `
+      <p class="muted small" style="padding:0 0 12px">
+        Este utilizador mantém privadas as previsões por liquidar. Só estão visíveis jogos já liquidados.
+      </p>` : ''}
     ${renderHistoryTable(shown)}
     ${!_histFilter.showAll && total > 10 ? `
       <div style="text-align:center;margin-top:14px">

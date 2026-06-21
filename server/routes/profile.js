@@ -90,9 +90,7 @@ router.get('/:username/history', auth, (req, res) => {
   if (!u) return res.status(404).json({ error: 'Utilizador não encontrado' });
 
   const isOwn = u.id === req.user.id;
-  if (!isOwn && !u.history_public)
-    return res.status(403).json({ error: 'Este utilizador desativou a visibilidade do histórico de previsões.', private: true });
-
+  const hidePending = !isOwn && !u.history_public;
   const predictions = db.prepare(`
     SELECT
       mp.match_id, mp.home_score AS pred_home, mp.away_score AS pred_away,
@@ -103,10 +101,11 @@ router.get('/:username/history', auth, (req, res) => {
     FROM match_predictions mp
     JOIN matches m ON m.id = mp.match_id
     WHERE mp.user_id = ?
+      ${hidePending ? 'AND mp.points_earned IS NOT NULL' : ''}
     ORDER BY m.match_date DESC, m.id DESC
   `).all(u.id);
 
-  res.json({ predictions });
+  res.json({ predictions, partial: hidePending });
 });
 
 // PATCH /api/profile/me — update display_name and bio
