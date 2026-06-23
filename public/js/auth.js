@@ -48,6 +48,77 @@ function setupNavbar(user) {
   if (helperLink && (user.is_helper || user.is_admin)) helperLink.style.display = '';
   // Notification bell
   setupNotificationBell(user);
+  setupPointPredictions(user);
+}
+
+async function setupPointPredictions() {
+  try {
+    const status = await API.get('/point-predictions/status');
+    if (status.enabled) addPointPredictionsNavLink();
+    if (
+      status.should_prompt &&
+      sessionStorage.getItem('abm_point_vote_later') !== '1'
+    ) {
+      showPointPredictionsCommunityVote(status.copy);
+    }
+  } catch { /* optional feature */ }
+}
+
+function addPointPredictionsNavLink() {
+  const nav = document.querySelector('.navbar-nav');
+  if (!nav || document.getElementById('navPointPredictions')) return;
+  const link = document.createElement('a');
+  link.id = 'navPointPredictions';
+  link.href = '/point-predictions';
+  link.textContent = 'Pontos';
+  if (window.location.pathname === '/point-predictions') link.className = 'active';
+  const adminLink = document.getElementById('navAdminLink');
+  nav.insertBefore(link, adminLink || null);
+}
+
+function showPointPredictionsCommunityVote(copy) {
+  if (document.getElementById('pointCommunityVote')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'pointCommunityVote';
+  overlay.className = 'point-vote-overlay';
+  overlay.innerHTML = `
+    <div class="point-vote-modal" role="dialog" aria-modal="true" aria-labelledby="pointVoteTitle">
+      <div class="point-vote-kicker">Comunidade</div>
+      <h2 id="pointVoteTitle">${escapePointVoteText(copy.communityVoteTitle)}</h2>
+      <p>${escapePointVoteText(copy.communityVoteBody)}</p>
+      <div class="point-vote-actions">
+        <button class="btn btn-primary" data-choice="yes">${escapePointVoteText(copy.communityVoteYes)}</button>
+        <button class="btn btn-ghost" data-choice="no">${escapePointVoteText(copy.communityVoteNo)}</button>
+        <button class="point-vote-later" data-choice="later">${escapePointVoteText(copy.communityVoteLater)}</button>
+      </div>
+      <div class="form-error" id="pointVoteError"></div>
+    </div>`;
+  overlay.querySelectorAll('[data-choice]').forEach(button => {
+    button.addEventListener('click', () => submitPointCommunityVote(button.dataset.choice, button));
+  });
+  document.body.appendChild(overlay);
+}
+
+async function submitPointCommunityVote(choice, button) {
+  const errorEl = document.getElementById('pointVoteError');
+  button.disabled = true;
+  try {
+    await API.post('/point-predictions/community-vote', { choice });
+    if (choice === 'later') sessionStorage.setItem('abm_point_vote_later', '1');
+    document.getElementById('pointCommunityVote')?.remove();
+    if (choice !== 'later') showToast('Obrigado pela tua resposta.');
+  } catch (error) {
+    if (errorEl) errorEl.textContent = error.message;
+    button.disabled = false;
+  }
+}
+
+function escapePointVoteText(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 let _bellUser = null;

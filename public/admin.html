@@ -60,6 +60,11 @@
   </div>
 </div>
 
+<div id="pointAdminModal" class="point-admin-overlay" style="display:none"
+  onclick="if(event.target===this)closePointAdminModal()">
+  <div class="point-admin-modal" id="pointAdminModalContent"></div>
+</div>
+
 <footer class="site-footer">
   <div class="footer-inner">
     <span>© 2026 A Bola Maya</span>
@@ -76,6 +81,7 @@
 <script src="js/auth.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/point-predictions-admin.js"></script>
 <script>
 let user, allMatches = [], groupMatches = {};
 
@@ -119,6 +125,7 @@ function renderPanel() {
       <button class="tab-btn"        onclick="switchTab('tickets',this)">Reportes</button>
       <button class="tab-btn"        onclick="switchTab('users',this)">Utilizadores</button>
       <button class="tab-btn"        onclick="switchTab('logs',this)">Logs</button>
+      <button class="tab-btn"        onclick="switchTab('pointPredictions',this)">Previsões com Pontos</button>
     </div>
 
     <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
@@ -236,6 +243,10 @@ function renderPanel() {
       </div>
     </div>
 
+    <div id="tabPointPredictions" style="display:none">
+      <div id="pointPredictionsAdmin"><span class="muted small">A carregar...</span></div>
+    </div>
+
     <!-- ── Tab: Reportes ──────────────────────────────────────────────── -->
     <div id="tabTickets" style="display:none">
       <div class="card mt-12">
@@ -267,10 +278,12 @@ function switchTab(tab, btn) {
   document.getElementById('tabTickets').style.display   = tab === 'tickets'   ? '' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? '' : 'none';
   document.getElementById('tabLogs').style.display      = tab === 'logs'      ? '' : 'none';
+  document.getElementById('tabPointPredictions').style.display = tab === 'pointPredictions' ? '' : 'none';
   if (tab === 'selecoes') loadScrapeStatus();
   if (tab === 'tickets')  loadTickets();
   if (tab === 'users')    loadUsers();
   if (tab === 'logs')     loadLogs();
+  if (tab === 'pointPredictions') loadPointPredictionsAdmin();
 }
 
 // ── Scrape status ─────────────────────────────────────────────────────────────
@@ -640,7 +653,7 @@ function renderUsers(users) {
     <div style="overflow-x:auto">
       <table class="standings-table" style="width:100%;font-size:.83rem">
         <thead><tr>
-          <th>ID</th><th>Username</th><th>Email</th><th>Prev.</th><th>Tickets</th><th>Estado</th><th>Criado</th><th></th>
+          <th>ID</th><th>Username</th><th>Email</th><th>Prev.</th><th>Pontos</th><th>Tickets</th><th>Estado</th><th>Criado</th><th></th>
         </tr></thead>
         <tbody>${users.map(u => {
           const spamClass = u.ticket_count >= 5 ? 'style="background:rgba(230,29,37,.12)"'
@@ -654,6 +667,11 @@ function renderUsers(users) {
               </td>
               <td class="muted" style="font-size:.78rem">${escHtml(u.email)}</td>
               <td>${u.predictions}</td>
+              <td>
+                <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem"
+                  onclick="adjustPointBalance(${u.id},'${escHtml(u.username)}',${u.points_balance || 0})"
+                  title="Ajustar saldo de previsões com pontos">${u.points_balance || 0}</button>
+              </td>
               <td>
                 ${u.ticket_count > 0
                   ? `<span class="badge ${u.ticket_count >= 5 ? 'badge-red' : u.ticket_count >= 3 ? 'badge-orange' : 'badge-muted'}"

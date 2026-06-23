@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Previsões com Pontos — A Bola Maya</title>
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('abm_theme')||'dark')</script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/dashboard" class="navbar-brand">
+      <div class="brand-bee-wrap"><img src="img/logo.png" alt="BM" class="brand-bee"></div>
+      <span class="navbar-brand-text">A Bola Maya</span>
+    </a>
+    <div class="navbar-nav">
+      <a href="/dashboard" class="always">Início</a>
+      <a href="/predict" class="always">Previsões</a>
+      <a href="/leaderboard">Classificação</a>
+      <a href="/lobby">Salas</a>
+      <a href="/point-predictions" class="active" id="navPointPredictions">Pontos</a>
+      <a href="/admin" id="navAdminLink" style="display:none">Admin</a>
+      <a href="/helper" id="navHelperLink" style="display:none">Helper</a>
+    </div>
+    <div class="navbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alterar tema">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="avatar" id="navAvatar">?</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+      <button class="nav-hamburger" id="navHamburger" onclick="toggleNavMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<main class="container point-predictions-page">
+  <div class="point-page-heading">
+    <div>
+      <div class="point-page-kicker">Comunidade</div>
+      <h2>Previsões com Pontos</h2>
+      <p>Escolhe Sim ou Não. Um ponto fica reservado até ao resultado.</p>
+    </div>
+    <div class="point-balance">
+      <span>Saldo disponível</span>
+      <strong id="pointBalance">—</strong>
+      <small>pontos</small>
+    </div>
+  </div>
+
+  <div id="pointFeatureUnavailable" class="card point-unavailable" style="display:none">
+    <h3>Funcionalidade indisponível</h3>
+    <p class="muted">As previsões com pontos ainda não foram ativadas pela administração.</p>
+  </div>
+
+  <div id="pointPredictionsContent" style="display:none">
+    <div class="point-view-tabs">
+      <button class="active" data-view="open">Abertas</button>
+      <button data-view="mine">As minhas</button>
+      <button data-view="history">Histórico</button>
+    </div>
+    <div id="pointPredictionList"><div class="loading">A carregar...</div></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 A Bola Maya</span>
+    <span class="footer-links"><a href="/about">Sobre</a><a href="/terms">Termos</a><a href="/support">Reportar Problema</a></span>
+  </div>
+</footer>
+<script src="js/api.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let pointPredictions = [];
+let pointView = 'open';
+
+(async () => {
+  const user = await requireAuth();
+  if (!user) return;
+  document.querySelectorAll('.point-view-tabs button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.point-view-tabs button').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      pointView = button.dataset.view;
+      renderPointPredictions();
+    });
+  });
+  await loadPointPredictions();
+})();
+
+async function loadPointPredictions() {
+  try {
+    const data = await API.get('/point-predictions');
+    pointPredictions = data.predictions;
+    document.getElementById('pointBalance').textContent = data.balance;
+    document.getElementById('pointPredictionsContent').style.display = '';
+    renderPointPredictions();
+  } catch (error) {
+    if (error.message.includes('desativado')) {
+      document.getElementById('pointFeatureUnavailable').style.display = '';
+    } else {
+      document.getElementById('pointPredictionList').innerHTML = `<p class="form-error">${escapeHtml(error.message)}</p>`;
+      document.getElementById('pointPredictionsContent').style.display = '';
+    }
+  }
+}
+
+function filteredPointPredictions() {
+  if (pointView === 'mine') return pointPredictions.filter(item => item.user_vote);
+  if (pointView === 'history') return pointPredictions.filter(item => ['resolved','void'].includes(item.status));
+  return pointPredictions.filter(item => ['open','locked'].includes(item.status));
+}
+
+function renderPointPredictions() {
+  const list = document.getElementById('pointPredictionList');
+  const items = filteredPointPredictions();
+  if (!items.length) {
+    list.innerHTML = `<div class="point-empty">${pointView === 'open' ? 'Não existem previsões abertas.' : pointView === 'mine' ? 'Ainda não participaste em nenhuma previsão.' : 'Ainda não existe histórico.'}</div>`;
+    return;
+  }
+  list.innerHTML = `<div class="point-prediction-grid">${items.map(renderPointPrediction).join('')}</div>`;
+}
+
+function renderPointPrediction(item) {
+  const open = item.status === 'open' && new Date(item.closes_at).getTime() > Date.now();
+  const statusLabels = { open:'Aberta', locked:'Fechada', resolved:'Resolvida', void:'Anulada' };
+  const result = item.status === 'resolved'
+    ? `<span class="point-result">Resultado: <strong>${item.result === 'yes' ? 'Sim' : 'Não'}</strong></span>`
+    : item.status === 'void' ? '<span class="point-result">Pontos devolvidos</span>' : '';
+  return `
+    <article class="point-prediction-card">
+      <div class="point-card-top">
+        <span class="point-category">${categoryLabel(item.category)}</span>
+        <span class="point-status point-status-${item.status}">${statusLabels[item.status]}</span>
+      </div>
+      <h3>${escapeHtml(item.question)}</h3>
+      <div class="point-distribution" aria-label="Distribuição de votos">
+        <span class="point-distribution-yes" style="width:${item.yes_percent}%"></span>
+        <span class="point-distribution-no" style="width:${item.no_percent}%"></span>
+      </div>
+      <div class="point-options">
+        ${renderPointOption(item, 'yes', 'Sim', open)}
+        ${renderPointOption(item, 'no', 'Não', open)}
+      </div>
+      <div class="point-card-footer">
+        <div><strong>${item.pool_total}</strong> na pool · fecha ${formatPointDeadline(item.closes_at)}</div>
+        ${result}
+      </div>
+      ${item.user_vote ? `
+        <div class="point-current-vote">
+          O teu voto: <strong>${item.user_vote === 'yes' ? 'Sim' : 'Não'}</strong>
+          ${open ? `<button class="point-cancel-vote" onclick="cancelPointVote(${item.id})">Cancelar voto</button>` : ''}
+        </div>` : ''}
+    </article>`;
+}
+
+function renderPointOption(item, choice, label, open) {
+  const count = item[`${choice}_votes`];
+  const percent = item[`${choice}_percent`];
+  const odds = item[`${choice}_odds`];
+  const payout = item[`${choice}_payout`];
+  const selected = item.user_vote === choice;
+  return `
+    <button class="point-option ${selected ? 'selected' : ''}" ${open ? `onclick="voteWithPoint(${item.id},'${choice}')"` : 'disabled'}>
+      <span class="point-option-heading"><strong>${label}</strong><em>${percent}%</em></span>
+      <span>${count} ${count === 1 ? 'voto' : 'votos'}</span>
+      <small>Odd ${odds ? odds.toFixed(2) : '—'} · Recebes ${payout ?? '—'}</small>
+    </button>`;
+}
+
+async function voteWithPoint(id, choice) {
+  try {
+    await API.post(`/point-predictions/${id}/vote`, { choice });
+    showToast(choice === 'yes' ? 'Votaste Sim.' : 'Votaste Não.');
+    await loadPointPredictions();
+  } catch (error) { showToast(error.message, 'error'); }
+}
+
+async function cancelPointVote(id) {
+  try {
+    await API.delete(`/point-predictions/${id}/vote`);
+    showToast('Voto cancelado e ponto devolvido.');
+    await loadPointPredictions();
+  } catch (error) { showToast(error.message, 'error'); }
+}
+
+function categoryLabel(category) {
+  return ({ match:'Jogo', player:'Jogador', group:'Grupo', world_cup:'Mundial', other:'Outro' })[category] || 'Outro';
+}
+function formatPointDeadline(value) {
+  return new Date(value).toLocaleString('pt-PT', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+function escapeHtml(value) {
+  return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

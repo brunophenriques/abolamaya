@@ -43,7 +43,7 @@ app.use('/img/avatars', express.static(AVATARS_DIR));
 const CLEAN_ROUTES = [
   'dashboard', 'predict', 'leaderboard', 'lobby', 'admin', 'helper',
   'settings', 'support', 'about', 'information', 'terms',
-  'profile', 'team', 'reset-password', 'forgot-password', '404',
+  'profile', 'team', 'point-predictions', 'reset-password', 'forgot-password', '404',
 ];
 
 // Redirect /page.html → /page  (301 permanent)
@@ -82,12 +82,14 @@ app.use('/api/friends',        require('./routes/friends'));
 app.use('/api/notifications',  require('./routes/notifications'));
 app.use('/api/upload',         require('./routes/upload'));
 app.use('/api/player-stats',   require('./routes/playerStats'));
+app.use('/api/point-predictions', require('./routes/pointPredictions'));
+app.use('/api/admin/point-predictions', require('./routes/pointPredictionsAdmin'));
 app.use('/api/auth',           require('./routes/oauth'));   // OAuth callbacks (same prefix as auth)
 
 // GET /api/me
 app.get('/api/me', auth, (req, res) => {
   const user = db.prepare(
-    'SELECT id,username,display_name,is_admin,is_helper,bio,avatar_color,avatar_url,created_at,profile_public,history_public FROM users WHERE id=?'
+    'SELECT id,username,display_name,is_admin,is_helper,bio,avatar_color,avatar_url,created_at,profile_public,history_public,points_balance FROM users WHERE id=?'
   ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
   res.json({ ...user, is_admin: !!user.is_admin, is_helper: !!user.is_helper });

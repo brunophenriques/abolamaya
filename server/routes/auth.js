@@ -6,6 +6,7 @@ const rateLimit  = require('express-rate-limit');
 const db         = require('../db');
 const { JWT_SECRET } = require('../config');
 const { sendPasswordReset } = require('../email');
+const { getSetting } = require('../services/pointPredictions');
 
 // Layer 1 — IP: 5 requests per hour
 const forgotLimiter = rateLimit({
@@ -62,9 +63,10 @@ router.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const uname = username.toLowerCase();
     const color = genAvatarColor(uname);
+    const initialBalance = Math.max(0, parseInt(getSetting('point_predictions_initial_balance', '10'), 10) || 0);
     const r = db.prepare(
-      'INSERT INTO users (username, display_name, email, password_hash, avatar_color) VALUES (?,?,?,?,?)'
-    ).run(uname, display_name || username, email.toLowerCase(), hash, color);
+      'INSERT INTO users (username, display_name, email, password_hash, avatar_color, points_balance) VALUES (?,?,?,?,?,?)'
+    ).run(uname, display_name || username, email.toLowerCase(), hash, color, initialBalance);
     const user = db.prepare('SELECT id,username,display_name,is_admin,avatar_color FROM users WHERE id=?').get(r.lastInsertRowid);
     res.json({ token: makeToken(user), user: { ...user, is_admin: !!user.is_admin } });
   } catch (e) {

@@ -206,6 +206,7 @@ try { db.exec(`ALTER TABLE users ADD COLUMN profile_public INTEGER DEFAULT 1`); 
 try { db.exec(`ALTER TABLE users ADD COLUMN history_public INTEGER DEFAULT 1`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN is_helper INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE users ADD COLUMN points_balance INTEGER NOT NULL DEFAULT 10 CHECK(points_balance >= 0)`); } catch {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_oauth (
@@ -336,6 +337,78 @@ db.exec(`
     snapped_at TEXT DEFAULT (datetime('now'))
   )
 `);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS site_settings (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS prediction_feature_votes (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    choice     TEXT NOT NULL CHECK(choice IN ('yes','no','later')),
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS point_predictions (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    question          TEXT NOT NULL,
+    category          TEXT NOT NULL DEFAULT 'other'
+                      CHECK(category IN ('match','player','group','world_cup','other')),
+    status            TEXT NOT NULL DEFAULT 'draft'
+                      CHECK(status IN ('draft','open','locked','resolved','void')),
+    closes_at         TEXT NOT NULL,
+    result            TEXT CHECK(result IN ('yes','no') OR result IS NULL),
+    created_by        INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at        TEXT DEFAULT (datetime('now')),
+    updated_at        TEXT DEFAULT (datetime('now')),
+    resolved_at       TEXT,
+    pool_total        INTEGER,
+    winner_count      INTEGER,
+    payout_per_winner INTEGER,
+    total_paid        INTEGER,
+    inflation         INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS point_prediction_votes (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    prediction_id INTEGER NOT NULL REFERENCES point_predictions(id) ON DELETE CASCADE,
+    user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    choice        TEXT NOT NULL CHECK(choice IN ('yes','no')),
+    created_at    TEXT DEFAULT (datetime('now')),
+    updated_at    TEXT DEFAULT (datetime('now')),
+    UNIQUE(prediction_id, user_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS point_transactions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    prediction_id INTEGER REFERENCES point_predictions(id) ON DELETE SET NULL,
+    amount        INTEGER NOT NULL,
+    type          TEXT NOT NULL
+                  CHECK(type IN ('stake','payout','refund','admin_adjustment')),
+    created_at    TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_point_predictions_status
+    ON point_predictions(status, closes_at);
+  CREATE INDEX IF NOT EXISTS idx_point_prediction_votes_prediction
+    ON point_prediction_votes(prediction_id, choice);
+  CREATE INDEX IF NOT EXISTS idx_point_transactions_user
+    ON point_transactions(user_id, created_at DESC);
+`);
+
+[
+  ['point_predictions_enabled', 'false'],
+  ['prediction_community_vote_open', 'false'],
+  ['point_predictions_beta_mode', 'false'],
+  ['point_predictions_initial_balance', '10'],
+].forEach(([key, value]) => {
+  db.prepare('INSERT OR IGNORE INTO site_settings (key,value) VALUES (?,?)').run(key, value);
+});
 
 // Migrate duplicate achievement types → canonical replacements, then delete old rows.
 // first_prediction → primeiro_sangue, exact_score → nostradamus,

@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "test": "npm run test:html && npm run test:smoke",
+    "test": "npm run test:html && npm run test:smoke && npm run test:point-predictions",
     "test:html": "node scripts/validate-html.js",
     "test:smoke": "node scripts/smoke-test.js",
+    "test:point-predictions": "node scripts/test-point-predictions.js",
     "make-admin": "node scripts/make-admin.js",
     "optimize-squads": "node scripts/optimize-squads.js",
     "import:player-stats": "node scripts/import-player-stats.js",

@@ -258,6 +258,7 @@ router.post('/auto-settle', auth, requireAdmin, (req, res) => {
 router.get('/users', auth, requireAdmin, (req, res) => {
   const users = db.prepare(`
     SELECT u.id, u.username, u.display_name, u.email, u.is_admin, u.is_helper, u.banned, u.created_at,
+           u.points_balance,
            COUNT(DISTINCT p.id) AS predictions,
            COUNT(DISTINCT t.id) AS ticket_count
     FROM users u

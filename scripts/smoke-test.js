@@ -59,7 +59,7 @@ async function run() {
   const pages = [
     '/', '/dashboard', '/predict', '/leaderboard', '/lobby', '/admin',
     '/helper', '/settings', '/support', '/about', '/information', '/terms',
-    '/profile', '/team', '/reset-password', '/forgot-password', '/404',
+    '/profile', '/team', '/point-predictions', '/reset-password', '/forgot-password', '/404',
   ];
   for (const page of pages) await expectStatus(page, 200);
 
