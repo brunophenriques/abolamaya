@@ -87,7 +87,7 @@ let user, allMatches = [], groupMatches = {};
       <div class="card text-center" style="padding:48px">
         <p style="font-size:1.8rem;font-weight:900;color:var(--primary);letter-spacing:-.03em;margin-bottom:8px">Acesso negado</p>
         <p class="muted small">Para te tornar admin, corre no terminal:<br>
-        <code style="background:var(--bg);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:8px;font-size:.85rem">node server/make-admin.js ${user.username}</code><br>
+        <code style="background:var(--bg);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:8px;font-size:.85rem">npm run make-admin -- ${user.username}</code><br>
         e recarrega a página.</p>
       </div>`;
     return;

@@ -7,7 +7,7 @@ const sharp  = require('sharp');
 const fs     = require('fs');
 const path   = require('path');
 
-const SQUADS_DIR = path.join(__dirname, '..', 'img', 'squads');
+const SQUADS_DIR = path.join(__dirname, '..', 'public', 'img', 'squads');
 const WIDTH      = 280;
 const HEIGHT     = 373;
 const QUALITY    = 80;
@@ -36,7 +36,7 @@ async function optimizeFile(filePath) {
 
 async function run() {
   if (!fs.existsSync(SQUADS_DIR)) {
-    console.error('Pasta img/squads/ não encontrada.');
+    console.error('Pasta public/img/squads/ não encontrada.');
     process.exit(1);
   }
 
@@ -45,7 +45,7 @@ async function run() {
   );
 
   if (!teams.length) {
-    console.log('Nenhuma pasta de seleção encontrada em img/squads/');
+    console.log('Nenhuma pasta de seleção encontrada em public/img/squads/');
     return;
   }
 

@@ -11,7 +11,7 @@ node_modules/
 .env.example
 
 # Fotos de perfil carregadas pelos utilizadores
-img/avatars/
+public/img/avatars/
 
 # Screenshots de debug do scraper
 debug-screenshots/

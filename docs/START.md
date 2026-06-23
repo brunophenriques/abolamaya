@@ -69,7 +69,7 @@
   Regista uma conta no site. Depois, com o servidor a correr,
   abre outro terminal e corre:
 
-    node server/make-admin.js <o_teu_username>
+    npm run make-admin -- <o_teu_username>
 
   Recarrega a página — o link "Admin" aparece na navbar.
 
@@ -142,4 +142,3 @@
     dotenv           — variáveis de ambiente
     sharp            — otimização de imagens (dev)
     nodemon          — reinício automático (dev)
-

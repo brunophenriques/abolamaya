@@ -1,5 +1,5 @@
 node_modules
 .env
 abolamaya.db
-img/avatars
+public/img/avatars
 debug-screenshots

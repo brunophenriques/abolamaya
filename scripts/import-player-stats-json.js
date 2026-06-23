@@ -1,9 +1,10 @@
 const Database = require('better-sqlite3');
 const path     = require('path');
 const fs       = require('fs');
+const { DATABASE_PATH, DATA_DIR } = require('../server/paths');
 
-const destPath = path.resolve(process.env.DB_PATH || path.join(__dirname, '..', 'abolamaya.db'));
-const srcPath  = path.resolve(__dirname, '..', 'data', 'player_national_stats_export.json');
+const destPath = DATABASE_PATH;
+const srcPath  = path.join(DATA_DIR, 'player_national_stats_export.json');
 
 if (!fs.existsSync(srcPath)) {
   console.error(`❌  Export file not found: ${srcPath}`);

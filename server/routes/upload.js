@@ -5,6 +5,7 @@ const path     = require('path');
 const fs       = require('fs');
 const db       = require('../db');
 const { auth } = require('../middleware/auth');
+const { AVATARS_DIR } = require('../paths');
 
 // Store uploads in memory so sharp can process before saving to disk
 const upload = multer({
@@ -19,8 +20,8 @@ const upload = multer({
 });
 
 // In production (Railway), point AVATARS_DIR at the persistent volume, e.g. /data/avatars.
-// Locally falls back to img/avatars inside the project.
-const AVATAR_DIR = process.env.AVATARS_DIR || path.join(__dirname, '..', '..', 'img', 'avatars');
+// Locally falls back to public/img/avatars inside the project.
+const AVATAR_DIR = AVATARS_DIR;
 if (!fs.existsSync(AVATAR_DIR)) fs.mkdirSync(AVATAR_DIR, { recursive: true });
 
 // POST /api/upload/avatar

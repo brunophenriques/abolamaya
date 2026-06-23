@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const db        = require('./db');
 const { auth }  = require('./middleware/auth');
 const { PORT }  = require('./config');
+const { AVATARS_DIR, PUBLIC_DIR } = require('./paths');
 const { startScheduler } = require('./scraper/scheduler');
 
 const app = express();
@@ -35,9 +36,7 @@ const ticketLimiter = rateLimit({
 
 // Avatars from persistent volume (AVATARS_DIR=/data/avatars on Railway).
 // Must be registered before the general static middleware so it takes priority.
-if (process.env.AVATARS_DIR) {
-  app.use('/img/avatars', require('express').static(process.env.AVATARS_DIR));
-}
+app.use('/img/avatars', express.static(AVATARS_DIR));
 
 // ── Clean URLs ────────────────────────────────────────────────────────────────
 // Pages that get a clean URL (no .html suffix)
@@ -61,13 +60,13 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const m = req.path.match(/^\/([^/?#.]+)$/);
   if (m && CLEAN_ROUTES.includes(m[1])) {
-    return res.sendFile(path.join(__dirname, '..', `${m[1]}.html`));
+    return res.sendFile(path.join(PUBLIC_DIR, `${m[1]}.html`));
   }
   next();
 });
 
 // Serve frontend files
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(PUBLIC_DIR));
 
 // API routes
 app.use('/api/auth',        authLimiter, require('./routes/auth'));
@@ -100,7 +99,7 @@ app.use('/api', (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '..', '404.html'));
+  res.status(404).sendFile(path.join(PUBLIC_DIR, '404.html'));
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────
@@ -109,7 +108,7 @@ app.use((err, req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(err.status || 500).json({ error: 'Erro interno. Tenta novamente mais tarde.' });
   }
-  res.status(500).sendFile(path.join(__dirname, '..', '404.html'));
+  res.status(500).sendFile(path.join(PUBLIC_DIR, '404.html'));
 });
 
 app.listen(PORT, () => {

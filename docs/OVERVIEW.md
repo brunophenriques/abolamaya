@@ -39,7 +39,6 @@ abolamaya/
 │   ├── db.js                      # SQLite: schema, inicialização, migrações
 │   ├── config.js                  # JWT_SECRET (obrigatório ≥32 chars), BASE_URL, SMTP, OAuth
 │   ├── email.js                   # Resend HTTP API (fetch); fallback consola em dev
-│   ├── make-admin.js              # CLI: promover utilizador a admin
 │   ├── settle.js                  # Liquidar previsões a partir de resultados scraped
 │   │
 │   ├── middleware/
@@ -69,39 +68,26 @@ abolamaya/
 │       │                          # suporta datas DD.MM.YYYY e DD.MM. HH:MM (www.soccerway.com)
 │       └── playerStatsSoccerway.js # Stats de jogadores por equipa
 │
-├── js/
-│   ├── api.js                     # Cliente REST com JWT
-│   ├── auth.js                    # Guards, navbar, notificações (accept friend inline), helpers
-│   ├── config.js                  # Deadline, labels de grupos, cor de avatar
-│   ├── scoring.js                 # calcStandings, compareStandings (regras FIFA)
-│   └── theme.js                   # Dark/light mode
+├── public/
+│   ├── js/
+│   │   ├── api.js                 # Cliente REST com JWT
+│   │   ├── auth.js                # Guards, navbar, notificações e helpers
+│   │   ├── config.js              # Deadline, labels de grupos, cor de avatar
+│   │   ├── scoring.js             # Regras FIFA
+│   │   └── theme.js               # Dark/light mode
+│   ├── css/style.css              # Design completo, responsivo
+│   ├── data/squads/               # JSON por seleção
+│   ├── img/                       # Logos, troféus e fotografias
 │
-├── css/style.css                  # Design completo, responsivo
-├── data/squads/                   # JSON por seleção
-├── img/                           # Logos, bandeiras, troféus
+│   └── *.html                     # Páginas públicas
 │
-├── index.html                     # Login / Registo (checkbox termos, link "Esqueceste a password?")
-├── dashboard.html                 # Painel principal (leaderboard com nomes clicáveis para perfis)
-├── predict.html                   # 72 jogos com inputs de marcador
-├── leaderboard.html               # Leaderboards global e por lobby (fotos de perfil)
-├── lobby.html                     # Salas privadas + kick de membros
-├── team.html                      # Plantel e forma de uma seleção
-├── profile.html                   # Perfil público (67machine: "Membro desde o primeiro dia")
-├── settings.html                  # Definições de conta + link para reportar
-├── admin.html                     # 5 tabs: Resultados, Grupos, Seleções, Reportes (modal), Utilizadores
-├── oauth.html                     # Redirect handler OAuth
-├── forgot-password.html           # Pedido de recuperação de password
-├── reset-password.html            # Definição de nova password (token da URL)
-├── about.html                     # Sobre o projeto
-├── information.html               # Fontes de dados
-├── support.html                   # Formulário de reporte
-├── terms.html                     # Termos & Privacidade
-├── 404.html                       # Página 404 personalizada
-│
+├── scripts/                       # Administração, manutenção e testes
+├── data/                          # Dados internos não expostos
+├── docs/                          # Documentação e SQL de referência
 ├── Dockerfile                     # mcr.microsoft.com/playwright:v1.60.0-noble + node directo
 ├── .dockerignore                  # Exclui node_modules, .env, db local, avatars
 ├── nixpacks.toml                  # Fallback Nixpacks (Railway)
-└── server/import-player-stats*.js # Scripts de export/import de stats via JSON
+└── package.json
 ```
 
 ---
@@ -180,7 +166,7 @@ Ranking: total → pts jogo → username.
 ### Fotos de Perfil
 - Upload via multer + sharp (resize 200×200, JPEG 85%)
 - Guardadas em `AVATARS_DIR` env var (Railway: `/data/avatars`); servidas em `/img/avatars/*`
-- Sem `AVATARS_DIR`, guarda em `img/avatars/` local (dev)
+- Sem `AVATARS_DIR`, guarda em `public/img/avatars/` local (dev)
 - Leaderboard e dashboard mostram foto real quando disponível
 
 ### Páginas de Transparência
@@ -326,7 +312,7 @@ npx playwright install chromium
 npm run dev    # desenvolvimento (nodemon)
 npm start      # produção
 
-node server/make-admin.js <username>
+npm run make-admin -- <username>
 
 # Exportar/importar stats de jogadores
 npm run export:player-stats

@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs   = require('fs');
+const { DEBUG_SCREENSHOTS_DIR } = require('../paths');
 
 // ── Debug flag ────────────────────────────────────────────────────────────────
 const DEBUG = false;
@@ -8,7 +9,7 @@ const DEBUG = false;
 const PLAYER_DELAY_MS = 1500;
 const NAV_TIMEOUT_MS  = 30000;
 const BASE_URL        = 'https://us.soccerway.com';
-const DEBUG_DIR       = path.join(__dirname, '..', '..', 'debug-screenshots');
+const DEBUG_DIR       = DEBUG_SCREENSHOTS_DIR;
 
 if (DEBUG && !fs.existsSync(DEBUG_DIR)) fs.mkdirSync(DEBUG_DIR, { recursive: true });
 

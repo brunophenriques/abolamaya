@@ -1,8 +1,9 @@
 const Database = require('better-sqlite3');
 const path     = require('path');
+const { DATABASE_PATH, ROOT_DIR } = require('../server/paths');
 
-const srcPath  = path.resolve(__dirname, '..', 'abolamaya.db');
-const destPath = path.resolve(process.env.DB_PATH || path.join(__dirname, '..', 'abolamaya.db'));
+const srcPath  = path.join(ROOT_DIR, 'abolamaya.db');
+const destPath = DATABASE_PATH;
 
 if (srcPath === destPath) {
   console.error('❌  Source and destination are the same file — set DB_PATH to the production DB path.');
