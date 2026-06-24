@@ -1126,6 +1126,22 @@ a.group-team:hover { color: var(--text); text-decoration: none; }
   margin-bottom: 24px;
   align-items: center;
 }
+.filter-spacer { flex: 1 1 auto; }
+.filter-history-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap; margin-left: 8px;
+}
+.filter-history-btn span:first-child { font-size: .9rem; line-height: 1; }
+.predict-empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  text-align: center; padding: 36px 18px; color: var(--muted);
+}
+.predict-empty-state strong { color: var(--text); }
+.predict-empty-state .btn { margin-top: 5px; }
+@media (max-width: 720px) {
+  .filter-spacer { flex-basis: 100%; height: 0; }
+  .filter-history-btn { margin-left: 0; }
+}
 
 .filter-btn {
   padding: 6px 14px;

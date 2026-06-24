@@ -70,6 +70,12 @@
     <button class="filter-btn filter-btn-group gc-J" onclick="setFilter('J',this)">J</button>
     <button class="filter-btn filter-btn-group gc-K" onclick="setFilter('K',this)">K</button>
     <button class="filter-btn filter-btn-group gc-L" onclick="setFilter('L',this)">L</button>
+    <span class="filter-spacer"></span>
+    <button class="filter-btn filter-history-btn" id="historyToggle" onclick="toggleCompletedMatches()"
+      title="Mostrar também jogos já liquidados">
+      <span aria-hidden="true">↺</span>
+      <span id="historyToggleLabel">Mostrar concluídos</span>
+    </button>
   </div>
 
   <!-- Schedule by day -->
@@ -107,6 +113,7 @@
 <script>
 let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {};
 let activeFilter = null;
+let showCompletedMatches = false;
 
 function teamSlug(name) {
   return name.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,'').trim().replace(/\s+/g,'-');
@@ -177,10 +184,28 @@ function setFilter(group, btn) {
   history.replaceState(null, '', group ? `?group=${group}` : '?');
 }
 
+function toggleCompletedMatches() {
+  showCompletedMatches = !showCompletedMatches;
+  const button = document.getElementById('historyToggle');
+  const label = document.getElementById('historyToggleLabel');
+  button.classList.toggle('active', showCompletedMatches);
+  button.title = showCompletedMatches
+    ? 'Ocultar jogos já liquidados'
+    : 'Mostrar também jogos já liquidados';
+  label.textContent = showCompletedMatches ? 'Ocultar concluídos' : 'Mostrar concluídos';
+  renderSchedule();
+}
+
 function renderSchedule() {
-  const matches = activeFilter
+  let matches = activeFilter
     ? allMatchesList.filter(m => m.group_id === activeFilter)
     : allMatchesList;
+
+  if (!showCompletedMatches) {
+    matches = matches.filter(m =>
+      !isMatchLocked(m.match_date, m.match_time) || m.status !== 'finished'
+    );
+  }
 
   const byDate = {};
   for (const m of matches) {
@@ -190,6 +215,16 @@ function renderSchedule() {
 
   const scheduleEl = document.getElementById('matchSchedule');
   scheduleEl.innerHTML = '';
+
+  if (!matches.length) {
+    scheduleEl.innerHTML = `
+      <div class="card predict-empty-state">
+        <strong>Não há jogos pendentes${activeFilter ? ` no ${GROUP_LABELS[activeFilter]}` : ''}.</strong>
+        <span>Os jogos deste filtro já foram liquidados.</span>
+        <button class="btn btn-ghost btn-sm" onclick="toggleCompletedMatches()">Mostrar concluídos</button>
+      </div>`;
+    return;
+  }
 
   for (const date of Object.keys(byDate).sort()) {
     const ms = byDate[date].sort((a, b) => a.match_time.localeCompare(b.match_time));
