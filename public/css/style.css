@@ -1793,12 +1793,21 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .badge-top      { background: rgba(60,172,59,.15);  color: var(--green); }
 
 /* ── Next Match Card ─────────────────────────────────────────────────────────*/
-.nm-grid {
+.nm-match-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
-  gap: 12px;
+  gap: 0;
 }
-.nm-grid-single { grid-template-columns: 1fr; }
+.nm-match-grid-single { grid-template-columns: 1fr; }
+.nm-match-panel {
+  min-width: 0;
+  padding-right: 20px;
+}
+.nm-match-panel + .nm-match-panel {
+  border-left: 1px solid var(--border);
+  padding-right: 0;
+  padding-left: 20px;
+}
 .nm-card { padding: 20px 22px 16px; }
 
 .nm-header {
@@ -1864,8 +1873,19 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .nm-bar-away { background: #2A398D; }
 .nm-bar-pct { font-size: .72rem; font-weight: 700; width: 32px; text-align: right; }
 
+@media (max-width: 780px) {
+  .nm-match-grid { grid-template-columns: 1fr; }
+  .nm-match-panel { padding-right: 0; }
+  .nm-match-panel + .nm-match-panel {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    padding-left: 0;
+    margin-top: 18px;
+  }
+}
+
 @media (max-width: 480px) {
-  .nm-grid { grid-template-columns: 1fr; }
   .nm-name { font-size: .75rem; }
   .nm-flag { font-size: 2rem; }
 }

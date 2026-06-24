@@ -129,18 +129,14 @@ async function renderNextMatchCards(matches, preds) {
   })();
 
   wrap.style.display = '';
-  wrap.className = `nm-grid${infos.length === 1 ? ' nm-grid-single' : ''}`;
-  wrap.innerHTML = infos.map(({ match: m }) => {
+  wrap.className = '';
+  const matchCards = infos.map(({ match: m }) => {
     const myPred = preds.find(p => p.match_id === m.id);
     const myPredHtml = myPred
       ? `<span class="nm-my-pred">A tua previsão: <strong>${myPred.home_score}–${myPred.away_score}</strong></span>`
       : `<a href="/predict?group=${m.group_id}" class="btn btn-primary btn-sm" style="font-size:.78rem;padding:4px 12px">Fazer previsão</a>`;
     return `
-    <div class="card nm-card">
-      <div class="nm-header">
-        <span class="nm-label">${infos.length === 1 ? 'Próximo jogo' : 'Próximos jogos'}</span>
-        <span class="nm-timer ${urgent ? 'nm-urgent' : ''}">⏱ ${timeStr}</span>
-      </div>
+    <section class="nm-match-panel">
       <div class="nm-teams">
         <div class="nm-team nm-team-home">
           <span class="nm-flag">${m.home_flag}</span>
@@ -157,8 +153,19 @@ async function renderNextMatchCards(matches, preds) {
         ${myPredHtml}
       </div>
       <div class="nm-popular" id="nmPopular-${m.id}"><span class="muted small">A carregar previsões...</span></div>
-    </div>`;
+    </section>`;
   }).join('');
+
+  wrap.innerHTML = `
+    <div class="card nm-card">
+      <div class="nm-header">
+        <span class="nm-label">${infos.length === 1 ? 'Próximo jogo' : `${infos.length} próximos jogos`}</span>
+        <span class="nm-timer ${urgent ? 'nm-urgent' : ''}">⏱ ${timeStr}</span>
+      </div>
+      <div class="nm-match-grid${infos.length === 1 ? ' nm-match-grid-single' : ''}">
+        ${matchCards}
+      </div>
+    </div>`;
 
   await Promise.all(infos.map(async ({ match: m }) => {
     try {
