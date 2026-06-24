@@ -128,7 +128,7 @@ abolamaya/
 | Marcador exacto | 3 pontos (substitui o de resultado) |
 | Posição correcta no grupo | 1 ponto cada (máx. 4 por grupo) |
 
-Pontos de grupo calculados após todos os 6 jogos do grupo terminarem, com regras FIFA (V=3, E=1, D=0; desempate: DG → golos → alfabético).
+Pontos de grupo calculados após todos os 6 jogos do grupo terminarem, com regras FIFA 2026 (V=3, E=1, D=0; desempate: pontos no confronto direto → DG no confronto direto → golos no confronto direto → DG geral → golos gerais).
 
 Ranking: total → pts jogo → username.
 

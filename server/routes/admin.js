@@ -4,6 +4,7 @@ const { auth, requireAdmin, requireHelper } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
 const { logEvent } = require('../logs');
 const { checkAchievements } = require('../middleware/achievements');
+const { calcStandings } = require('../standings');
 
 // GET /api/admin/stats — dashboard overview
 router.get('/stats', auth, requireAdmin, (req, res) => {
@@ -20,34 +21,6 @@ router.get('/stats', auth, requireAdmin, (req, res) => {
 
   res.json({ users, predictions, settled, matches, finished, scrapeCount, lastScrape, recentLogs });
 });
-
-// Shared standings calculation (mirrors js/scoring.js)
-function calcStandings(matches, preds) {
-  const stats = {};
-  for (const m of matches) {
-    for (const t of [m.home_team, m.away_team]) {
-      if (!stats[t]) stats[t] = { name:t, p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 };
-    }
-  }
-  for (const m of matches) {
-    const p = preds[m.id];
-    if (!p) continue;
-    const hg = p.home_score, ag = p.away_score;
-    if (typeof hg !== 'number' || typeof ag !== 'number') continue;
-    const H = stats[m.home_team], A = stats[m.away_team];
-    H.p++; A.p++;
-    H.gf += hg; H.ga += ag; A.gf += ag; A.ga += hg;
-    if (hg > ag)       { H.w++; H.pts += 3; A.l++; }
-    else if (hg === ag){ H.d++; H.pts++;    A.d++; A.pts++; }
-    else               { A.w++; A.pts += 3; H.l++; }
-  }
-  return Object.values(stats).sort((a,b) => {
-    if (b.pts !== a.pts)               return b.pts - a.pts;
-    if ((b.gf-b.ga) !== (a.gf-a.ga))  return (b.gf-b.ga) - (a.gf-a.ga);
-    if (b.gf !== a.gf)                 return b.gf - a.gf;
-    return a.name.localeCompare(b.name);
-  });
-}
 
 function snapshotRanks() {
   const rows = db.prepare(`
