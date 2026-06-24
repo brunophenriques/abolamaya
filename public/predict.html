@@ -71,11 +71,10 @@
     <button class="filter-btn filter-btn-group gc-K" onclick="setFilter('K',this)">K</button>
     <button class="filter-btn filter-btn-group gc-L" onclick="setFilter('L',this)">L</button>
     <span class="filter-spacer"></span>
-    <button class="filter-btn filter-history-btn" id="historyToggle" onclick="toggleCompletedMatches()"
-      title="Mostrar também jogos já liquidados">
-      <span aria-hidden="true">↺</span>
-      <span id="historyToggleLabel">Mostrar concluídos</span>
-    </button>
+    <div class="match-visibility-control" aria-label="Jogos a mostrar">
+      <button class="active" id="pendingMatchesBtn" onclick="setCompletedMatchesVisibility(false)">Pendentes</button>
+      <button id="allMatchesBtn" onclick="setCompletedMatchesVisibility(true)">Todos</button>
+    </div>
   </div>
 
   <!-- Schedule by day -->
@@ -184,15 +183,10 @@ function setFilter(group, btn) {
   history.replaceState(null, '', group ? `?group=${group}` : '?');
 }
 
-function toggleCompletedMatches() {
-  showCompletedMatches = !showCompletedMatches;
-  const button = document.getElementById('historyToggle');
-  const label = document.getElementById('historyToggleLabel');
-  button.classList.toggle('active', showCompletedMatches);
-  button.title = showCompletedMatches
-    ? 'Ocultar jogos já liquidados'
-    : 'Mostrar também jogos já liquidados';
-  label.textContent = showCompletedMatches ? 'Ocultar concluídos' : 'Mostrar concluídos';
+function setCompletedMatchesVisibility(showAll) {
+  showCompletedMatches = showAll;
+  document.getElementById('pendingMatchesBtn').classList.toggle('active', !showAll);
+  document.getElementById('allMatchesBtn').classList.toggle('active', showAll);
   renderSchedule();
 }
 
@@ -221,7 +215,7 @@ function renderSchedule() {
       <div class="card predict-empty-state">
         <strong>Não há jogos pendentes${activeFilter ? ` no ${GROUP_LABELS[activeFilter]}` : ''}.</strong>
         <span>Os jogos deste filtro já foram liquidados.</span>
-        <button class="btn btn-ghost btn-sm" onclick="toggleCompletedMatches()">Mostrar concluídos</button>
+        <button class="btn btn-ghost btn-sm" onclick="setCompletedMatchesVisibility(true)">Mostrar todos</button>
       </div>`;
     return;
   }
