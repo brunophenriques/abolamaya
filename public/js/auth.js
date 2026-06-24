@@ -309,7 +309,7 @@ function showNextAdminMessage() {
 
   const title = document.createElement('h2');
   title.id = `adminMessageTitle-${notif.id}`;
-  title.textContent = notif.title || 'Mensagem do Guru';
+  title.textContent = notif.title || 'Mensagem do 67Machine';
 
   const body = document.createElement('p');
   body.textContent = notif.body || '';

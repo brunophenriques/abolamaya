@@ -27,7 +27,7 @@ try {
   assert.deepEqual(notification, {
     user_id: Number(user.lastInsertRowid),
     type: 'admin_message',
-    title: 'Mensagem do Guru',
+    title: 'Mensagem do 67Machine',
     body: 'A tua previsao foi anulada. Brincadeira.',
     read: 0,
   });

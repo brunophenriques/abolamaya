@@ -15,7 +15,7 @@ function sendUserMessage(username, message) {
 
   const result = db.prepare(`
     INSERT INTO notifications (user_id, type, title, body)
-    VALUES (?, 'admin_message', 'Mensagem do Guru', ?)
+    VALUES (?, 'admin_message', 'Mensagem do 67Machine', ?)
   `).run(user.id, normalizedMessage);
 
   return { notificationId: result.lastInsertRowid, username: user.username };
