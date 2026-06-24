@@ -124,6 +124,9 @@ function escapePointVoteText(value) {
 let _bellUser = null;
 let _bellInitialized = false;
 const _shownAchievementToasts = new Set();
+const _shownAdminMessages = new Set();
+const _adminMessageQueue = [];
+let _activeAdminMessage = false;
 
 async function setupNotificationBell(user) {
   _bellUser = user;
@@ -160,6 +163,14 @@ async function refreshNotifications() {
     } else {
       badge.style.display = 'none';
     }
+
+    for (const n of data.notifications) {
+      if (n.type === 'admin_message' && !n.read && !_shownAdminMessages.has(n.id)) {
+        _shownAdminMessages.add(n.id);
+        _adminMessageQueue.push(n);
+      }
+    }
+    showNextAdminMessage();
 
     // Achievement toasts for new ones since page load
     if (_bellInitialized) {
@@ -275,6 +286,60 @@ function showAchievementToast(notif) {
   document.body.appendChild(el);
   setTimeout(() => el.classList.add('show'), 10);
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 5000);
+}
+
+function showNextAdminMessage() {
+  if (_activeAdminMessage || !_adminMessageQueue.length) return;
+  _activeAdminMessage = true;
+  const notif = _adminMessageQueue.shift();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'admin-message-overlay';
+  overlay.setAttribute('role', 'presentation');
+
+  const modal = document.createElement('div');
+  modal.className = 'admin-message-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', `adminMessageTitle-${notif.id}`);
+
+  const kicker = document.createElement('div');
+  kicker.className = 'admin-message-kicker';
+  kicker.textContent = 'Mensagem privada';
+
+  const title = document.createElement('h2');
+  title.id = `adminMessageTitle-${notif.id}`;
+  title.textContent = notif.title || 'Mensagem do Guru';
+
+  const body = document.createElement('p');
+  body.textContent = notif.body || '';
+
+  const closeButton = document.createElement('button');
+  closeButton.className = 'btn btn-primary';
+  closeButton.type = 'button';
+  closeButton.textContent = 'Fechar';
+
+  let closing = false;
+  const close = async () => {
+    if (closing) return;
+    closing = true;
+    document.removeEventListener('keydown', onKeydown);
+    overlay.remove();
+    _activeAdminMessage = false;
+    await API.patch(`/notifications/${notif.id}/read`).catch(() => {});
+    showNextAdminMessage();
+    refreshNotifications();
+  };
+  const onKeydown = event => {
+    if (event.key === 'Escape') close();
+  };
+
+  closeButton.addEventListener('click', close);
+  document.addEventListener('keydown', onKeydown);
+  modal.append(kicker, title, body, closeButton);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  closeButton.focus();
 }
 
 async function acceptFriendNotif(friendId, notifId) {

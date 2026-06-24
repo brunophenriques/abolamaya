@@ -70,10 +70,15 @@ O teste valida:
 ```bash
 npm run dev
 npm run make-admin -- username
+npm run message-user -- username "A tua mensagem"
 npm run optimize-squads
 npm run export:player-stats
 npm run import:player-stats-json
 ```
+
+`message-user` cria uma mensagem privada que aparece como pop-up apenas para o
+utilizador escolhido. Se estiver online, aparece na proxima verificacao de
+notificacoes; se estiver offline, fica guardada ate voltar ao site.
 
 ## Railway
 

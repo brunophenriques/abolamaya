@@ -2285,3 +2285,42 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
   .point-admin-vote-stats,.point-resolve-metrics { grid-template-columns: 1fr 1fr; }
   .point-resolve-choices { grid-template-columns: 1fr; }
 }
+.admin-message-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0,0,0,.68);
+}
+.admin-message-modal {
+  width: min(440px, 100%);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+}
+.admin-message-kicker {
+  color: var(--primary);
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.admin-message-modal h2 {
+  font-size: 1.35rem;
+  margin-bottom: 12px;
+}
+.admin-message-modal p {
+  color: var(--text);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  margin-bottom: 20px;
+}
+.admin-message-modal .btn {
+  width: 100%;
+}
