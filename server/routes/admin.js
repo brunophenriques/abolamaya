@@ -52,7 +52,7 @@ function calcStandings(matches, preds) {
 function snapshotRanks() {
   const rows = db.prepare(`
     SELECT u.id,
-      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) + COALESCE(pp.pts,0) AS total,
       COALESCE(mp.exact,0) AS exact,
       COALESCE(mp.pts,0) AS match_pts
     FROM users u
@@ -63,6 +63,7 @@ function snapshotRanks() {
       FROM match_predictions GROUP BY user_id
     ) mp ON mp.user_id=u.id
     LEFT JOIN (SELECT user_id, SUM(COALESCE(points_earned,0)) pts FROM group_points GROUP BY user_id) gp ON gp.user_id=u.id
+    LEFT JOIN (SELECT user_id, SUM(amount) pts FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id) pp ON pp.user_id=u.id
     WHERE (u.banned IS NULL OR u.banned=0)
     ORDER BY total DESC, exact ASC, match_pts DESC, u.username
   `).all();
@@ -87,7 +88,7 @@ router.post('/resnapshot', auth, requireAdmin, (req, res) => {
     // Snapshot ranks as they were before this match
     const rows = db.prepare(`
       SELECT u.id,
-        COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+        COALESCE(mp.pts,0) + COALESCE(gp.pts,0) + COALESCE(pp.pts,0) AS total,
         COALESCE(mp.exact,0) AS exact,
         COALESCE(mp.pts,0) AS match_pts
       FROM users u
@@ -98,6 +99,7 @@ router.post('/resnapshot', auth, requireAdmin, (req, res) => {
         FROM match_predictions GROUP BY user_id
       ) mp ON mp.user_id=u.id
       LEFT JOIN (SELECT user_id, SUM(COALESCE(points_earned,0)) pts FROM group_points GROUP BY user_id) gp ON gp.user_id=u.id
+      LEFT JOIN (SELECT user_id, SUM(amount) pts FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id) pp ON pp.user_id=u.id
       WHERE (u.banned IS NULL OR u.banned=0)
       ORDER BY total DESC, exact ASC, match_pts DESC, u.username
     `).all();
@@ -258,7 +260,6 @@ router.post('/auto-settle', auth, requireAdmin, (req, res) => {
 router.get('/users', auth, requireAdmin, (req, res) => {
   const users = db.prepare(`
     SELECT u.id, u.username, u.display_name, u.email, u.is_admin, u.is_helper, u.banned, u.created_at,
-           u.points_balance,
            COUNT(DISTINCT p.id) AS predictions,
            COUNT(DISTINCT t.id) AS ticket_count
     FROM users u

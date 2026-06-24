@@ -653,7 +653,7 @@ function renderUsers(users) {
     <div style="overflow-x:auto">
       <table class="standings-table" style="width:100%;font-size:.83rem">
         <thead><tr>
-          <th>ID</th><th>Username</th><th>Email</th><th>Prev.</th><th>Pontos</th><th>Tickets</th><th>Estado</th><th>Criado</th><th></th>
+          <th>ID</th><th>Username</th><th>Email</th><th>Prev.</th><th>Tickets</th><th>Estado</th><th>Criado</th><th></th>
         </tr></thead>
         <tbody>${users.map(u => {
           const spamClass = u.ticket_count >= 5 ? 'style="background:rgba(230,29,37,.12)"'
@@ -667,11 +667,6 @@ function renderUsers(users) {
               </td>
               <td class="muted" style="font-size:.78rem">${escHtml(u.email)}</td>
               <td>${u.predictions}</td>
-              <td>
-                <button class="btn btn-ghost btn-sm" style="padding:2px 8px;font-size:.75rem"
-                  onclick="adjustPointBalance(${u.id},'${escHtml(u.username)}',${u.points_balance || 0})"
-                  title="Ajustar saldo de previsões com pontos">${u.points_balance || 0}</button>
-              </td>
               <td>
                 ${u.ticket_count > 0
                   ? `<span class="badge ${u.ticket_count >= 5 ? 'badge-red' : u.ticket_count >= 3 ? 'badge-orange' : 'badge-muted'}"

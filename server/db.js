@@ -206,7 +206,6 @@ try { db.exec(`ALTER TABLE users ADD COLUMN profile_public INTEGER DEFAULT 1`); 
 try { db.exec(`ALTER TABLE users ADD COLUMN history_public INTEGER DEFAULT 1`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN is_helper INTEGER DEFAULT 0`); } catch {}
-try { db.exec(`ALTER TABLE users ADD COLUMN points_balance INTEGER NOT NULL DEFAULT 10 CHECK(points_balance >= 0)`); } catch {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_oauth (
@@ -405,10 +404,19 @@ db.exec(`
   ['point_predictions_enabled', 'false'],
   ['prediction_community_vote_open', 'false'],
   ['point_predictions_beta_mode', 'false'],
-  ['point_predictions_initial_balance', '10'],
 ].forEach(([key, value]) => {
   db.prepare('INSERT OR IGNORE INTO site_settings (key,value) VALUES (?,?)').run(key, value);
 });
+
+// Legacy cleanup: the first implementation used an artificial 10-point wallet.
+// Real availability is now derived from match + group + community transaction points.
+const legacyPointWallet = db.prepare(
+  "SELECT 1 FROM site_settings WHERE key='point_predictions_initial_balance'"
+).get();
+if (legacyPointWallet) {
+  try { db.prepare('UPDATE users SET points_balance=0').run(); } catch {}
+  db.prepare("DELETE FROM site_settings WHERE key='point_predictions_initial_balance'").run();
+}
 
 // Migrate duplicate achievement types → canonical replacements, then delete old rows.
 // first_prediction → primeiro_sangue, exact_score → nostradamus,

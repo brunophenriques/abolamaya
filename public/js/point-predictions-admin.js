@@ -153,21 +153,6 @@ async function updatePointSetting(key, checked) {
   }
 }
 
-async function adjustPointBalance(userId, username, currentBalance) {
-  const raw = prompt(`Ajuste de pontos para @${username}\\nSaldo atual: ${currentBalance}\\n\\nUsa um inteiro positivo ou negativo:`, '1');
-  if (raw === null) return;
-  const amount = Number(raw);
-  if (!Number.isInteger(amount) || amount === 0) {
-    showToast('Indica um número inteiro diferente de zero.', 'error');
-    return;
-  }
-  try {
-    const result = await API.post(`/admin/point-predictions/users/${userId}/balance`, { amount });
-    showToast(`Saldo atualizado para ${result.balance} pontos.`);
-    if (typeof loadUsers === 'function') await loadUsers();
-  } catch (error) { showToast(error.message, 'error'); }
-}
-
 async function createPointPrediction(event) {
   event.preventDefault();
   try {

@@ -157,37 +157,4 @@ router.post('/:id/resolve', (req, res) => {
   }
 });
 
-router.post('/users/:id/balance', (req, res) => {
-  const userId = Number(req.params.id);
-  const amount = Number(req.body.amount);
-  if (!Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 1000) {
-    return res.status(400).json({ error: 'O ajuste deve ser um inteiro entre -1000 e 1000.' });
-  }
-  try {
-    const balance = db.transaction(() => {
-      const user = db.prepare('SELECT points_balance FROM users WHERE id=?').get(userId);
-      if (!user) {
-        const error = new Error('Utilizador não encontrado.');
-        error.status = 404;
-        throw error;
-      }
-      const nextBalance = user.points_balance + amount;
-      if (nextBalance < 0) {
-        const error = new Error('O ajuste deixaria o saldo negativo.');
-        error.status = 409;
-        throw error;
-      }
-      db.prepare('UPDATE users SET points_balance=? WHERE id=?').run(nextBalance, userId);
-      db.prepare(`
-        INSERT INTO point_transactions (user_id,prediction_id,amount,type)
-        VALUES (?,NULL,?,'admin_adjustment')
-      `).run(userId, amount);
-      return nextBalance;
-    })();
-    res.json({ ok: true, balance });
-  } catch (error) {
-    handleError(res, error);
-  }
-});
-
 module.exports = router;

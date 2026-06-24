@@ -141,6 +141,8 @@ function renderTable(rows) {
       '<div class="card"><p class="muted text-center" style="padding:28px">Ainda sem jogadores.</p></div>';
     return;
   }
+  const showCommunity = rows.some(u => u.community_points_visible);
+  const signed = value => value > 0 ? `+${value}` : String(value);
   document.getElementById('lbContent').innerHTML = `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
@@ -151,6 +153,7 @@ function renderTable(rows) {
           <th class="lb-accuracy" title="Previsões corretas / total">Precisão</th>
           <th>Pts Jogos</th>
           <th>Pts Grupos</th>
+          ${showCommunity ? '<th>Pts Comunidade</th>' : ''}
           <th>Total</th>
         </tr></thead>
         <tbody>${rows.map((u, i) => {
@@ -183,13 +186,14 @@ function renderTable(rows) {
             <td class="lb-accuracy">${accuracyLabel}</td>
             <td>${u.match_points}</td>
             <td>${u.group_points}</td>
+            ${showCommunity ? `<td class="${u.community_points < 0 ? 'text-primary' : ''}">${signed(u.community_points)}</td>` : ''}
             <td class="lb-pts">${u.total_points}</td>
           </tr>`;
         }).join('')}
         </tbody>
       </table>
     </div>
-    <p class="muted small mt-8 text-center">1 pt resultado · 3 pts marcador exato · 1–4 pts classificação de grupo</p>`;
+    <p class="muted small mt-8 text-center">1 pt resultado · 3 pts marcador exato · 1–4 pts classificação de grupo${showCommunity ? ' · previsões comunitárias pelo resultado líquido' : ''}</p>`;
 }
 </script>
 </body>

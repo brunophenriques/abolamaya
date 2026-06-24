@@ -89,7 +89,7 @@ app.use('/api/auth',           require('./routes/oauth'));   // OAuth callbacks 
 // GET /api/me
 app.get('/api/me', auth, (req, res) => {
   const user = db.prepare(
-    'SELECT id,username,display_name,is_admin,is_helper,bio,avatar_color,avatar_url,created_at,profile_public,history_public,points_balance FROM users WHERE id=?'
+    'SELECT id,username,display_name,is_admin,is_helper,bio,avatar_color,avatar_url,created_at,profile_public,history_public FROM users WHERE id=?'
   ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
   res.json({ ...user, is_admin: !!user.is_admin, is_helper: !!user.is_helper });

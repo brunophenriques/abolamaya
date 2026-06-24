@@ -19,6 +19,24 @@ function setSetting(key, value) {
   `).run(key, String(value));
 }
 
+function getUserPointTotals(userId) {
+  const row = db.prepare(`
+    SELECT
+      COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=?),0) AS match_points,
+      COALESCE((SELECT SUM(points_earned) FROM group_points WHERE user_id=?),0) AS group_points,
+      COALESCE((SELECT SUM(amount) FROM point_transactions WHERE user_id=? AND type!='admin_adjustment'),0) AS community_points
+  `).get(userId, userId, userId);
+  const matchPoints = Number(row.match_points || 0);
+  const groupPoints = Number(row.group_points || 0);
+  const communityPoints = Number(row.community_points || 0);
+  return {
+    match_points: matchPoints,
+    group_points: groupPoints,
+    community_points: communityPoints,
+    total_points: matchPoints + groupPoints + communityPoints,
+  };
+}
+
 function syncExpiredPredictions() {
   db.prepare(`
     UPDATE point_predictions
@@ -135,11 +153,7 @@ const castVote = db.transaction((predictionId, userId, choice) => {
     return;
   }
 
-  const debit = db.prepare(`
-    UPDATE users SET points_balance=points_balance-1
-    WHERE id=? AND points_balance>=1
-  `).run(userId);
-  if (!debit.changes) {
+  if (getUserPointTotals(userId).total_points < 1) {
     const error = new Error('Não tens pontos disponíveis para votar.');
     error.status = 409;
     throw error;
@@ -169,7 +183,6 @@ const cancelVote = db.transaction((predictionId, userId) => {
     error.status = 404;
     throw error;
   }
-  db.prepare('UPDATE users SET points_balance=points_balance+1 WHERE id=?').run(userId);
   db.prepare(`
     INSERT INTO point_transactions (user_id,prediction_id,amount,type)
     VALUES (?,?,?,'refund')
@@ -201,13 +214,11 @@ const resolvePrediction = db.transaction((predictionId, result) => {
   const pool = votes.length;
 
   if (result === 'void') {
-    const credit = db.prepare('UPDATE users SET points_balance=points_balance+1 WHERE id=?');
     const transaction = db.prepare(`
       INSERT INTO point_transactions (user_id,prediction_id,amount,type)
       VALUES (?,?,1,'refund')
     `);
     for (const vote of votes) {
-      credit.run(vote.user_id);
       transaction.run(vote.user_id, predictionId);
     }
     db.prepare(`
@@ -222,13 +233,11 @@ const resolvePrediction = db.transaction((predictionId, result) => {
   const winners = votes.filter(vote => vote.choice === result);
   const payout = winners.length ? Math.ceil(pool / winners.length) : 0;
   const totalPaid = payout * winners.length;
-  const credit = db.prepare('UPDATE users SET points_balance=points_balance+? WHERE id=?');
   const transaction = db.prepare(`
     INSERT INTO point_transactions (user_id,prediction_id,amount,type)
     VALUES (?,?,?,'payout')
   `);
   for (const winner of winners) {
-    credit.run(payout, winner.user_id);
     transaction.run(winner.user_id, predictionId, payout);
   }
   const inflation = Math.max(0, totalPaid - pool);
@@ -273,6 +282,7 @@ module.exports = {
   castVote,
   getBooleanSetting,
   getSetting,
+  getUserPointTotals,
   listPredictions,
   predictionRows,
   presentPrediction,

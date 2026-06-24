@@ -379,15 +379,18 @@ async function loadModalRanking(id) {
   document.getElementById('modalLb').innerHTML = '<div class="loading">A carregar...</div>';
   try {
     const rows = await API.get(`/leaderboard/lobby/${id}`);
+    const showCommunity = rows?.some(u => u.community_points_visible);
+    const signedCommunity = value => value > 0 ? `+${value}` : String(value);
     document.getElementById('modalLb').innerHTML = rows && rows.length ? `
       <table class="lb-table">
-        <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th>Utilizador</th><th>Jogos</th><th>Grupos</th>${showCommunity ? '<th>Comunidade</th>' : ''}<th>Total</th></tr></thead>
         <tbody>${rows.map((u, i) => `
           <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
             <td>${u.display_name || u.username}</td>
             <td>${u.match_points}</td>
             <td>${u.group_points}</td>
+            ${showCommunity ? `<td>${signedCommunity(u.community_points)}</td>` : ''}
             <td class="lb-pts">${u.total_points}</td>
           </tr>`).join('')}
         </tbody>

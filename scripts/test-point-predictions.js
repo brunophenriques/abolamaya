@@ -76,17 +76,31 @@ async function setAdmin(username) {
   db.close();
 }
 
-async function setBalance(username, balance) {
+async function setBasePoints(username, points) {
   const db = new Database(dbPath);
-  db.prepare('UPDATE users SET points_balance=? WHERE username=?').run(balance, username);
+  const user = db.prepare('SELECT id FROM users WHERE username=?').get(username);
+  db.prepare(`
+    INSERT INTO match_predictions
+      (user_id,match_id,home_score,away_score,points_earned)
+    VALUES (?,1,0,0,?)
+  `).run(user.id, points);
   db.close();
 }
 
-async function getBalance(username) {
+async function getPointTotals(username) {
   const db = new Database(dbPath, { readonly: true });
-  const balance = db.prepare('SELECT points_balance FROM users WHERE username=?').get(username).points_balance;
+  const user = db.prepare('SELECT id FROM users WHERE username=?').get(username);
+  const row = db.prepare(`
+    SELECT
+      COALESCE((SELECT SUM(points_earned) FROM match_predictions WHERE user_id=?),0) AS base,
+      COALESCE((SELECT SUM(amount) FROM point_transactions WHERE user_id=? AND type!='admin_adjustment'),0) AS community
+  `).get(user.id, user.id);
   db.close();
-  return balance;
+  return {
+    base: row.base,
+    community: row.community,
+    total: row.base + row.community,
+  };
 }
 
 async function createPrediction(adminToken, question) {
@@ -120,6 +134,9 @@ async function run() {
   const carol = await register('pointscarol');
   const empty = await register('pointsempty');
   await setAdmin(admin.user.username);
+  await setBasePoints(alice.user.username, 5);
+  await setBasePoints(bob.user.username, 5);
+  await setBasePoints(carol.user.username, 5);
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -167,29 +184,30 @@ async function run() {
   assert.strictEqual(result.response.status, 200);
 
   const editable = await createPrediction(admin.token, 'Teste de voto editável?');
-  await setBalance(empty.user.username, 0);
   result = await api('POST', `/api/point-predictions/${editable.id}/vote`, {
     token: empty.token,
     body: { choice: 'yes' },
   });
   assert.strictEqual(result.response.status, 409);
 
-  const aliceStart = await getBalance(alice.user.username);
+  const aliceStart = await getPointTotals(alice.user.username);
   result = await api('POST', `/api/point-predictions/${editable.id}/vote`, {
     token: alice.token,
     body: { choice: 'yes' },
   });
   assert.strictEqual(result.response.status, 200);
-  assert.strictEqual(await getBalance(alice.user.username), aliceStart - 1);
+  assert.deepStrictEqual(await getPointTotals(alice.user.username), {
+    base: 5, community: -1, total: aliceStart.total - 1,
+  });
   result = await api('POST', `/api/point-predictions/${editable.id}/vote`, {
     token: alice.token,
     body: { choice: 'no' },
   });
   assert.strictEqual(result.response.status, 200);
-  assert.strictEqual(await getBalance(alice.user.username), aliceStart - 1);
+  assert.strictEqual((await getPointTotals(alice.user.username)).total, aliceStart.total - 1);
   result = await api('DELETE', `/api/point-predictions/${editable.id}/vote`, { token: alice.token });
   assert.strictEqual(result.response.status, 200);
-  assert.strictEqual(await getBalance(alice.user.username), aliceStart);
+  assert.deepStrictEqual(await getPointTotals(alice.user.username), aliceStart);
 
   const expired = await createPrediction(admin.token, 'Teste de deadline?');
   const db = new Database(dbPath);
@@ -216,6 +234,9 @@ async function run() {
   assert.strictEqual(result.data.payout_per_winner, 2);
   assert.strictEqual(result.data.total_paid, 4);
   assert.strictEqual(result.data.inflation, 1);
+  assert.strictEqual((await getPointTotals(alice.user.username)).community, 1);
+  assert.strictEqual((await getPointTotals(bob.user.username)).community, 1);
+  assert.strictEqual((await getPointTotals(carol.user.username)).community, -1);
   result = await api('POST', `/api/admin/point-predictions/${payout.id}/resolve`, {
     token: admin.token,
     body: { result: 'yes' },
@@ -223,7 +244,7 @@ async function run() {
   assert.strictEqual(result.response.status, 409);
 
   const voided = await createPrediction(admin.token, 'Teste de anulação?');
-  const bobBeforeVoid = await getBalance(bob.user.username);
+  const bobBeforeVoid = await getPointTotals(bob.user.username);
   result = await api('POST', `/api/point-predictions/${voided.id}/vote`, {
     token: bob.token,
     body: { choice: 'no' },
@@ -234,7 +255,13 @@ async function run() {
     body: { result: 'void' },
   });
   assert.strictEqual(result.response.status, 200);
-  assert.strictEqual(await getBalance(bob.user.username), bobBeforeVoid);
+  assert.deepStrictEqual(await getPointTotals(bob.user.username), bobBeforeVoid);
+
+  result = await api('GET', '/api/leaderboard', { token: alice.token });
+  const aliceLeaderboard = result.data.find(user => user.username === alice.user.username);
+  assert.strictEqual(aliceLeaderboard.community_points_visible, 1);
+  assert.strictEqual(aliceLeaderboard.community_points, 1);
+  assert.strictEqual(aliceLeaderboard.total_points, 6);
 
   console.log('Point predictions integration OK: defaults, auth, voting, deadline, payout, void, idempotency.');
 }

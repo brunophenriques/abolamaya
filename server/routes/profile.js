@@ -19,17 +19,23 @@ function userStats(userId) {
   const gp = db.prepare(
     `SELECT COALESCE(SUM(points_earned),0) AS gp FROM group_points WHERE user_id=?`
   ).get(userId);
+  const pp = db.prepare(
+    `SELECT COALESCE(SUM(amount),0) AS pts FROM point_transactions WHERE user_id=? AND type!='admin_adjustment'`
+  ).get(userId);
 
-  const total_points = (mp.match_pts || 0) + (gp.gp || 0);
+  const community_points = pp.pts || 0;
+  const total_points = (mp.match_pts || 0) + (gp.gp || 0) + community_points;
 
   const { rank } = db.prepare(`
     SELECT COUNT(*)+1 AS rank FROM (
       SELECT u.id,
-        COALESCE(SUM(mp2.points_earned),0) + COALESCE(gp2.gp,0) AS tp
+        COALESCE(SUM(mp2.points_earned),0) + COALESCE(gp2.gp,0) + COALESCE(pp2.pts,0) AS tp
       FROM users u
       LEFT JOIN match_predictions mp2 ON mp2.user_id = u.id
       LEFT JOIN (SELECT user_id, SUM(points_earned) gp FROM group_points GROUP BY user_id) gp2
              ON gp2.user_id = u.id
+      LEFT JOIN (SELECT user_id, SUM(amount) pts FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id) pp2
+             ON pp2.user_id = u.id
       WHERE u.id != ?
       GROUP BY u.id
     ) WHERE tp > ?
@@ -41,6 +47,8 @@ function userStats(userId) {
     exact_predictions:   mp.exact   || 0,
     match_points:        mp.match_pts || 0,
     group_points:        gp.gp || 0,
+    community_points,
+    community_points_visible: !!db.prepare('SELECT 1 FROM point_predictions LIMIT 1').get(),
     total_points,
     rank,
     accuracy: mp.settled > 0 ? Math.round((mp.correct / mp.settled) * 100) : 0,

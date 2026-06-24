@@ -256,10 +256,12 @@ async function renderNextMatchCard(matches, preds) {
   // Mini leaderboard (top 10)
   const top = (lb || []).slice(0, 10);
   const myRank = (lb || []).findIndex(u => u.id === user.id) + 1;
+  const showCommunity = top.some(u => u.community_points_visible);
+  const signedCommunity = value => value > 0 ? `+${value}` : String(value);
   document.getElementById('miniLeaderboard').innerHTML = top.length ? `
     <div class="card" style="padding:0;overflow:hidden">
       <table class="lb-table">
-        <thead><tr><th>#</th><th class="lb-avatar"></th><th>Utilizador</th><th>Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th><th>Total</th></tr></thead>
+        <thead><tr><th>#</th><th class="lb-avatar"></th><th>Utilizador</th><th>Prev.</th><th>Pts Jogos</th><th>Pts Grupos</th>${showCommunity ? '<th>Pts Comunidade</th>' : ''}<th>Total</th></tr></thead>
         <tbody>${top.map((u, i) => `
           <tr class="${u.id === user.id ? 'me' : ''} ${i < 3 ? 'rank-row-'+(i+1) : ''}">
             <td>${rankBadge(i)}</td>
@@ -276,6 +278,7 @@ async function renderNextMatchCard(matches, preds) {
             <td>${u.predictions_made}</td>
             <td>${u.match_points}</td>
             <td>${u.group_points}</td>
+            ${showCommunity ? `<td>${signedCommunity(u.community_points)}</td>` : ''}
             <td class="lb-pts">${u.total_points}</td>
           </tr>`).join('')}
         </tbody>

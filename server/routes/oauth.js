@@ -6,7 +6,6 @@ const router     = require('express').Router();
 const jwt        = require('jsonwebtoken');
 const db         = require('../db');
 const { JWT_SECRET, OAUTH } = require('../config');
-const { getSetting } = require('../services/pointPredictions');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -52,11 +51,10 @@ function findOrCreateOAuthUser(provider, providerId, { email, name, avatarUrl })
   if (!user) {
     const username = uniqueUsername(name ? name.split(' ')[0] : email?.split('@')[0]);
     const color    = genAvatarColor(username);
-    const initialBalance = Math.max(0, parseInt(getSetting('point_predictions_initial_balance', '10'), 10) || 0);
     const r = db.prepare(`
-      INSERT INTO users (username, display_name, email, password_hash, avatar_color, avatar_url, points_balance)
-      VALUES (?, ?, ?, 'oauth', ?, ?, ?)
-    `).run(username, name || username, email?.toLowerCase() || null, color, avatarUrl || null, initialBalance);
+      INSERT INTO users (username, display_name, email, password_hash, avatar_color, avatar_url)
+      VALUES (?, ?, ?, 'oauth', ?, ?)
+    `).run(username, name || username, email?.toLowerCase() || null, color, avatarUrl || null);
     user = db.prepare('SELECT * FROM users WHERE id=?').get(r.lastInsertRowid);
   }
 

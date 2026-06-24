@@ -6,6 +6,7 @@ const {
   cancelVote,
   castVote,
   getBooleanSetting,
+  getUserPointTotals,
   listPredictions,
 } = require('../services/pointPredictions');
 
@@ -64,13 +65,14 @@ router.get('/', auth, (req, res) => {
   if (!getBooleanSetting('point_predictions_enabled')) {
     return res.status(403).json({ error: 'O sistema de previsões com pontos está desativado.' });
   }
-  const user = db.prepare('SELECT points_balance FROM users WHERE id=?').get(req.user.id);
+  const points = getUserPointTotals(req.user.id);
   const predictions = listPredictions({
     userId: req.user.id,
     statuses: ['open', 'locked', 'resolved', 'void'],
   });
   res.json({
-    balance: user?.points_balance || 0,
+    balance: points.total_points,
+    points,
     predictions,
   });
 });
@@ -78,8 +80,7 @@ router.get('/', auth, (req, res) => {
 router.post('/:id/vote', auth, (req, res) => {
   try {
     castVote(Number(req.params.id), req.user.id, String(req.body.choice || ''));
-    const balance = db.prepare('SELECT points_balance FROM users WHERE id=?').get(req.user.id).points_balance;
-    res.json({ ok: true, balance });
+    res.json({ ok: true, balance: getUserPointTotals(req.user.id).total_points });
   } catch (error) {
     handleError(res, error);
   }
@@ -88,8 +89,7 @@ router.post('/:id/vote', auth, (req, res) => {
 router.delete('/:id/vote', auth, (req, res) => {
   try {
     cancelVote(Number(req.params.id), req.user.id);
-    const balance = db.prepare('SELECT points_balance FROM users WHERE id=?').get(req.user.id).points_balance;
-    res.json({ ok: true, balance });
+    res.json({ ok: true, balance: getUserPointTotals(req.user.id).total_points });
   } catch (error) {
     handleError(res, error);
   }

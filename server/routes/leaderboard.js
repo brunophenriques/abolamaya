@@ -6,7 +6,9 @@ const LB_QUERY = `
   SELECT u.id, u.username, u.display_name, u.avatar_color, u.avatar_url, u.is_admin,
     COALESCE(mp.pts,     0) AS match_points,
     COALESCE(gp.pts,     0) AS group_points,
-    COALESCE(mp.pts, 0) + COALESCE(gp.pts, 0) AS total_points,
+    COALESCE(pp.pts,     0) AS community_points,
+    COALESCE(mp.pts, 0) + COALESCE(gp.pts, 0) + COALESCE(pp.pts, 0) AS total_points,
+    EXISTS(SELECT 1 FROM point_predictions LIMIT 1) AS community_points_visible,
     COALESCE(mp.cnt,      0) AS predictions_made,
     COALESCE(mp.settled,  0) AS settled,
     COALESCE(mp.correct,  0) AS correct_predictions,
@@ -26,6 +28,10 @@ const LB_QUERY = `
     SELECT user_id, SUM(COALESCE(points_earned,0)) AS pts
     FROM group_points GROUP BY user_id
   ) gp ON gp.user_id = u.id
+  LEFT JOIN (
+    SELECT user_id, SUM(amount) AS pts
+    FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id
+  ) pp ON pp.user_id = u.id
   LEFT JOIN rank_snapshots rs ON rs.user_id = u.id
 `;
 

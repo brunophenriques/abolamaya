@@ -143,6 +143,7 @@ function renderProfile({ user, stats, achievements }, { predictions, partial }, 
       ${statCard(stats.total_predictions, 'Previsões')}
       ${statCard(stats.correct_predictions, 'Corretas')}
       ${statCard(stats.accuracy + '%', 'Precisão')}
+      ${stats.community_points_visible ? statCard((stats.community_points > 0 ? '+' : '') + stats.community_points, 'Pts Comunidade') : ''}
       ${statCard(stats.total_points, 'Pontos')}
       ${statCard('#' + stats.rank, 'Rank')}
     </div>

@@ -48,9 +48,9 @@ abolamaya/
 `server/paths.js` centraliza os caminhos de filesystem. O Express serve apenas
 `public/`, evitando expor codigo, configuracao ou dados internos.
 
-O modulo de previsoes com pontos fica desligado por defeito. Quando ativado pelo
-admin, cada conta começa com 10 pontos de gamificacao, separados da classificacao
-principal. Alteracoes de saldo ficam registadas em `point_transactions`.
+O modulo de previsoes com pontos fica desligado por defeito. Quando ativado, cada
+aposta usa um ponto do total real do utilizador. O impacto liquido aparece como
+`Pts Comunidade` e entra na classificacao atraves de `point_transactions`.
 
 ## Verificacao
 
