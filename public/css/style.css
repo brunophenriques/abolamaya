@@ -1793,6 +1793,12 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .badge-top      { background: rgba(60,172,59,.15);  color: var(--green); }
 
 /* ── Next Match Card ─────────────────────────────────────────────────────────*/
+.nm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 12px;
+}
+.nm-grid-single { grid-template-columns: 1fr; }
 .nm-card { padding: 20px 22px 16px; }
 
 .nm-header {
@@ -1859,6 +1865,7 @@ a.team-link:hover { color: var(--primary); text-decoration: none; }
 .nm-bar-pct { font-size: .72rem; font-weight: 700; width: 32px; text-align: right; }
 
 @media (max-width: 480px) {
+  .nm-grid { grid-template-columns: 1fr; }
   .nm-name { font-size: .75rem; }
   .nm-flag { font-size: 2rem; }
 }

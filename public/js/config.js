@@ -32,13 +32,22 @@ function _fmtDiff(diff) {
   return `${m}m`;
 }
 
-function nextOpenMatchInfo(matches) {
+function nextOpenMatchInfos(matches) {
   const now  = Date.now();
-  const next = (matches || [])
+  const open = (matches || [])
     .map(m => ({ m, lockAt: getMatchLockAt(m.match_date, m.match_time) }))
     .filter(({ lockAt }) => now < lockAt)
-    .sort((a, b) => a.lockAt - b.lockAt)[0];
-  return next ? { match: next.m, lockAt: next.lockAt } : null;
+    .sort((a, b) => a.lockAt - b.lockAt || a.m.id - b.m.id);
+  if (!open.length) return [];
+
+  const earliestLock = open[0].lockAt;
+  return open
+    .filter(({ lockAt }) => lockAt === earliestLock)
+    .map(({ m, lockAt }) => ({ match: m, lockAt }));
+}
+
+function nextOpenMatchInfo(matches) {
+  return nextOpenMatchInfos(matches)[0] || null;
 }
 
 function renderNextLockCountdown(matches) {
@@ -46,13 +55,15 @@ function renderNextLockCountdown(matches) {
   const val  = document.getElementById('countdownVal');
   const cta  = document.getElementById('ctaWrap');
   if (!wrap) return;
-  const info = nextOpenMatchInfo(matches);
-  if (!info) { wrap.style.display = 'none'; return; }
-  const { match: m, lockAt } = info;
+  const infos = nextOpenMatchInfos(matches);
+  if (!infos.length) { wrap.style.display = 'none'; return; }
+  const { match: m, lockAt } = infos[0];
   const diff    = lockAt - Date.now();
   const urgent  = diff < 1800000;
   const timeStr = _fmtDiff(diff) || '< 1m';
-  val.innerHTML = `${m.home_flag} ${m.home_team} vs ${m.away_team} ${m.away_flag} · encerra em <strong>${timeStr}</strong>`;
+  val.innerHTML = infos.length === 1
+    ? `${m.home_flag} ${m.home_team} vs ${m.away_team} ${m.away_flag} · encerra em <strong>${timeStr}</strong>`
+    : `${infos.length} jogos à mesma hora · encerram em <strong>${timeStr}</strong>`;
   wrap.className = urgent ? 'countdown countdown-urgent' : 'countdown';
   wrap.style.display = '';
   if (cta) cta.style.display = '';
