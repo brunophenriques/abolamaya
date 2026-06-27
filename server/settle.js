@@ -1,15 +1,13 @@
 // Auto-settle WC match predictions from scraped Soccerway results.
-// Called after each scraper run (scheduler) and on-demand via POST /api/admin/auto-settle.
-//
-// Logic:
-//   1. Find WC matches that are not yet 'finished' but whose date has passed.
-//   2. Look in team_results for a scraped result on the same date with both teams matching.
-//   3. Mark the WC match as finished and score any unsettled predictions (points_earned IS NULL).
-//      Already-settled predictions are not touched — no double-scoring.
+// Knockout draws are intentionally skipped because the scraper only provides a
+// scoreline; the admin must choose who advanced.
+
+const { checkAchievements } = require('./middleware/achievements');
+const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('./knockout');
 
 function norm(s) {
   return (s || '').toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]/g, '');
 }
 
@@ -18,68 +16,103 @@ function teamsMatch(dbTeam, scrapedTeam) {
   return a === b || a.includes(b) || b.includes(a);
 }
 
-const { checkAchievements } = require('./middleware/achievements');
+function advanceKnockoutWinner(db, match, winnerTeam) {
+  if (!match.next_match_id || !match.next_slot) return;
+  const slotColumn = match.next_slot === 'away' ? 'away_team' : 'home_team';
+  const flagColumn = match.next_slot === 'away' ? 'away_flag' : 'home_flag';
+  const winnerFlag = winnerTeam === match.home_team ? match.home_flag : match.away_flag;
+  db.prepare(`UPDATE matches SET ${slotColumn}=?, ${flagColumn}=? WHERE id=?`)
+    .run(winnerTeam, winnerFlag, match.next_match_id);
+}
+
+function scoreKnockoutPredictions(db, match, found, winnerTeam) {
+  const predictions = db.prepare(`
+    SELECT id, home_score, away_score, predicted_winner
+    FROM match_predictions
+    WHERE match_id=? AND points_earned IS NULL
+  `).all(match.id);
+  const updatePoints = db.prepare("UPDATE match_predictions SET points_earned=?, updated_at=datetime('now') WHERE id=?");
+
+  let scored = 0;
+  db.transaction(() => {
+    for (const prediction of predictions) {
+      updatePoints.run(scorePrediction(match, prediction, found.home_score, found.away_score, winnerTeam), prediction.id);
+      scored++;
+    }
+  })();
+  return scored;
+}
+
+function scoreGroupPredictions(db, match, found) {
+  const actualResult = Math.sign(found.home_score - found.away_score);
+  return db.prepare(`
+    UPDATE match_predictions
+    SET points_earned = CASE
+      WHEN home_score=? AND away_score=? THEN 3
+      WHEN (CASE WHEN home_score>away_score THEN 1 WHEN home_score=away_score THEN 0 ELSE -1 END)=? THEN 1
+      ELSE 0
+    END, updated_at=datetime('now')
+    WHERE match_id=? AND points_earned IS NULL
+  `).run(found.home_score, found.away_score, actualResult, match.id).changes;
+}
 
 function autoSettleFromScrape(db) {
-  // Only matches past their date that haven't been settled yet
   const pending = db.prepare(`
-    SELECT id, match_date, home_team, away_team
-    FROM   matches
-    WHERE  status != 'finished'
-    AND    match_date < date('now', '+1 day')
+    SELECT *
+    FROM matches
+    WHERE status != 'finished'
+      AND match_date < date('now', '+1 day')
   `).all();
 
   if (!pending.length) return { settled: 0, skipped: 0 };
 
   let settled = 0, skipped = 0;
 
-  for (const m of pending) {
-    // Find a scraped result for the same date that has both teams
+  for (const match of pending) {
     const candidates = db.prepare(`
       SELECT home_team, away_team, home_score, away_score
-      FROM   team_results
-      WHERE  match_date = ?
-    `).all(m.match_date);
+      FROM team_results
+      WHERE match_date = ?
+    `).all(match.match_date);
 
-    const found = candidates.find(r =>
-      teamsMatch(m.home_team, r.home_team) &&
-      teamsMatch(m.away_team, r.away_team)
+    const found = candidates.find(result =>
+      teamsMatch(match.home_team, result.home_team) &&
+      teamsMatch(match.away_team, result.away_team)
     );
 
     if (!found) { skipped++; continue; }
 
-    // Mark WC match as finished with scraped score
+    const winnerTeam = isKnockoutMatch(match)
+      ? knockoutWinnerFromScore(match, found.home_score, found.away_score, null)
+      : null;
+
+    if (isKnockoutMatch(match) && !winnerTeam) {
+      console.log(`[settle] skipped KO draw: ${match.home_team} ${found.home_score}-${found.away_score} ${match.away_team} (match ${match.id}) needs manual winner`);
+      skipped++;
+      continue;
+    }
+
     db.prepare(`
       UPDATE matches
-      SET    home_score=?, away_score=?, status='finished'
-      WHERE  id=?
-    `).run(found.home_score, found.away_score, m.id);
+      SET home_score=?, away_score=?, winner_team=?, status='finished'
+      WHERE id=?
+    `).run(found.home_score, found.away_score, winnerTeam, match.id);
 
-    // Score predictions — points_earned IS NULL guard prevents double-scoring
-    const actualResult = Math.sign(found.home_score - found.away_score);
-    const scored = db.prepare(`
-      UPDATE match_predictions
-      SET    points_earned = CASE
-               WHEN home_score=? AND away_score=? THEN 3
-               WHEN (CASE WHEN home_score>away_score THEN 1
-                          WHEN home_score=away_score THEN 0
-                          ELSE -1 END) = ? THEN 1
-               ELSE 0
-             END,
-             updated_at = datetime('now')
-      WHERE  match_id=? AND points_earned IS NULL
-    `).run(found.home_score, found.away_score, actualResult, m.id);
+    const scored = isKnockoutMatch(match)
+      ? scoreKnockoutPredictions(db, match, found, winnerTeam)
+      : scoreGroupPredictions(db, match, found);
+
+    if (isKnockoutMatch(match)) advanceKnockoutWinner(db, match, winnerTeam);
 
     db.prepare(`
-      INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, predictions_scored)
-      VALUES (?, 'auto', ?, ?, ?)
-    `).run(m.id, found.home_score, found.away_score, scored.changes);
+      INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, winner_team, predictions_scored)
+      VALUES (?, 'auto', ?, ?, ?, ?)
+    `).run(match.id, found.home_score, found.away_score, winnerTeam, scored);
 
-    // Award achievements for all users with predictions on this match
-    const affected = db.prepare('SELECT DISTINCT user_id FROM match_predictions WHERE match_id=? AND points_earned IS NOT NULL').all(m.id);
+    const affected = db.prepare('SELECT DISTINCT user_id FROM match_predictions WHERE match_id=? AND points_earned IS NOT NULL').all(match.id);
     for (const { user_id } of affected) checkAchievements(db, user_id);
 
-    console.log(`[settle] ${m.home_team} ${found.home_score}–${found.away_score} ${m.away_team} (match ${m.id}) settled`);
+    console.log(`[settle] ${match.home_team} ${found.home_score}-${found.away_score} ${match.away_team} (match ${match.id}) settled`);
     settled++;
   }
 
