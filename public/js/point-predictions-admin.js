@@ -130,8 +130,10 @@ function renderPointAdminTable(items, history) {
             <td>${POINT_STATUS_LABELS[item.status]}${item.result ? ` · ${item.result === 'yes' ? 'Sim' : 'Não'}` : ''}</td>
             <td class="point-admin-actions">
               ${history
-                ? `<button class="btn btn-ghost btn-sm" onclick="showPointHistory(${item.id})">Detalhes</button>`
+                ? `<button class="btn btn-ghost btn-sm" onclick="showPointVotes(${item.id})">Votos</button>
+                   <button class="btn btn-ghost btn-sm" onclick="showPointHistory(${item.id})">Detalhes</button>`
                 : `
+                  <button class="btn btn-ghost btn-sm" onclick="showPointVotes(${item.id})">Votos</button>
                   <button class="btn btn-ghost btn-sm" onclick="editPointPrediction(${item.id})">Editar</button>
                   ${item.status === 'open' ? `<button class="btn btn-ghost btn-sm" onclick="closePointPrediction(${item.id})">Fechar</button>` : ''}
                   ${item.status === 'draft' ? `<button class="btn btn-ghost btn-sm" onclick="openPointPrediction(${item.id})">Abrir</button>` : ''}
@@ -273,6 +275,57 @@ function showPointHistory(id) {
       <div><span>Inflação</span><strong>${item.inflation ?? 0}</strong></div>
     </div>
     <p class="muted small">Resolvida em ${item.resolved_at ? new Date(item.resolved_at).toLocaleString('pt-PT') : '—'}</p>`);
+}
+
+async function showPointVotes(id) {
+  const item = _pointAdminData.predictions.find(prediction => prediction.id === id);
+  openPointAdminModal(`
+    <div class="flex-between"><h3>Votos da previsão</h3><button class="point-admin-close" onclick="closePointAdminModal()">Ã—</button></div>
+    <p class="point-admin-modal-question">${pointAdminEscape(item?.question || '')}</p>
+    <div class="loading">A carregar votos...</div>`);
+
+  try {
+    const data = await API.get(`/admin/point-predictions/${id}/votes`);
+    const yes = data.votes.filter(vote => vote.choice === 'yes');
+    const no = data.votes.filter(vote => vote.choice === 'no');
+    document.getElementById('pointAdminModalContent').innerHTML = `
+      <div class="flex-between"><h3>Votos da previsão</h3><button class="point-admin-close" onclick="closePointAdminModal()">Ã—</button></div>
+      <p class="point-admin-modal-question">${pointAdminEscape(data.prediction.question)}</p>
+      <div class="point-resolve-metrics">
+        <div><span>Total</span><strong>${data.votes.length}</strong></div>
+        <div><span>Sim</span><strong>${yes.length}</strong></div>
+        <div><span>Não</span><strong>${no.length}</strong></div>
+      </div>
+      ${data.votes.length ? `
+        <div class="point-vote-list">
+          ${renderPointVoteGroup('Sim', yes)}
+          ${renderPointVoteGroup('Não', no)}
+        </div>` : '<p class="muted small">Ainda não há votos nesta previsão.</p>'}`;
+  } catch (error) {
+    document.getElementById('pointAdminModalContent').innerHTML = `
+      <div class="flex-between"><h3>Votos da previsão</h3><button class="point-admin-close" onclick="closePointAdminModal()">Ã—</button></div>
+      <span class="form-error">${pointAdminEscape(error.message)}</span>`;
+  }
+}
+
+function renderPointVoteGroup(label, votes) {
+  if (!votes.length) return `
+    <div class="point-vote-group">
+      <h4>${label}</h4>
+      <p class="muted small">Sem votos.</p>
+    </div>`;
+  return `
+    <div class="point-vote-group">
+      <h4>${label}</h4>
+      ${votes.map(vote => `
+        <div class="point-vote-user">
+          ${renderAvatar(vote, 28)}
+          <div>
+            <strong>${pointAdminEscape(vote.display_name || vote.username)}</strong>
+            <small>@${pointAdminEscape(vote.username)} · ${new Date(vote.created_at).toLocaleString('pt-PT')}</small>
+          </div>
+        </div>`).join('')}
+    </div>`;
 }
 
 function openPointAdminModal(html) {

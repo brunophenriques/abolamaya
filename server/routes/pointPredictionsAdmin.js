@@ -148,6 +148,23 @@ router.get('/:id/resolve-preview', (req, res) => {
   });
 });
 
+router.get('/:id/votes', (req, res) => {
+  const id = Number(req.params.id);
+  const prediction = db.prepare('SELECT id, question FROM point_predictions WHERE id=?').get(id);
+  if (!prediction) return res.status(404).json({ error: 'PrevisÃ£o nÃ£o encontrada.' });
+
+  const votes = db.prepare(`
+    SELECT v.choice, v.created_at, v.updated_at,
+      u.id AS user_id, u.username, u.display_name, u.avatar_color, u.avatar_url
+    FROM point_prediction_votes v
+    JOIN users u ON u.id=v.user_id
+    WHERE v.prediction_id=?
+    ORDER BY v.choice DESC, datetime(v.created_at) ASC, u.username
+  `).all(id);
+
+  res.json({ prediction, votes });
+});
+
 router.post('/:id/resolve', (req, res) => {
   try {
     const summary = resolvePrediction(Number(req.params.id), String(req.body.result || ''));
