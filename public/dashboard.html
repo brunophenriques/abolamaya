@@ -57,6 +57,7 @@
   <div id="ctaWrap" style="display:none;margin-bottom:20px">
     <a href="/predict" class="btn btn-primary" style="display:block;width:100%;text-align:center;font-weight:800;letter-spacing:.04em;padding:12px 18px;border-radius:var(--radius)">FAZ AS PREVISÕES AGORA</a>
   </div>
+  <div id="pointPredictionsCta" style="display:none;margin-bottom:20px"></div>
 
   <!-- Stats -->
   <div class="stats-row">
@@ -207,6 +208,32 @@ async function renderNextMatchCards(matches, preds) {
   }));
 }
 
+async function renderPointPredictionsCta() {
+  const wrap = document.getElementById('pointPredictionsCta');
+  if (!wrap) return;
+
+  try {
+    const data = await API.get('/point-predictions');
+    const openItems = (data.predictions || []).filter(item =>
+      item.status === 'open' && new Date(item.closes_at).getTime() > Date.now()
+    );
+    if (!openItems.length) return;
+
+    wrap.innerHTML = `
+      <div class="card point-dashboard-cta">
+        <div>
+          <div class="point-dashboard-kicker">Previsões com Pontos</div>
+          <strong>${openItems.length} ${openItems.length === 1 ? 'mercado aberto' : 'mercados abertos'}</strong>
+          <span>Usa os teus pontos em previsões especiais e tenta subir na classificação.</span>
+        </div>
+        <a href="/point-predictions" class="btn btn-primary">Ver mercados</a>
+      </div>`;
+    wrap.style.display = '';
+  } catch {
+    wrap.style.display = 'none';
+  }
+}
+
 (async () => {
   const user = await requireAuth();
   if (!user) return;
@@ -223,6 +250,7 @@ async function renderNextMatchCards(matches, preds) {
   setInterval(() => renderNextLockCountdown(matches || []), 30000);
 
   renderNextMatchCards(matches || [], preds || []);
+  renderPointPredictionsCta();
 
   const me = (lb || []).find(u => u.id === user.id);
   document.getElementById('statTotal').textContent = me ? me.total_points : 0;

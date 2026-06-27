@@ -551,6 +551,42 @@ a:hover { text-decoration: underline; }
   flex-shrink: 0;
 }
 
+.point-dashboard-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-color: rgba(245,166,35,.35);
+  background: linear-gradient(90deg, rgba(245,166,35,.12), var(--bg-card));
+}
+.point-dashboard-cta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.point-dashboard-kicker {
+  color: var(--gold);
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.point-dashboard-cta strong {
+  font-size: 1rem;
+  color: var(--text);
+}
+.point-dashboard-cta span {
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+@media (max-width: 640px) {
+  .point-dashboard-cta { align-items: stretch; flex-direction: column; }
+  .point-dashboard-cta .btn { width: 100%; text-align: center; }
+}
+
 /* ============================================================
    STANDINGS TABLE
    ============================================================ */
