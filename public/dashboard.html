@@ -301,17 +301,24 @@ async function renderNextMatchCards(matches, preds) {
 <!-- Announcement modal -->
 <div class="announce-overlay" id="announceOverlay" style="display:none">
   <div class="announce-box">
-    <div class="announce-title">🚨 Notícia Importante 🚨</div>
-    <p class="announce-body" style="text-align:center">Após um investimento parcial do grandessíssimo Guru do Mundial, a equipa de A Bola Maya veio anunciar que ao jogador que tiver a maior pontuação neste fim do mundial será lhe atribuído uma camisola de uma seleção à sua escolha<br><br><span style="font-size:.8rem;opacity:.65">(sujeito ao stock)</span></p>
+    <div class="announce-title">Eliminatórias à porta</div>
+    <p class="announce-body" style="text-align:center">
+      A fase a eliminar chegou e as previsões têm uma regra extra:
+      o resultado é ao fim dos 120 minutos.<br><br>
+      Pontuação: resultado exato vale <strong>3 pontos</strong>;
+      acertar vitória/empate/derrota vale <strong>1 ponto</strong>;
+      acertar quem passa vale <strong>+1 ponto</strong>.<br><br>
+      Se prevês empate aos 120, tens de escolher o vencedor da eliminatória.
+    </p>
     <div class="announce-actions">
-      <a href="/leaderboard" class="btn btn-primary">Ver Leaderboard</a>
+      <a href="/predict?group=KO" class="btn btn-primary">Ver Eliminatórias</a>
     </div>
   </div>
 </div>
 <script>
-if (!localStorage.getItem('abm_announce_v1')) {
+if (!localStorage.getItem('abm_announce_knockout_v1')) {
   document.getElementById('announceOverlay').style.display = 'flex';
-  localStorage.setItem('abm_announce_v1', '1');
+  localStorage.setItem('abm_announce_knockout_v1', '1');
 }
 document.getElementById('announceOverlay').addEventListener('click', function(e) {
   if (e.target === this) this.style.display = 'none';

@@ -206,6 +206,55 @@ try { db.exec(`ALTER TABLE users ADD COLUMN profile_public INTEGER DEFAULT 1`); 
 try { db.exec(`ALTER TABLE users ADD COLUMN history_public INTEGER DEFAULT 1`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0`); } catch {}
 try { db.exec(`ALTER TABLE users ADD COLUMN is_helper INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE matches ADD COLUMN stage TEXT DEFAULT 'group'`); } catch {}
+try { db.exec(`ALTER TABLE matches ADD COLUMN bracket_slot TEXT`); } catch {}
+try { db.exec(`ALTER TABLE matches ADD COLUMN next_match_id INTEGER`); } catch {}
+try { db.exec(`ALTER TABLE matches ADD COLUMN next_slot TEXT`); } catch {}
+try { db.exec(`ALTER TABLE matches ADD COLUMN winner_team TEXT`); } catch {}
+try { db.exec(`ALTER TABLE match_predictions ADD COLUMN predicted_winner TEXT`); } catch {}
+try { db.exec(`ALTER TABLE settlement_log ADD COLUMN winner_team TEXT`); } catch {}
+
+const knockoutFixtures = [
+  [73, 'South Africa', 'Canada', '🇿🇦', '🇨🇦', '2026-06-28', '20:00', 'Los Angeles Stadium', 'R32-1', 90, 'home'],
+  [74, 'Germany', 'Paraguay', '🇩🇪', '🇵🇾', '2026-06-29', '21:30', 'Boston Stadium', 'R32-2', 89, 'home'],
+  [75, 'Netherlands', 'Morocco', '🇳🇱', '🇲🇦', '2026-06-30', '02:00', 'Estadio Monterrey', 'R32-3', 90, 'away'],
+  [76, 'Brazil', 'Japan', '🇧🇷', '🇯🇵', '2026-06-29', '17:00', 'Houston Stadium', 'R32-4', 91, 'home'],
+  [77, 'France', 'Sweden', '🇫🇷', '🇸🇪', '2026-06-30', '22:00', 'New York New Jersey Stadium', 'R32-5', 89, 'away'],
+  [78, "Côte d'Ivoire", 'Norway', '🇨🇮', '🇳🇴', '2026-06-30', '20:00', 'Dallas Stadium', 'R32-6', 91, 'away'],
+  [79, 'Mexico', '3.º Grupo C/E/F/H/I', '🇲🇽', '⬜', '2026-07-01', '03:00', 'Mexico City Stadium', 'R32-7', 92, 'home'],
+  [80, '1.º Grupo L', '3.º Grupo E/H/I/J/K', '⬜', '⬜', '2026-07-01', '20:00', 'Atlanta Stadium', 'R32-8', 92, 'away'],
+  [81, 'USA', 'Bosnia and Herzegovina', '🇺🇸', '🇧🇦', '2026-07-02', '01:00', 'San Francisco Bay Area Stadium', 'R32-9', 94, 'home'],
+  [82, 'Belgium', '3.º Grupo A/E/H/I/J', '🇧🇪', '⬜', '2026-07-01', '21:00', 'Seattle Stadium', 'R32-10', 94, 'away'],
+  [83, '2.º Grupo K', '2.º Grupo L', '⬜', '⬜', '2026-07-03', '00:00', 'Toronto Stadium', 'R32-11', 93, 'home'],
+  [84, 'Spain', '2.º Grupo J', '🇪🇸', '⬜', '2026-07-02', '20:00', 'Los Angeles Stadium', 'R32-12', 93, 'away'],
+  [85, 'Switzerland', '3.º Grupo E/F/G/I/J', '🇨🇭', '⬜', '2026-07-03', '02:00', 'BC Place Vancouver', 'R32-13', 96, 'home'],
+  [86, 'Argentina', 'Cabo Verde', '🇦🇷', '🇨🇻', '2026-07-03', '20:00', 'Miami Stadium', 'R32-14', 95, 'home'],
+  [87, '1.º Grupo K', '3.º Grupo D/E/I/J/L', '⬜', '⬜', '2026-07-03', '23:00', 'Kansas City Stadium', 'R32-15', 96, 'away'],
+  [88, 'Australia', 'Egypt', '🇦🇺', '🇪🇬', '2026-07-03', '20:00', 'Dallas Stadium', 'R32-16', 95, 'away'],
+  [89, 'W74', 'W77', '⬜', '⬜', '2026-07-04', '22:00', 'Round of 16', 'R16-1', 97, 'home'],
+  [90, 'W73', 'W75', '⬜', '⬜', '2026-07-04', '18:00', 'Round of 16', 'R16-2', 97, 'away'],
+  [91, 'W76', 'W78', '⬜', '⬜', '2026-07-05', '21:00', 'Round of 16', 'R16-3', 99, 'home'],
+  [92, 'W79', 'W80', '⬜', '⬜', '2026-07-06', '01:00', 'Round of 16', 'R16-4', 99, 'away'],
+  [93, 'W83', 'W84', '⬜', '⬜', '2026-07-06', '20:00', 'Round of 16', 'R16-5', 98, 'home'],
+  [94, 'W81', 'W82', '⬜', '⬜', '2026-07-07', '00:00', 'Round of 16', 'R16-6', 98, 'away'],
+  [95, 'W86', 'W88', '⬜', '⬜', '2026-07-07', '17:00', 'Round of 16', 'R16-7', 100, 'home'],
+  [96, 'W85', 'W87', '⬜', '⬜', '2026-07-07', '21:00', 'Round of 16', 'R16-8', 100, 'away'],
+  [97, 'W89', 'W90', '⬜', '⬜', '2026-07-09', '21:00', 'Quarter-final', 'QF-1', 101, 'home'],
+  [98, 'W93', 'W94', '⬜', '⬜', '2026-07-10', '20:00', 'Quarter-final', 'QF-2', 101, 'away'],
+  [99, 'W91', 'W92', '⬜', '⬜', '2026-07-11', '22:00', 'Quarter-final', 'QF-3', 102, 'home'],
+  [100, 'W95', 'W96', '⬜', '⬜', '2026-07-12', '02:00', 'Quarter-final', 'QF-4', 102, 'away'],
+  [101, 'W97', 'W98', '⬜', '⬜', '2026-07-14', '20:00', 'Semi-final', 'SF-1', 104, 'home'],
+  [102, 'W99', 'W100', '⬜', '⬜', '2026-07-15', '20:00', 'Semi-final', 'SF-2', 104, 'away'],
+  [103, 'RU101', 'RU102', '⬜', '⬜', '2026-07-18', '22:00', 'Play-off for third place', 'THIRD', null, null],
+  [104, 'W101', 'W102', '⬜', '⬜', '2026-07-19', '20:00', 'Final', 'FINAL', null, null],
+];
+
+const insertKnockout = db.prepare(`
+  INSERT OR IGNORE INTO matches
+    (id, group_id, home_team, away_team, home_flag, away_flag, match_date, match_time, venue, stage, bracket_slot, next_match_id, next_slot)
+  VALUES (?, 'KO', ?, ?, ?, ?, ?, ?, ?, 'round32', ?, ?, ?)
+`);
+db.transaction(() => knockoutFixtures.forEach(f => insertKnockout.run(...f)))();
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_oauth (

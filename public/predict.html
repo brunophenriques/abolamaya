@@ -70,6 +70,7 @@
     <button class="filter-btn filter-btn-group gc-J" onclick="setFilter('J',this)">J</button>
     <button class="filter-btn filter-btn-group gc-K" onclick="setFilter('K',this)">K</button>
     <button class="filter-btn filter-btn-group gc-L" onclick="setFilter('L',this)">L</button>
+    <button class="filter-btn" onclick="setFilter('KO',this)">Eliminatórias</button>
     <span class="filter-spacer"></span>
     <div class="match-visibility-control" aria-label="Jogos a mostrar">
       <button class="active" id="pendingMatchesBtn" onclick="setCompletedMatchesVisibility(false)">Pendentes</button>
@@ -121,6 +122,18 @@ function teamLink(name, flag) {
   return `<a href="/team?team=${teamSlug(name)}" class="team-link" title="Ver seleção">${flag}&nbsp;${name}</a>`;
 }
 
+function isKnockout(m) {
+  return m && m.group_id === 'KO';
+}
+
+function isPlaceholderTeam(name) {
+  return /grupo|group|^w\d+|^ru\d+|^\d+[a-z]?$/i.test(String(name || '').trim());
+}
+
+function matchLabel(m) {
+  return isKnockout(m) ? 'Eliminatórias' : GROUP_LABELS[m.group_id];
+}
+
 function formatDateLong(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -137,16 +150,18 @@ function formatDateLong(dateStr) {
 
   allMatchesList = matches || [];
   for (const m of allMatchesList) {
-    if (!groupMatchesMap[m.group_id]) groupMatchesMap[m.group_id] = [];
-    groupMatchesMap[m.group_id].push(m);
+    if (!isKnockout(m)) {
+      if (!groupMatchesMap[m.group_id]) groupMatchesMap[m.group_id] = [];
+      groupMatchesMap[m.group_id].push(m);
+    }
   }
   for (const p of preds || []) {
-    userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score, points_earned: p.points_earned };
+    userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score, predicted_winner: p.predicted_winner, points_earned: p.points_earned };
   }
   for (const m of allMatchesList) {
     localPreds[m.id] = userPreds[m.id]
-      ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score), points_earned: userPreds[m.id].points_earned }
-      : { home_score: '', away_score: '' };
+      ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score), predicted_winner: userPreds[m.id].predicted_winner || '', points_earned: userPreds[m.id].points_earned }
+      : { home_score: '', away_score: '', predicted_winner: '' };
   }
 
   const allLocked = allMatchesList.every(m => isMatchLocked(m.match_date, m.match_time));
@@ -162,9 +177,9 @@ function formatDateLong(dateStr) {
 
   // Open to a specific group if coming from dashboard
   const qg = new URLSearchParams(location.search).get('group');
-  if (qg && ALL_GROUPS.includes(qg.toUpperCase())) {
-    const btn = [...document.querySelectorAll('.filter-btn-group')]
-      .find(b => b.textContent.trim() === qg.toUpperCase());
+  if (qg && (ALL_GROUPS.includes(qg.toUpperCase()) || qg.toUpperCase() === 'KO')) {
+    const btn = [...document.querySelectorAll('.filter-btn')]
+      .find(b => b.textContent.trim() === qg.toUpperCase() || (qg.toUpperCase() === 'KO' && b.textContent.trim() === 'Eliminatórias'));
     if (btn) setFilter(qg.toUpperCase(), btn);
   } else {
     renderSchedule();
@@ -201,10 +216,11 @@ function renderSchedule() {
     );
   }
 
-  const byDate = {};
+  const sections = {};
   for (const m of matches) {
-    if (!byDate[m.match_date]) byDate[m.match_date] = [];
-    byDate[m.match_date].push(m);
+    const key = `${isKnockout(m) ? 'KO' : 'GROUP'}:${m.match_date}`;
+    if (!sections[key]) sections[key] = { date: m.match_date, stage: isKnockout(m) ? 'KO' : 'GROUP', matches: [] };
+    sections[key].matches.push(m);
   }
 
   const scheduleEl = document.getElementById('matchSchedule');
@@ -220,13 +236,22 @@ function renderSchedule() {
     return;
   }
 
-  for (const date of Object.keys(byDate).sort()) {
-    const ms = byDate[date].sort((a, b) => a.match_time.localeCompare(b.match_time));
+  const orderedSections = Object.values(sections).sort((a, b) =>
+    a.date.localeCompare(b.date) ||
+    (a.stage === b.stage ? 0 : a.stage === 'GROUP' ? -1 : 1)
+  );
+
+  let renderedKoHeader = false;
+  for (const section of orderedSections) {
+    const ms = section.matches.sort((a, b) => a.match_time.localeCompare(b.match_time));
+    const showKoHeader = section.stage === 'KO' && !activeFilter && !renderedKoHeader;
+    if (section.stage === 'KO') renderedKoHeader = true;
 
     const dayEl = document.createElement('div');
     dayEl.className = 'match-day';
     dayEl.innerHTML = `
-      <div class="match-day-header">${formatDateLong(date)}</div>
+      ${showKoHeader ? '<div class="stage-section-header">Eliminatórias</div>' : ''}
+      <div class="match-day-header">${formatDateLong(section.date)}</div>
       <div class="card">
         ${ms.map(m => renderMatchRow(m)).join('')}
       </div>`;
@@ -237,17 +262,28 @@ function renderSchedule() {
       ['home','away'].forEach(side => {
         document.getElementById(`score-${side}-${m.id}`)?.addEventListener('input', e => {
           localPreds[m.id][`${side}_score`] = e.target.value;
+          updateWinnerState(m.id);
           updateGroupStandings(m.group_id);
           updateSaveBar();
         });
       });
+      ['home','away'].forEach(side => {
+        document.getElementById(`winner-${side}-${m.id}`)?.addEventListener('click', () => {
+          localPreds[m.id].predicted_winner = side === 'home' ? m.home_team : m.away_team;
+          updateWinnerState(m.id);
+          updateSaveBar();
+        });
+      });
+      updateWinnerState(m.id);
     }
   }
 }
 
 function renderMatchRow(m) {
   const p = localPreds[m.id] || { home_score: '', away_score: '' };
-  const meta = `<span class="match-group-chip">${GROUP_LABELS[m.group_id]}</span> ${m.match_time} (PT) · ${m.venue}`;
+  const ko = isKnockout(m);
+  const unresolved = ko && (isPlaceholderTeam(m.home_team) || isPlaceholderTeam(m.away_team));
+  const meta = `<span class="match-group-chip">${matchLabel(m)}</span> ${m.match_time} (PT) · ${m.venue}`;
   const matchLocked = isMatchLocked(m.match_date, m.match_time);
 
   if (matchLocked) {
@@ -257,12 +293,12 @@ function renderMatchRow(m) {
     if (isFinished) {
       const pts = p.points_earned;
       const rrClass = !hasPred    ? 'rr-none'
-                    : pts === 3   ? 'rr-exact'
-                    : pts === 1   ? 'rr-result'
+                    : pts >= 3    ? 'rr-exact'
+                    : pts >= 1    ? 'rr-result'
                     : 'rr-wrong';
       const rrLabel = !hasPred    ? 'Real'
-                    : pts === 3   ? '⭐ Exacto'
-                    : pts === 1   ? '✓ Resultado'
+                    : pts >= 3    ? `Exacto (${pts})`
+                    : pts >= 1    ? `${pts} ponto${pts === 1 ? '' : 's'}`
                     : '✗ Errado';
       return `
     <div class="match-block">
@@ -278,6 +314,7 @@ function renderMatchRow(m) {
         <div class="rr-block ${rrClass}">
           <div class="rr-label">${rrLabel}</div>
           <div class="rr-score">${m.home_score} : ${m.away_score}</div>
+          ${ko && m.winner_team ? `<div class="rr-label">Passa: ${m.winner_team}</div>` : ''}
         </div>
       </div>
     </div>`;
@@ -303,6 +340,21 @@ function renderMatchRow(m) {
     ? `<span style="font-size:.72rem;font-weight:600;color:${diff < 3600000 ? 'var(--primary)' : diff < 86400000 ? 'var(--gold)' : 'var(--muted)'}">${timeLeft}</span>`
     : '';
 
+  if (unresolved) {
+    return `
+    <div class="match-block">
+      <div class="match-row">
+        <div class="team-home"><span class="team-name-text">${teamLink(m.home_team, m.home_flag)}</span></div>
+        <div class="score-box"><span class="match-actual-score">— : —</span></div>
+        <div class="team-away"><span class="team-name-text">${teamLink(m.away_team, m.away_flag)}</span></div>
+      </div>
+      <div class="match-meta" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${meta}</span>
+        <span style="font-size:.72rem;color:var(--gold)">A aguardar equipas</span>
+      </div>
+    </div>`;
+  }
+
   return `
     <div class="match-block">
       <div class="match-row">
@@ -318,13 +370,41 @@ function renderMatchRow(m) {
         <span>${meta}</span>
         ${deadlineHtml}
       </div>
+      ${ko ? `
+        <div class="ko-winner-row ko-winner-row-hidden" id="winner-row-${m.id}">
+          <span>Vencedor da eliminatória:</span>
+          <button type="button" id="winner-home-${m.id}" class="winner-pick" data-team="${m.home_team}">${m.home_flag} ${m.home_team}</button>
+          <button type="button" id="winner-away-${m.id}" class="winner-pick" data-team="${m.away_team}">${m.away_flag} ${m.away_team}</button>
+        </div>` : ''}
     </div>`;
+}
+
+function updateWinnerState(matchId) {
+  const m = allMatchesList.find(x => x.id === matchId);
+  if (!m || !isKnockout(m)) return;
+  const p = localPreds[matchId] || {};
+  const h = parseInt(p.home_score), a = parseInt(p.away_score);
+  if (!isNaN(h) && !isNaN(a) && h !== a) {
+    p.predicted_winner = h > a ? m.home_team : m.away_team;
+  }
+  const needsPick = !isNaN(h) && !isNaN(a) && h === a;
+  const row = document.getElementById(`winner-row-${matchId}`);
+  if (row) {
+    row.classList.toggle('ko-winner-row-hidden', !needsPick);
+    row.classList.toggle('needs-pick', needsPick && !p.predicted_winner);
+  }
+  document.getElementById(`winner-home-${matchId}`)?.classList.toggle('active', p.predicted_winner === m.home_team);
+  document.getElementById(`winner-away-${matchId}`)?.classList.toggle('active', p.predicted_winner === m.away_team);
 }
 
 function renderGroupStandings() {
   const section   = document.getElementById('groupsSection');
   const container = document.getElementById('groupStandings');
   const header    = document.getElementById('standingsHeader');
+  if (activeFilter === 'KO') {
+    section.style.display = 'none';
+    return;
+  }
   const groups    = activeFilter ? [activeFilter] : ALL_GROUPS;
 
   header.textContent = activeFilter ? `Tabela — ${GROUP_LABELS[activeFilter]}` : 'Tabelas dos Grupos';
@@ -365,11 +445,12 @@ function updateSaveBar() {
     filled++;
     const saved = userPreds[m.id] !== undefined
       && String(userPreds[m.id].home_score) === p.home_score
-      && String(userPreds[m.id].away_score) === p.away_score;
+      && String(userPreds[m.id].away_score) === p.away_score
+      && (!isKnockout(m) || String(userPreds[m.id].predicted_winner || '') === String(p.predicted_winner || ''));
     if (!saved) unsaved++;
   }
   document.getElementById('saveInfo').innerHTML =
-    `<strong>${filled}</strong> de 72 preenchidas${unsaved > 0 ? ` · <span style="color:var(--gold)">${unsaved} por guardar</span>` : ''}`;
+    `<strong>${filled}</strong> de ${allMatchesList.length} preenchidas${unsaved > 0 ? ` · <span style="color:var(--gold)">${unsaved} por guardar</span>` : ''}`;
   document.getElementById('saveAllBtn').disabled = unsaved === 0 && filled > 0;
 }
 
@@ -382,14 +463,20 @@ async function saveAll() {
     if (!p || p.home_score === '' || p.away_score === '') continue;
     const h = parseInt(p.home_score), a = parseInt(p.away_score);
     if (isNaN(h) || isNaN(a) || h < 0 || a < 0) continue;
-    predictions.push({ match_id: m.id, home_score: h, away_score: a });
+    if (isKnockout(m) && (isPlaceholderTeam(m.home_team) || isPlaceholderTeam(m.away_team))) continue;
+    if (isKnockout(m) && h === a && !p.predicted_winner) {
+      showToast('Nas eliminatórias, se prevês empate aos 120 tens de escolher quem passa.', 'error');
+      setFilter('KO', [...document.querySelectorAll('.filter-btn')].find(b => b.textContent.trim() === 'Eliminatórias'));
+      return;
+    }
+    predictions.push({ match_id: m.id, home_score: h, away_score: a, predicted_winner: isKnockout(m) ? p.predicted_winner : null });
   }
   if (!predictions.length) { showToast('Preenche pelo menos um marcador.', 'error'); return; }
 
   setLoading(btn, true);
   try {
     await API.post('/matches/predictions', { predictions });
-    for (const p of predictions) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score };
+    for (const p of predictions) userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score, predicted_winner: p.predicted_winner };
     showToast(`${predictions.length} ${predictions.length !== 1 ? 'previsões guardadas' : 'previsão guardada'}!`);
     renderSchedule();
     updateSaveBar();

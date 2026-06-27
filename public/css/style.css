@@ -423,6 +423,15 @@ a:hover { text-decoration: underline; }
 
 .match-meta { font-size: .73rem; color: var(--dim); text-align: center; margin-top: 2px; padding-bottom: 10px; }
 
+.stage-section-header {
+  margin: 30px 0 8px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+
 .match-actual-score {
   font-size: 1.5rem;
   font-weight: 900;
@@ -458,6 +467,89 @@ a:hover { text-decoration: underline; }
 
 .rr-none   { border-color: var(--border); }
 .rr-none   .rr-label, .rr-none   .rr-score { color: var(--muted); }
+
+.ko-winner-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px auto 12px;
+  padding: 10px 12px;
+  max-width: 560px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-hover);
+  font-size: .78rem;
+  color: var(--muted);
+}
+.ko-winner-row > span {
+  flex: 0 0 auto;
+}
+.ko-winner-row-hidden {
+  display: none;
+}
+.winner-pick {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.winner-pick:hover {
+  border-color: var(--primary);
+}
+.winner-pick.active {
+  border-color: var(--green);
+  background: var(--green-bg);
+  color: var(--green);
+}
+.ko-winner-row.needs-pick .winner-pick {
+  border-color: var(--gold);
+}
+
+.admin-ko-winner-row {
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px auto 8px;
+  padding: 8px 12px;
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-hover);
+  color: var(--muted);
+  font-size: .8rem;
+}
+.admin-ko-winner-row span {
+  font-weight: 700;
+  color: var(--muted);
+}
+.admin-ko-winner-select {
+  width: auto;
+  min-width: 180px;
+  padding: 6px 10px;
+  font-size: .82rem;
+}
+
+.admin-result-row {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  position: relative;
+  padding-right: 180px;
+}
+.admin-result-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+}
 
 /* ============================================================
    STANDINGS TABLE

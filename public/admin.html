@@ -84,15 +84,24 @@
 <script src="js/point-predictions-admin.js"></script>
 <script>
 let user, allMatches = [], groupMatches = {};
+let resultsStage = 'group';
+
+function isKnockout(m) {
+  return m && m.group_id === 'KO';
+}
+
+function matchLabel(m) {
+  return isKnockout(m) ? 'Eliminatorias' : GROUP_LABELS[m.group_id];
+}
 
 (async () => {
   user = await requireAuth();
   if (!user) return;
-  if (!user.is_admin) {
+  if (!user.is_admin && !user.is_helper) {
     document.getElementById('adminContent').innerHTML = `
       <div class="card text-center" style="padding:48px">
         <p style="font-size:1.8rem;font-weight:900;color:var(--primary);letter-spacing:-.03em;margin-bottom:8px">Acesso negado</p>
-        <p class="muted small">Para te tornar admin, corre no terminal:<br>
+        <p class="muted small">Para te tornar admin/helper, corre no terminal:<br>
         <code style="background:var(--bg);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:8px;font-size:.85rem">npm run make-admin -- ${user.username}</code><br>
         e recarrega a página.</p>
       </div>`;
@@ -105,14 +114,15 @@ let user, allMatches = [], groupMatches = {};
     groupMatches[m.group_id].push(m);
   }
   renderPanel();
-  loadAdminStats();
+  if (user.is_admin) loadAdminStats();
 })();
 
 // ── Panel render ──────────────────────────────────────────────────────────────
 
 function renderPanel() {
   const byDate = {};
-  for (const m of allMatches) {
+  const visibleMatches = allMatches.filter(m => resultsStage === 'ko' ? isKnockout(m) : !isKnockout(m));
+  for (const m of visibleMatches) {
     if (!byDate[m.match_date]) byDate[m.match_date] = [];
     byDate[m.match_date].push(m);
   }
@@ -121,20 +131,26 @@ function renderPanel() {
     <div class="tabs" id="adminTabs">
       <button class="tab-btn active" onclick="switchTab('matches',this)">Resultados</button>
       <button class="tab-btn"        onclick="switchTab('groups',this)">Pontos de Grupos</button>
-      <button class="tab-btn"        onclick="switchTab('selecoes',this)">Seleções</button>
-      <button class="tab-btn"        onclick="switchTab('tickets',this)">Reportes</button>
-      <button class="tab-btn"        onclick="switchTab('users',this)">Utilizadores</button>
-      <button class="tab-btn"        onclick="switchTab('logs',this)">Logs</button>
-      <button class="tab-btn"        onclick="switchTab('pointPredictions',this)">Previsões com Pontos</button>
+      ${user.is_admin ? `
+        <button class="tab-btn" onclick="switchTab('selecoes',this)">Seleções</button>
+        <button class="tab-btn" onclick="switchTab('tickets',this)">Reportes</button>
+        <button class="tab-btn" onclick="switchTab('users',this)">Utilizadores</button>
+        <button class="tab-btn" onclick="switchTab('logs',this)">Logs</button>
+        <button class="tab-btn" onclick="switchTab('pointPredictions',this)">Previsões com Pontos</button>
+      ` : ''}
     </div>
 
     <!-- ── Tab: Resultados ─────────────────────────────────────────────── -->
     <div id="tabMatches">
+      <div class="match-visibility-control" style="margin-bottom:14px;width:max-content">
+        <button class="${resultsStage === 'group' ? 'active' : ''}" onclick="setResultsStage('group')">Grupos</button>
+        <button class="${resultsStage === 'ko' ? 'active' : ''}" onclick="setResultsStage('ko')">Eliminatórias</button>
+      </div>
       ${Object.entries(byDate).sort(([a],[b]) => a.localeCompare(b)).map(([date, ms]) => `
         <div class="card mt-12">
           <div class="card-title">${formatDate(date)}</div>
           ${ms.sort((a,b) => a.match_time.localeCompare(b.match_time)).map(renderAdminMatch).join('')}
-        </div>`).join('')}
+        </div>`).join('') || `<div class="card mt-12"><span class="muted small">Sem jogos nesta vista.</span></div>`}
     </div>
 
     <!-- ── Tab: Pontos de Grupos ───────────────────────────────────────── -->
@@ -151,7 +167,7 @@ function renderPanel() {
               <button class="btn btn-primary btn-sm" onclick="calcGroup('${g}')" ${done ? '' : 'disabled'}>Calcular pontos</button>
             </div>
           </div>
-          ${done ? renderActualStandings(g) : ''}
+          ${renderActualStandings(g)}
         </div>`;
       }).join('')}
     </div>
@@ -274,16 +290,21 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
   document.getElementById('tabMatches').style.display   = tab === 'matches'  ? '' : 'none';
   document.getElementById('tabGroups').style.display    = tab === 'groups'   ? '' : 'none';
-  document.getElementById('tabSelecoes').style.display  = tab === 'selecoes'  ? '' : 'none';
-  document.getElementById('tabTickets').style.display   = tab === 'tickets'   ? '' : 'none';
-  document.getElementById('tabUsers').style.display     = tab === 'users'     ? '' : 'none';
-  document.getElementById('tabLogs').style.display      = tab === 'logs'      ? '' : 'none';
-  document.getElementById('tabPointPredictions').style.display = tab === 'pointPredictions' ? '' : 'none';
+  document.getElementById('tabSelecoes')?.style.setProperty('display', tab === 'selecoes' ? '' : 'none');
+  document.getElementById('tabTickets')?.style.setProperty('display', tab === 'tickets' ? '' : 'none');
+  document.getElementById('tabUsers')?.style.setProperty('display', tab === 'users' ? '' : 'none');
+  document.getElementById('tabLogs')?.style.setProperty('display', tab === 'logs' ? '' : 'none');
+  document.getElementById('tabPointPredictions')?.style.setProperty('display', tab === 'pointPredictions' ? '' : 'none');
   if (tab === 'selecoes') loadScrapeStatus();
   if (tab === 'tickets')  loadTickets();
   if (tab === 'users')    loadUsers();
   if (tab === 'logs')     loadLogs();
   if (tab === 'pointPredictions') loadPointPredictionsAdmin();
+}
+
+function setResultsStage(stage) {
+  resultsStage = stage;
+  renderPanel();
 }
 
 // ── Scrape status ─────────────────────────────────────────────────────────────
@@ -383,9 +404,24 @@ async function autoSettle() {
 function renderActualStandings(g) {
   const ms = groupMatches[g] || [];
   const predsMap = {};
-  for (const m of ms) predsMap[m.id] = { home_score: m.home_score, away_score: m.away_score };
+  const finished = ms.filter(m => m.status === 'finished' && m.home_score !== null && m.away_score !== null);
+  for (const m of finished) predsMap[m.id] = { home_score: m.home_score, away_score: m.away_score };
   const el = document.createElement('div');
   el.className = 'mt-12';
+  const note = document.createElement('p');
+  note.className = 'muted small';
+  note.style.margin = '0 0 10px';
+  note.textContent = finished.length === 6
+    ? 'Classificacao final calculada com os resultados introduzidos.'
+    : `Classificacao provisoria com ${finished.length}/6 jogos introduzidos.`;
+  el.appendChild(note);
+  if (!finished.length) {
+    const empty = document.createElement('div');
+    empty.className = 'muted small';
+    empty.textContent = 'Ainda nao ha resultados introduzidos neste grupo.';
+    el.appendChild(empty);
+    return el.innerHTML;
+  }
   renderStandingsTable(calcStandings(ms, predsMap), el);
   return el.innerHTML;
 }
@@ -393,42 +429,99 @@ function renderActualStandings(g) {
 function renderAdminMatch(m) {
   const hv    = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
   const av    = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
+  const ko    = isKnockout(m);
+  const winner = m.winner_team || '';
+  const showWinner = ko && hv !== '' && av !== '' && Number(hv) === Number(av);
   const badge = m.status === 'finished'
     ? '<span class="badge badge-green">Concluído</span>'
     : '<span class="badge badge-muted">Agendado</span>';
 
   return `
     <div class="match-block">
-      <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
+      <div class="match-row admin-result-row">
         <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
         <div class="score-box">
-          <input type="number" min="0" max="20" id="ah-${m.id}" class="score-input" value="${hv}" placeholder="—">
+          <input type="number" min="0" max="20" id="ah-${m.id}" class="score-input" value="${hv}" placeholder="—" oninput="syncAdminWinnerRow(${m.id})">
           <span class="score-sep">:</span>
-          <input type="number" min="0" max="20" id="aa-${m.id}" class="score-input" value="${av}" placeholder="—">
+          <input type="number" min="0" max="20" id="aa-${m.id}" class="score-input" value="${av}" placeholder="—" oninput="syncAdminWinnerRow(${m.id})">
         </div>
         <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
-        <div class="flex gap-8" style="flex-shrink:0">
+        <div class="admin-result-actions flex gap-8">
           ${badge}
           <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
-          ${m.status === 'finished' ? `<button class="btn btn-ghost btn-sm" title="Corrigir snapshot de ranks (usa quando submeteste o resultado duas vezes)" onclick="fixSnapshot(${m.id})">↺ Ranks</button>` : ''}
+          ${user.is_admin && m.status === 'finished' ? `<button class="btn btn-ghost btn-sm" title="Corrigir snapshot de ranks (usa quando submeteste o resultado duas vezes)" onclick="fixSnapshot(${m.id})">↺ Ranks</button>` : ''}
         </div>
       </div>
-      <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+      ${ko ? `
+        <div id="admin-winner-row-${m.id}" class="admin-ko-winner-row" style="display:${showWinner ? 'flex' : 'none'}">
+          <span>Quem passou:</span>
+          <select id="winner-${m.id}" class="input admin-ko-winner-select">
+            <option value="">Escolher vencedor</option>
+            <option value="${m.home_team}" ${winner === m.home_team ? 'selected' : ''}>${m.home_team}</option>
+            <option value="${m.away_team}" ${winner === m.away_team ? 'selected' : ''}>${m.away_team}</option>
+          </select>
+        </div>
+        <details style="margin-top:8px">
+          <summary class="muted small" style="cursor:pointer">Editar equipas / hora</summary>
+          <div class="flex gap-8" style="margin-top:8px;flex-wrap:wrap">
+            <input id="home-team-${m.id}" class="input" style="max-width:210px" value="${m.home_team}">
+            <input id="home-flag-${m.id}" class="input" style="width:72px" value="${m.home_flag}">
+            <input id="away-team-${m.id}" class="input" style="max-width:210px" value="${m.away_team}">
+            <input id="away-flag-${m.id}" class="input" style="width:72px" value="${m.away_flag}">
+            <input id="date-${m.id}" class="input" style="width:140px" value="${m.match_date}">
+            <input id="time-${m.id}" class="input" style="width:90px" value="${m.match_time}">
+            <input id="venue-${m.id}" class="input" style="max-width:260px" value="${m.venue}">
+            <button class="btn btn-ghost btn-sm" onclick="saveMatchTeams(${m.id})">Guardar equipas</button>
+          </div>
+        </details>` : ''}
+      <div class="match-meta">${matchLabel(m)} · ${m.match_time} (PT) · ${m.venue}</div>
     </div>`;
+}
+
+function syncAdminWinnerRow(id) {
+  const h = parseInt(document.getElementById(`ah-${id}`)?.value);
+  const a = parseInt(document.getElementById(`aa-${id}`)?.value);
+  const row = document.getElementById(`admin-winner-row-${id}`);
+  if (row) row.style.display = (!isNaN(h) && !isNaN(a) && h === a) ? 'flex' : 'none';
 }
 
 async function saveResult(id) {
   const h = parseInt(document.getElementById(`ah-${id}`)?.value);
   const a = parseInt(document.getElementById(`aa-${id}`)?.value);
+  const m = allMatches.find(x => x.id === id);
+  const winner = document.getElementById(`winner-${id}`)?.value || null;
   if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador inválido.', 'error'); return; }
+  if (m && isKnockout(m) && h === a && !winner) { showToast('Escolhe quem passa quando o resultado aos 120 é empate.', 'error'); return; }
   try {
-    await API.post('/admin/result', { match_id: id, home_score: h, away_score: a });
+    const r = await API.post('/admin/result', { match_id: id, home_score: h, away_score: a, winner_team: winner });
+    allMatches = await API.get('/matches') || [];
+    groupMatches = {};
+    for (const g of ALL_GROUPS) groupMatches[g] = allMatches.filter(m => m.group_id === g);
     const idx = allMatches.findIndex(m => m.id === id);
-    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].status = 'finished'; }
+    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].winner_team = r.winner_team; allMatches[idx].status = 'finished'; }
     const gid = allMatches[idx]?.group_id;
-    if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
+    if (gid && groupMatches[gid]) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
     renderPanel();
     showToast(`Resultado guardado (${h}–${a})!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function saveMatchTeams(id) {
+  try {
+    await API.patch(`/admin/matches/${id}/teams`, {
+      home_team: document.getElementById(`home-team-${id}`).value.trim(),
+      home_flag: document.getElementById(`home-flag-${id}`).value.trim(),
+      away_team: document.getElementById(`away-team-${id}`).value.trim(),
+      away_flag: document.getElementById(`away-flag-${id}`).value.trim(),
+      match_date: document.getElementById(`date-${id}`).value.trim(),
+      match_time: document.getElementById(`time-${id}`).value.trim(),
+      venue: document.getElementById(`venue-${id}`).value.trim(),
+    });
+    allMatches = await API.get('/matches') || [];
+    groupMatches = {};
+    for (const g of ALL_GROUPS) groupMatches[g] = allMatches.filter(m => m.group_id === g);
+    renderPanel();
+    showToast('Jogo atualizado.');
   } catch (e) { showToast(e.message, 'error'); }
 }
 

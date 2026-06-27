@@ -52,6 +52,10 @@ O modulo de previsoes com pontos fica desligado por defeito. Quando ativado, cad
 aposta usa um ponto do total real do utilizador. O impacto liquido aparece como
 `Pts Comunidade` e entra na classificacao atraves de `point_transactions`.
 
+As eliminatorias usam regras proprias: previsao do resultado aos 120 minutos,
+escolha do vencedor da eliminatoria em caso de empate, e maximo de 4 pontos por
+jogo. Ver [`docs/knockout-rules.md`](docs/knockout-rules.md).
+
 ## Verificacao
 
 ```bash

@@ -3,8 +3,9 @@ const db     = require('../db');
 const { auth, requireAdmin, requireHelper } = require('../middleware/auth');
 const { autoSettleFromScrape } = require('../settle');
 const { logEvent } = require('../logs');
-const { checkAchievements } = require('../middleware/achievements');
+const { checkAchievements, awardGroupStageTop10Achievements } = require('../middleware/achievements');
 const { calcStandings } = require('../standings');
+const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('../knockout');
 
 // GET /api/admin/stats — dashboard overview
 router.get('/stats', auth, requireAdmin, (req, res) => {
@@ -109,6 +110,83 @@ router.post('/resnapshot', auth, requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/admin/result  { match_id, home_score, away_score, winner_team? }
+router.post('/result', auth, requireHelper, (req, res) => {
+  const { match_id, home_score, away_score, winner_team } = req.body;
+  if (typeof home_score !== 'number' || typeof away_score !== 'number' || home_score < 0 || away_score < 0)
+    return res.status(400).json({ error: 'Marcador invalido' });
+
+  const matchRow = db.prepare('SELECT * FROM matches WHERE id=?').get(match_id);
+  if (!matchRow) return res.status(404).json({ error: 'Jogo nao encontrado' });
+
+  const actualWinner = isKnockoutMatch(matchRow)
+    ? knockoutWinnerFromScore(matchRow, home_score, away_score, winner_team)
+    : null;
+  if (isKnockoutMatch(matchRow) && home_score === away_score && !actualWinner) {
+    return res.status(400).json({ error: 'Em eliminatorias, se o resultado aos 120 for empate tens de escolher quem passa.' });
+  }
+
+  snapshotRanks();
+
+  db.prepare("UPDATE matches SET home_score=?,away_score=?,winner_team=?,status='finished' WHERE id=?")
+    .run(home_score, away_score, actualWinner, match_id);
+
+  const predictions = db.prepare('SELECT id,home_score,away_score,predicted_winner FROM match_predictions WHERE match_id=?').all(match_id);
+  const updatePoints = db.prepare("UPDATE match_predictions SET points_earned=?, updated_at=datetime('now') WHERE id=?");
+  let scoredCount = 0;
+  db.transaction(() => {
+    for (const prediction of predictions) {
+      updatePoints.run(scorePrediction(matchRow, prediction, home_score, away_score, actualWinner), prediction.id);
+      scoredCount++;
+    }
+  })();
+
+  db.prepare(`
+    INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, winner_team, predictions_scored)
+    VALUES (?, 'admin', ?, ?, ?, ?)
+  `).run(match_id, home_score, away_score, actualWinner, scoredCount);
+
+  if (isKnockoutMatch(matchRow) && actualWinner && matchRow.next_match_id && matchRow.next_slot) {
+    const slotColumn = matchRow.next_slot === 'away' ? 'away_team' : 'home_team';
+    const flagColumn = matchRow.next_slot === 'away' ? 'away_flag' : 'home_flag';
+    const winnerFlag = actualWinner === matchRow.home_team ? matchRow.home_flag : matchRow.away_flag;
+    db.prepare(`UPDATE matches SET ${slotColumn}=?, ${flagColumn}=? WHERE id=?`)
+      .run(actualWinner, winnerFlag, matchRow.next_match_id);
+  }
+
+  logEvent({
+    category:  'admin',
+    message:   `Resultado introduzido: ${matchRow.home_team} ${home_score}-${away_score} ${matchRow.away_team} (${scoredCount} previsoes pontuadas)`,
+    actorId:   req.user.id,
+    actorName: req.user.username,
+    metadata:  { match_id, home_score, away_score, winner_team: actualWinner, predictions_scored: scoredCount },
+  });
+
+  setImmediate(() => {
+    const affected = db.prepare('SELECT DISTINCT user_id FROM match_predictions WHERE match_id=? AND points_earned IS NOT NULL').all(match_id);
+    for (const { user_id } of affected) checkAchievements(db, user_id);
+  });
+
+  res.json({ ok: true, winner_team: actualWinner });
+});
+
+// PATCH /api/admin/matches/:id/teams
+router.patch('/matches/:id/teams', auth, requireHelper, (req, res) => {
+  const id = parseInt(req.params.id);
+  const { home_team, away_team, home_flag = '', away_flag = '', match_date, match_time, venue } = req.body;
+  if (!home_team || !away_team) return res.status(400).json({ error: 'Equipas obrigatorias' });
+  db.prepare(`
+    UPDATE matches
+    SET home_team=?, away_team=?, home_flag=?, away_flag=?,
+        match_date=COALESCE(?, match_date),
+        match_time=COALESCE(?, match_time),
+        venue=COALESCE(?, venue)
+    WHERE id=?
+  `).run(home_team, away_team, home_flag, away_flag, match_date || null, match_time || null, venue || null, id);
+  res.json({ ok: true });
+});
+
+// Legacy result route kept below but shadowed by the knockout-aware route above.
 // POST /api/admin/result  { match_id, home_score, away_score }
 router.post('/result', auth, requireHelper, (req, res) => {
   const { match_id, home_score, away_score } = req.body;
@@ -203,6 +281,16 @@ router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
   // Check group/rank achievements for all users who got group points
   setImmediate(() => {
     for (const uid of Object.keys(byUser)) checkAchievements(db, parseInt(uid));
+    const top10 = awardGroupStageTop10Achievements(db);
+    if (top10.length) {
+      logEvent({
+        category:  'admin',
+        message:   `Achievements de Top 10 da fase de grupos atribuidos (${top10.length} utilizadores)`,
+        actorId:   req.user.id,
+        actorName: req.user.username,
+        metadata:  { awarded: top10 },
+      });
+    }
   });
 
   logEvent({

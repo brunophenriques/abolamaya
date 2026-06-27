@@ -336,3 +336,11 @@ RESEND_API_KEY, EMAIL_FROM
 ```
 
 **Easter egg**: `@67machine` vê "Membro desde o primeiro dia" no perfil.
+
+---
+
+## Nota: Eliminatorias
+
+As regras especificas das eliminatorias estao documentadas em
+`docs/knockout-rules.md`: resultado aos 120 minutos, vencedor da eliminatoria em
+caso de empate, pontuacao maxima de 4 pontos e fluxo de admin/bracket.

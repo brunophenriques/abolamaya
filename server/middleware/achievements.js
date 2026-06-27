@@ -166,6 +166,13 @@ const ACHIEVEMENTS = [
     hidden: true,
     check: () => false, // event-driven only — awarded via awardAchievement()
   },
+  ...Array.from({ length: 10 }, (_, i) => ({
+    type: `group_stage_rank_${i + 1}`,
+    name: `#${i + 1} da Fase de Grupos`,
+    icon: `#${i + 1}`,
+    description: `Terminaste a fase de grupos na posicao #${i + 1} do ranking global.`,
+    check: () => false, // event-driven only
+  })),
 ];
 
 // ── Core functions ────────────────────────────────────────────────────────────
@@ -219,6 +226,53 @@ function awardAchievement(db, userId, type) {
   return false;
 }
 
+function awardGroupStageTop10Achievements(db) {
+  const completedGroups = db.prepare(`
+    SELECT COUNT(DISTINCT group_id) AS n
+    FROM group_points
+    WHERE actual_order IS NOT NULL
+  `).get().n;
+  if (completedGroups < 12) return [];
+
+  const alreadyAwarded = db.prepare(`
+    SELECT 1 FROM user_achievements
+    WHERE type LIKE 'group_stage_rank_%'
+    LIMIT 1
+  `).get();
+  if (alreadyAwarded) return [];
+
+  const rows = db.prepare(`
+    SELECT u.id,
+      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+      COALESCE(mp.exact,0) AS exact,
+      COALESCE(mp.pts,0) AS match_pts
+    FROM users u
+    LEFT JOIN (
+      SELECT mp.user_id,
+        SUM(COALESCE(mp.points_earned,0)) pts,
+        SUM(CASE WHEN mp.points_earned=3 THEN 1 ELSE 0 END) exact
+      FROM match_predictions mp
+      JOIN matches m ON m.id=mp.match_id
+      WHERE m.group_id != 'KO'
+      GROUP BY mp.user_id
+    ) mp ON mp.user_id=u.id
+    LEFT JOIN (
+      SELECT user_id, SUM(COALESCE(points_earned,0)) pts
+      FROM group_points GROUP BY user_id
+    ) gp ON gp.user_id=u.id
+    WHERE (u.banned IS NULL OR u.banned=0)
+    ORDER BY total DESC, exact ASC, match_pts DESC, u.username
+    LIMIT 10
+  `).all();
+
+  const awarded = [];
+  rows.forEach((row, index) => {
+    const type = `group_stage_rank_${index + 1}`;
+    if (awardAchievement(db, row.id, type)) awarded.push({ user_id: row.id, type, rank: index + 1 });
+  });
+  return awarded;
+}
+
 // Get all earned achievements for a user with full metadata.
 function getUserAchievements(db, userId) {
   const earned = db.prepare(
@@ -228,4 +282,4 @@ function getUserAchievements(db, userId) {
   return earned.map(e => ({ ...meta[e.type], earned_at: e.earned_at })).filter(a => a && a.name);
 }
 
-module.exports = { ACHIEVEMENTS, checkAchievements, awardAchievement, getUserAchievements };
+module.exports = { ACHIEVEMENTS, checkAchievements, awardAchievement, awardGroupStageTop10Achievements, getUserAchievements };

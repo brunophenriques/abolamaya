@@ -2,6 +2,7 @@ const router = require('express').Router();
 const db     = require('../db');
 const { auth } = require('../middleware/auth');
 const { checkAchievements } = require('../middleware/achievements');
+const { isKnockoutMatch, isPlaceholderTeam, knockoutWinnerFromScore } = require('../knockout');
 
 // GET /api/matches
 router.get('/', (req, res) => {
@@ -11,7 +12,7 @@ router.get('/', (req, res) => {
 // GET /api/matches/predictions  — current user's predictions
 router.get('/predictions', auth, (req, res) => {
   res.json(
-    db.prepare('SELECT match_id,home_score,away_score,points_earned FROM match_predictions WHERE user_id=?')
+    db.prepare('SELECT match_id,home_score,away_score,predicted_winner,points_earned FROM match_predictions WHERE user_id=?')
       .all(req.user.id)
   );
 });
@@ -60,28 +61,41 @@ router.post('/predictions', auth, (req, res) => {
 
   const ids = predictions.map(p => p.match_id);
   const ph  = ids.map(() => '?').join(',');
-  const matchRows = db.prepare(`SELECT id, match_date, match_time FROM matches WHERE id IN (${ph})`).all(...ids);
+  const matchRows = db.prepare(`SELECT * FROM matches WHERE id IN (${ph})`).all(...ids);
   const matchMap  = Object.fromEntries(matchRows.map(m => [m.id, m]));
 
   const upsert = db.prepare(`
-    INSERT INTO match_predictions (user_id, match_id, home_score, away_score, updated_at)
-    VALUES (?, ?, ?, ?, datetime('now'))
+    INSERT INTO match_predictions (user_id, match_id, home_score, away_score, predicted_winner, updated_at)
+    VALUES (?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(user_id, match_id) DO UPDATE
-      SET home_score=excluded.home_score, away_score=excluded.away_score, updated_at=excluded.updated_at
+      SET home_score=excluded.home_score,
+          away_score=excluded.away_score,
+          predicted_winner=excluded.predicted_winner,
+          updated_at=excluded.updated_at
   `);
 
   let saved = 0;
   try {
     db.transaction(() => {
       for (const p of predictions) {
+        const homeScore = Number(p.home_score);
+        const awayScore = Number(p.away_score);
+        if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore)) throw new Error('Marcador invalido');
         if (p.home_score < 0 || p.away_score < 0) throw new Error('Marcador inválido');
         const m = matchMap[p.match_id];
         if (!m) throw new Error('Jogo não encontrado');
+        if (isKnockoutMatch(m) && (isPlaceholderTeam(m.home_team) || isPlaceholderTeam(m.away_team))) continue;
         const kickoff = new Date(`${m.match_date}T${m.match_time}:00+01:00`).getTime();
         const isException = m.match_date === '2026-06-11' && m.match_time === '20:00';
         const lockAt = isException ? kickoff + 600000 : kickoff - 300000;
         if (Date.now() >= lockAt) continue; // locked — skip silently
-        upsert.run(req.user.id, p.match_id, p.home_score, p.away_score);
+        const predictedWinner = isKnockoutMatch(m)
+          ? knockoutWinnerFromScore(m, homeScore, awayScore, p.predicted_winner)
+          : null;
+        if (isKnockoutMatch(m) && homeScore === awayScore && !predictedWinner) {
+          throw new Error('Em eliminatorias, se preves empate aos 120 minutos tens de escolher quem passa.');
+        }
+        upsert.run(req.user.id, p.match_id, homeScore, awayScore, predictedWinner);
         saved++;
       }
     })();
