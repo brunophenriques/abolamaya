@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const db = require('../db');
 const { auth, requireAdmin } = require('../middleware/auth');
+const { checkAchievements } = require('../middleware/achievements');
 const {
   getBooleanSetting,
   listPredictions,
@@ -167,7 +168,12 @@ router.get('/:id/votes', (req, res) => {
 
 router.post('/:id/resolve', (req, res) => {
   try {
-    const summary = resolvePrediction(Number(req.params.id), String(req.body.result || ''));
+    const id = Number(req.params.id);
+    const voters = db.prepare('SELECT DISTINCT user_id FROM point_prediction_votes WHERE prediction_id=?').all(id);
+    const summary = resolvePrediction(id, String(req.body.result || ''));
+    setImmediate(() => {
+      for (const { user_id } of voters) checkAchievements(db, user_id);
+    });
     res.json({ ok: true, ...summary });
   } catch (error) {
     handleError(res, error);

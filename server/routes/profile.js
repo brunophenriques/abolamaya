@@ -2,7 +2,7 @@ const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const db      = require('../db');
 const { auth } = require('../middleware/auth');
-const { getUserAchievements, awardAchievement } = require('../middleware/achievements');
+const { getUserAchievements, awardAchievement, checkAchievements } = require('../middleware/achievements');
 const { getGlobalLeaderboard } = require('../leaderboardData');
 const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('../knockout');
 
@@ -74,6 +74,8 @@ router.get('/:username', auth, (req, res) => {
       else friendship_status = fr.requester_id === req.user.id ? 'pending_sent' : 'pending_received';
     }
   }
+
+  checkAchievements(db, u.id);
 
   res.json({
     user:         { ...u, is_admin: !!u.is_admin, is_helper: !!u.is_helper, friendship_status },
