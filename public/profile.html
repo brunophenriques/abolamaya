@@ -278,7 +278,7 @@ function renderHistoryTable(predictions) {
     if (pts === null || pts === undefined) return { cls: 'pred-pending', label: '—' };
     if (pts === 4) return { cls: 'pred-knockout-perfect', label: '+4 ✓✓+' };
     if (pts === 3) return { cls: 'pred-exact', label: '+3 ✓✓' };
-    if (pts === 2) return { cls: 'pred-correct', label: '+2 ✓+' };
+    if (pts === 2) return { cls: 'pred-knockout-good', label: '+2 ✓+' };
     if (pts === 1) return { cls: 'pred-correct', label: '+1 ✓' };
     return { cls: 'pred-wrong', label: '0' };
   };

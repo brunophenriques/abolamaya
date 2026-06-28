@@ -153,6 +153,16 @@ const ACHIEVEMENTS = [
     ).get(uid),
   },
   {
+    type: 'centenario',
+    name: 'Centenário',
+    icon: '💯',
+    description: 'Alcançaste os 100 pontos totais.',
+    check: (db, uid) => {
+      const row = getGlobalLeaderboard(db).find(u => u.id === uid);
+      return !!row && row.total_points >= 100;
+    },
+  },
+  {
     type: '67_machine',
     name: '67 Machine',
     icon: '🤖',
