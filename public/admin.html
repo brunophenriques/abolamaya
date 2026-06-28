@@ -155,6 +155,15 @@ function renderPanel() {
 
     <!-- ── Tab: Pontos de Grupos ───────────────────────────────────────── -->
     <div id="tabGroups" style="display:none">
+      <div class="card mt-12">
+        <div class="flex-between" style="gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="card-title" style="margin-bottom:3px">Fecho da fase de grupos</div>
+            <p class="muted small" style="margin:0">Atribui os achievements #1 a #10 depois de todos os grupos estarem liquidados.</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="awardGroupStageTop10()">Atribuir Top 10</button>
+        </div>
+      </div>
       ${ALL_GROUPS.map(g => {
         const ms       = groupMatches[g] || [];
         const finished = ms.filter(m => m.status === 'finished').length;
@@ -596,7 +605,20 @@ async function refreshPlayerStats(slug, testMode) {
 async function calcGroup(g) {
   try {
     const r = await API.post(`/admin/group/${g}/points`);
-    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores!`);
+    const extra = [
+      r.skipped_incomplete ? `${r.skipped_incomplete} com menos de 3 previsões ignorados` : '',
+      r.capped ? `${r.capped} limitados a 3 pts` : '',
+    ].filter(Boolean).join(' · ');
+    showToast(`${GROUP_LABELS[g]}: pontos calculados para ${r.count} utilizadores${extra ? ` (${extra})` : ''}!`);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function awardGroupStageTop10() {
+  try {
+    const r = await API.post('/admin/group-stage/top10-achievements');
+    showToast(r.count
+      ? `Achievements Top 10 atribuídos a ${r.count} utilizadores.`
+      : 'Nenhum achievement novo atribuído. Confirma se os 12 grupos já foram liquidados ou se já tinham sido atribuídos.');
   } catch (e) { showToast(e.message, 'error'); }
 }
 

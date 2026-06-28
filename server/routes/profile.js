@@ -26,20 +26,25 @@ function userStats(userId) {
   const community_points = pp.pts || 0;
   const total_points = (mp.match_pts || 0) + (gp.gp || 0) + community_points;
 
-  const { rank } = db.prepare(`
-    SELECT COUNT(*)+1 AS rank FROM (
-      SELECT u.id,
-        COALESCE(SUM(mp2.points_earned),0) + COALESCE(gp2.gp,0) + COALESCE(pp2.pts,0) AS tp
-      FROM users u
-      LEFT JOIN match_predictions mp2 ON mp2.user_id = u.id
-      LEFT JOIN (SELECT user_id, SUM(points_earned) gp FROM group_points GROUP BY user_id) gp2
-             ON gp2.user_id = u.id
-      LEFT JOIN (SELECT user_id, SUM(amount) pts FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id) pp2
-             ON pp2.user_id = u.id
-      WHERE u.id != ?
-      GROUP BY u.id
-    ) WHERE tp > ?
-  `).get(userId, total_points);
+  const rankRows = db.prepare(`
+    SELECT u.id,
+      COALESCE(mp2.pts,0) + COALESCE(gp2.gp,0) + COALESCE(pp2.pts,0) AS total_points,
+      COALESCE(mp2.exact,0) AS exact_predictions,
+      COALESCE(mp2.pts,0) AS match_points
+    FROM users u
+    LEFT JOIN (
+      SELECT user_id,
+        SUM(COALESCE(points_earned,0)) pts,
+        SUM(CASE WHEN points_earned=3 THEN 1 ELSE 0 END) exact
+      FROM match_predictions GROUP BY user_id
+    ) mp2 ON mp2.user_id = u.id
+    LEFT JOIN (SELECT user_id, SUM(points_earned) gp FROM group_points GROUP BY user_id) gp2
+           ON gp2.user_id = u.id
+    LEFT JOIN (SELECT user_id, SUM(amount) pts FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id) pp2
+           ON pp2.user_id = u.id
+    ORDER BY total_points DESC, exact_predictions ASC, match_points DESC, u.username
+  `).all();
+  const rank = Math.max(1, rankRows.findIndex(row => row.id === userId) + 1);
 
   return {
     total_predictions:   mp.total   || 0,

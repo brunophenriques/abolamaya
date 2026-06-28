@@ -235,6 +235,20 @@ router.post('/result', auth, requireHelper, (req, res) => {
 });
 
 // POST /api/admin/group/:group_id/points
+router.post('/group-stage/top10-achievements', auth, requireHelper, (req, res) => {
+  const top10 = awardGroupStageTop10Achievements(db);
+  if (top10.length) {
+    logEvent({
+      category:  'admin',
+      message:   `Achievements de Top 10 da fase de grupos atribuidos (${top10.length} utilizadores)`,
+      actorId:   req.user.id,
+      actorName: req.user.username,
+      metadata:  { awarded: top10 },
+    });
+  }
+  res.json({ ok: true, count: top10.length, awarded: top10 });
+});
+
 router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
   const { group_id } = req.params;
   const matches = db.prepare('SELECT * FROM matches WHERE group_id=?').all(group_id);
@@ -267,12 +281,24 @@ router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
       points_earned=excluded.points_earned, calculated_at=excluded.calculated_at
   `);
 
-  let count = 0;
+  const eligibleEntries = Object.entries(byUser)
+    .map(([uid, preds]) => ({
+      uid,
+      preds,
+      predicted_count: matchIds.filter(id => preds[id]).length,
+    }))
+    .filter(entry => entry.predicted_count >= 3);
+
+  let count = 0, capped = 0;
   db.transaction(() => {
-    for (const [uid, preds] of Object.entries(byUser)) {
+    db.prepare('DELETE FROM group_points WHERE group_id=?').run(group_id);
+    for (const { uid, preds, predicted_count } of eligibleEntries) {
       const predOrder = calcStandings(matches, preds).map(t => t.name);
       let pts = 0;
       for (let i = 0; i < 4; i++) if (predOrder[i] === actualOrder[i]) pts++;
+      const cappedPts = predicted_count <= 4 ? Math.min(pts, 3) : pts;
+      if (cappedPts !== pts) capped++;
+      pts = cappedPts;
       upsert.run(parseInt(uid), group_id, JSON.stringify(predOrder), JSON.stringify(actualOrder), pts);
       count++;
     }
@@ -280,7 +306,7 @@ router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
 
   // Check group/rank achievements for all users who got group points
   setImmediate(() => {
-    for (const uid of Object.keys(byUser)) checkAchievements(db, parseInt(uid));
+    for (const { uid } of eligibleEntries) checkAchievements(db, parseInt(uid));
     const top10 = awardGroupStageTop10Achievements(db);
     if (top10.length) {
       logEvent({
@@ -295,13 +321,25 @@ router.post('/group/:group_id/points', auth, requireHelper, (req, res) => {
 
   logEvent({
     category:  'admin',
-    message:   `Pontos do Grupo ${group_id} calculados para ${count} utilizadores (ordem real: ${actualOrder.join(', ')})`,
+    message:   `Pontos do Grupo ${group_id} calculados para ${count} utilizadores elegiveis (ordem real: ${actualOrder.join(', ')})`,
     actorId:   req.user.id,
     actorName: req.user.username,
-    metadata:  { group_id, count, actual_order: actualOrder },
+    metadata:  {
+      group_id,
+      count,
+      capped,
+      skipped_incomplete: Object.keys(byUser).length - count,
+      actual_order: actualOrder,
+    },
   });
 
-  res.json({ ok: true, count, actual_order: actualOrder });
+  res.json({
+    ok: true,
+    count,
+    capped,
+    skipped_incomplete: Object.keys(byUser).length - count,
+    actual_order: actualOrder,
+  });
 });
 
 // POST /api/admin/auto-settle
