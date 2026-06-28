@@ -252,10 +252,7 @@ function awardGroupStageTop10Achievements(db, { replace = false } = {}) {
       SELECT mp.user_id,
         SUM(COALESCE(mp.points_earned,0)) pts,
         SUM(CASE WHEN mp.points_earned=3 THEN 1 ELSE 0 END) exact
-      FROM match_predictions mp
-      JOIN matches m ON m.id=mp.match_id
-      WHERE m.group_id != 'KO'
-      GROUP BY mp.user_id
+      FROM match_predictions mp GROUP BY mp.user_id
     ) mp ON mp.user_id=u.id
     LEFT JOIN (
       SELECT user_id, SUM(COALESCE(points_earned,0)) pts
@@ -265,7 +262,6 @@ function awardGroupStageTop10Achievements(db, { replace = false } = {}) {
       SELECT user_id, SUM(amount) pts
       FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id
     ) pp ON pp.user_id=u.id
-    WHERE (u.banned IS NULL OR u.banned=0)
     ORDER BY total DESC, exact ASC, match_pts DESC, u.username
     LIMIT 10
   `).all();
