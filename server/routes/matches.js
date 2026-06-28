@@ -106,4 +106,12 @@ router.post('/predictions', auth, (req, res) => {
   }
 });
 
+// GET /api/matches/group-points  â€” current user's calculated points per group
+router.get('/group-points', auth, (req, res) => {
+  res.json(
+    db.prepare('SELECT group_id, points_earned FROM group_points WHERE user_id=? ORDER BY group_id')
+      .all(req.user.id)
+  );
+});
+
 module.exports = router;

@@ -111,7 +111,7 @@
 <script src="js/scoring.js"></script>
 <script src="js/theme.js"></script>
 <script>
-let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {};
+let user, allMatchesList = [], groupMatchesMap = {}, userPreds = {}, localPreds = {}, groupPointsByGroup = {};
 let activeFilter = null;
 let showCompletedMatches = false;
 
@@ -146,7 +146,11 @@ function formatDateLong(dateStr) {
   // will set after matches load
 
 
-  const [matches, preds] = await Promise.all([API.get('/matches'), API.get('/matches/predictions')]);
+  const [matches, preds, groupPoints] = await Promise.all([
+    API.get('/matches'),
+    API.get('/matches/predictions'),
+    API.get('/matches/group-points')
+  ]);
 
   allMatchesList = matches || [];
   for (const m of allMatchesList) {
@@ -158,6 +162,7 @@ function formatDateLong(dateStr) {
   for (const p of preds || []) {
     userPreds[p.match_id] = { home_score: p.home_score, away_score: p.away_score, predicted_winner: p.predicted_winner, points_earned: p.points_earned };
   }
+  groupPointsByGroup = Object.fromEntries((groupPoints || []).map(gp => [gp.group_id, gp.points_earned]));
   for (const m of allMatchesList) {
     localPreds[m.id] = userPreds[m.id]
       ? { home_score: String(userPreds[m.id].home_score), away_score: String(userPreds[m.id].away_score), predicted_winner: userPreds[m.id].predicted_winner || '', points_earned: userPreds[m.id].points_earned }
@@ -415,8 +420,11 @@ function renderGroupStandings() {
 
   container.className = activeFilter ? '' : 'groups-standings-grid';
   container.innerHTML = groups.map(g => `
-    <div class="card">
-      <div class="card-title">${GROUP_LABELS[g]}</div>
+    <div class="card group-standing-card">
+      <div class="group-standing-head">
+        <div class="card-title">${GROUP_LABELS[g]}</div>
+        ${groupPointsByGroup[g] !== undefined ? `<span class="group-points-badge">${groupPointsByGroup[g]} ${groupPointsByGroup[g] === 1 ? 'pt' : 'pts'}</span>` : ''}
+      </div>
       <div id="standings-${g}"></div>
     </div>`).join('');
   groups.forEach(g => updateGroupStandings(g));

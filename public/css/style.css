@@ -1409,6 +1409,25 @@ a.group-team:hover { color: var(--text); text-decoration: none; }
   gap: 16px;
   margin-bottom: 48px;
 }
+.group-standing-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.group-standing-head .card-title { margin-bottom: 0; }
+.group-points-badge {
+  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(60,172,59,.32);
+  background: rgba(60,172,59,.12);
+  color: var(--green);
+  font-size: .72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 
 /* ============================================================
    LOBBY MEMBER LIST
