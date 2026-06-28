@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
 const { DATABASE_PATH } = require('./paths');
+const { knockoutWinnerFromScore, scorePrediction } = require('./knockout');
 
 const db = new Database(DATABASE_PATH);
 db.pragma('journal_mode = WAL');
@@ -507,5 +508,46 @@ db.prepare(`
         + COALESCE((SELECT SUM(points_earned) FROM group_points       WHERE user_id=users.id),0) < 1
   )
 `).run();
+
+// Repair knockout prediction points that may have been scored by the old group-stage rule.
+// Knockout scoring is: exact score/result up to 3 pts + qualified team 1 pt.
+try {
+  const finishedKo = db.prepare(`
+    SELECT * FROM matches
+    WHERE group_id='KO'
+      AND status='finished'
+      AND home_score IS NOT NULL
+      AND away_score IS NOT NULL
+  `).all();
+  const predictionsForMatch = db.prepare(`
+    SELECT id, home_score, away_score, predicted_winner, points_earned
+    FROM match_predictions
+    WHERE match_id=?
+  `);
+  const updatePredictionPoints = db.prepare(`
+    UPDATE match_predictions
+    SET points_earned=?, updated_at=datetime('now')
+    WHERE id=?
+  `);
+
+  let repairedKoPoints = 0;
+  db.transaction(() => {
+    for (const match of finishedKo) {
+      const actualWinner = match.winner_team ||
+        knockoutWinnerFromScore(match, match.home_score, match.away_score, null);
+      if (!actualWinner) continue;
+      for (const prediction of predictionsForMatch.all(match.id)) {
+        const points = scorePrediction(match, prediction, match.home_score, match.away_score, actualWinner);
+        if (prediction.points_earned !== points) {
+          updatePredictionPoints.run(points, prediction.id);
+          repairedKoPoints++;
+        }
+      }
+    }
+  })();
+  if (repairedKoPoints > 0) console.log(`[db] KO points repaired: ${repairedKoPoints} prediction(s).`);
+} catch (e) {
+  console.warn('[db] KO points repair skipped:', e.message);
+}
 
 module.exports = db;

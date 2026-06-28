@@ -4,6 +4,7 @@ const db      = require('../db');
 const { auth } = require('../middleware/auth');
 const { getUserAchievements, awardAchievement } = require('../middleware/achievements');
 const { getGlobalLeaderboard } = require('../leaderboardData');
+const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('../knockout');
 
 // ── Shared stats helper ───────────────────────────────────────────────────────
 function userStats(userId) {
@@ -91,10 +92,10 @@ router.get('/:username/history', auth, (req, res) => {
   const predictions = db.prepare(`
     SELECT
       mp.match_id, mp.home_score AS pred_home, mp.away_score AS pred_away,
-      mp.points_earned, mp.updated_at,
+      mp.predicted_winner, mp.points_earned, mp.updated_at,
       m.home_team, m.away_team, m.home_flag, m.away_flag,
       m.home_score AS actual_home, m.away_score AS actual_away,
-      m.match_date, m.match_time, m.group_id, m.status
+      m.match_date, m.match_time, m.group_id, m.status, m.winner_team
     FROM match_predictions mp
     JOIN matches m ON m.id = mp.match_id
     WHERE mp.user_id = ?
@@ -102,7 +103,28 @@ router.get('/:username/history', auth, (req, res) => {
     ORDER BY m.match_date DESC, m.id DESC
   `).all(u.id);
 
-  res.json({ predictions, partial: hidePending });
+  const displayPredictions = predictions.map(p => {
+    if (p.status !== 'finished' || !isKnockoutMatch(p)) return p;
+    const winner = p.winner_team || knockoutWinnerFromScore(
+      { home_team: p.home_team, away_team: p.away_team, group_id: p.group_id },
+      p.actual_home,
+      p.actual_away,
+      null
+    );
+    if (!winner) return p;
+    return {
+      ...p,
+      points_earned: scorePrediction(
+        { home_team: p.home_team, away_team: p.away_team, group_id: p.group_id },
+        { home_score: p.pred_home, away_score: p.pred_away, predicted_winner: p.predicted_winner },
+        p.actual_home,
+        p.actual_away,
+        winner
+      ),
+    };
+  });
+
+  res.json({ predictions: displayPredictions, partial: hidePending });
 });
 
 // PATCH /api/profile/me — update display_name and bio
