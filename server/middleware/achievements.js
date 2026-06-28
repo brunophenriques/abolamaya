@@ -168,7 +168,7 @@ const ACHIEVEMENTS = [
   },
   ...Array.from({ length: 10 }, (_, i) => ({
     type: `group_stage_rank_${i + 1}`,
-    name: `#${i + 1} - Fase de grupos`,
+    name: 'Fase de grupos',
     icon: `#${i + 1}`,
     description: `Após a fase de grupos acabaste em ${i + 1}ª.`,
     className: i < 3 ? `achievement-rank-${i + 1}` : 'achievement-rank-group',
@@ -227,7 +227,7 @@ function awardAchievement(db, userId, type) {
   return false;
 }
 
-function awardGroupStageTop10Achievements(db) {
+function awardGroupStageTop10Achievements(db, { replace = false } = {}) {
   const completedGroups = db.prepare(`
     SELECT COUNT(DISTINCT group_id) AS n
     FROM group_points
@@ -240,11 +240,11 @@ function awardGroupStageTop10Achievements(db) {
     WHERE type LIKE 'group_stage_rank_%'
     LIMIT 1
   `).get();
-  if (alreadyAwarded) return [];
+  if (alreadyAwarded && !replace) return [];
 
   const rows = db.prepare(`
     SELECT u.id,
-      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) AS total,
+      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) + COALESCE(pp.pts,0) AS total,
       COALESCE(mp.exact,0) AS exact,
       COALESCE(mp.pts,0) AS match_pts
     FROM users u
@@ -261,10 +261,23 @@ function awardGroupStageTop10Achievements(db) {
       SELECT user_id, SUM(COALESCE(points_earned,0)) pts
       FROM group_points GROUP BY user_id
     ) gp ON gp.user_id=u.id
+    LEFT JOIN (
+      SELECT user_id, SUM(amount) pts
+      FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id
+    ) pp ON pp.user_id=u.id
     WHERE (u.banned IS NULL OR u.banned=0)
     ORDER BY total DESC, exact ASC, match_pts DESC, u.username
     LIMIT 10
   `).all();
+
+  if (replace) {
+    db.prepare("DELETE FROM user_achievements WHERE type LIKE 'group_stage_rank_%'").run();
+    db.prepare(`
+      DELETE FROM notifications
+      WHERE type='achievement'
+      AND title LIKE '%Fase de grupos%'
+    `).run();
+  }
 
   const awarded = [];
   rows.forEach((row, index) => {
@@ -277,7 +290,10 @@ function awardGroupStageTop10Achievements(db) {
 // Get all earned achievements for a user with full metadata.
 function getUserAchievements(db, userId) {
   const earned = db.prepare(
-    'SELECT type, earned_at FROM user_achievements WHERE user_id=? ORDER BY earned_at'
+    `SELECT type, earned_at
+     FROM user_achievements
+     WHERE user_id=?
+     ORDER BY CASE WHEN type LIKE 'group_stage_rank_%' THEN 0 ELSE 1 END, earned_at`
   ).all(userId);
   const meta = Object.fromEntries(ACHIEVEMENTS.map(a => [a.type, a]));
   return earned.map(e => ({ ...meta[e.type], earned_at: e.earned_at })).filter(a => a && a.name);

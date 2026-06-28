@@ -236,11 +236,11 @@ router.post('/result', auth, requireHelper, (req, res) => {
 
 // POST /api/admin/group/:group_id/points
 router.post('/group-stage/top10-achievements', auth, requireHelper, (req, res) => {
-  const top10 = awardGroupStageTop10Achievements(db);
+  const top10 = awardGroupStageTop10Achievements(db, { replace: true });
   if (top10.length) {
     logEvent({
       category:  'admin',
-      message:   `Achievements de Top 10 da fase de grupos atribuidos (${top10.length} utilizadores)`,
+      message:   `Achievements de Top 10 da fase de grupos recalculados (${top10.length} utilizadores)`,
       actorId:   req.user.id,
       actorName: req.user.username,
       metadata:  { awarded: top10 },
