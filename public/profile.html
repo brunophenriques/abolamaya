@@ -274,18 +274,25 @@ function renderHistoryTable(predictions) {
   if (!predictions.length)
     return '<p class="muted small" style="padding:12px 0">Nenhuma previsão encontrada.</p>';
 
+  const pointsDisplay = pts => {
+    if (pts === null || pts === undefined) return { cls: 'pred-pending', label: '—' };
+    if (pts === 4) return { cls: 'pred-knockout-perfect', label: '+4 ✓✓+' };
+    if (pts === 3) return { cls: 'pred-exact', label: '+3 ✓✓' };
+    if (pts === 1) return { cls: 'pred-correct', label: '+1 ✓' };
+    return { cls: 'pred-wrong', label: '0' };
+  };
+
   const rows = predictions.map(p => {
     const hasResult  = p.status === 'finished';
     const pts        = p.points_earned;
-    const ptsCls     = pts === 3 ? 'pred-exact' : pts >= 1 ? 'pred-correct' : pts === 0 ? 'pred-wrong' : 'pred-pending';
-    const ptsLabel   = pts === null ? '—' : pts === 3 ? '+3 ✓✓' : pts === 1 ? '+1 ✓' : '0';
+    const ptsInfo    = pointsDisplay(pts);
     const actualScore = hasResult ? `${p.actual_home}–${p.actual_away}` : '?–?';
     return `<tr>
       <td class="muted small">${formatDate(p.match_date)}</td>
       <td>${p.home_flag} ${p.home_team} <span class="muted">vs</span> ${p.away_team} ${p.away_flag}</td>
       <td style="text-align:center"><strong>${p.pred_home}–${p.pred_away}</strong></td>
       <td style="text-align:center;color:var(--muted)">${actualScore}</td>
-      <td style="text-align:center" class="${ptsCls}">${ptsLabel}</td>
+      <td style="text-align:center" class="${ptsInfo.cls}">${ptsInfo.label}</td>
     </tr>`;
   }).join('');
 
