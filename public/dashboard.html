@@ -110,6 +110,11 @@ function rankBadge(i) {
   return String(i + 1);
 }
 
+function matchStageLabel(m) {
+  if (m.group_id === 'KO' || m.stage) return 'Eliminatórias';
+  return GROUP_LABELS[m.group_id] || '';
+}
+
 async function renderNextMatchCards(matches, preds) {
   const wrap = document.getElementById('nextMatchCard');
   if (!wrap) return;
@@ -133,6 +138,8 @@ async function renderNextMatchCards(matches, preds) {
   wrap.className = '';
   const matchCards = infos.map(({ match: m }) => {
     const myPred = preds.find(p => p.match_id === m.id);
+    const stageLabel = matchStageLabel(m);
+    const meta = [stageLabel, `${m.match_time} (PT)`, m.venue].filter(Boolean).join(' · ');
     const myPredHtml = myPred
       ? `<span class="nm-my-pred">A tua previsão: <strong>${myPred.home_score}–${myPred.away_score}</strong></span>`
       : `<a href="/predict?group=${m.group_id}" class="btn btn-primary btn-sm" style="font-size:.78rem;padding:4px 12px">Fazer previsão</a>`;
@@ -149,7 +156,7 @@ async function renderNextMatchCards(matches, preds) {
           <span class="nm-name">${m.away_team}</span>
         </div>
       </div>
-      <div class="nm-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+      <div class="nm-meta">${meta}</div>
       <div class="nm-footer">
         ${myPredHtml}
       </div>
