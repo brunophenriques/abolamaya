@@ -4,6 +4,8 @@
 // `67_machine` is event-driven (awarded via awardAchievement) — check always returns false.
 
 
+const { getGlobalLeaderboard } = require('../leaderboardData');
+
 const ACHIEVEMENTS = [
   // ── Kept originals (not duplicated by new list) ──────────────────────────────
   {
@@ -242,29 +244,7 @@ function awardGroupStageTop10Achievements(db, { replace = false } = {}) {
   `).get();
   if (alreadyAwarded && !replace) return [];
 
-  const rows = db.prepare(`
-    SELECT u.id,
-      COALESCE(mp.pts,0) + COALESCE(gp.pts,0) + COALESCE(pp.pts,0) AS total,
-      COALESCE(mp.exact,0) AS exact,
-      COALESCE(mp.pts,0) AS match_pts
-    FROM users u
-    LEFT JOIN (
-      SELECT mp.user_id,
-        SUM(COALESCE(mp.points_earned,0)) pts,
-        SUM(CASE WHEN mp.points_earned=3 THEN 1 ELSE 0 END) exact
-      FROM match_predictions mp GROUP BY mp.user_id
-    ) mp ON mp.user_id=u.id
-    LEFT JOIN (
-      SELECT user_id, SUM(COALESCE(points_earned,0)) pts
-      FROM group_points GROUP BY user_id
-    ) gp ON gp.user_id=u.id
-    LEFT JOIN (
-      SELECT user_id, SUM(amount) pts
-      FROM point_transactions WHERE type!='admin_adjustment' GROUP BY user_id
-    ) pp ON pp.user_id=u.id
-    ORDER BY total DESC, exact ASC, match_pts DESC, u.username
-    LIMIT 10
-  `).all();
+  const rows = getGlobalLeaderboard(db, { limit: 10 });
 
   if (replace) {
     db.prepare("DELETE FROM user_achievements WHERE type LIKE 'group_stage_rank_%'").run();
