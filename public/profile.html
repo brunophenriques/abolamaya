@@ -163,7 +163,7 @@ function renderProfile({ user, stats, achievements }, { predictions, partial }, 
       <div class="card-title">Conquistas <span class="badge badge-muted">${achievements.length}</span></div>
       <div class="achievements-grid">
         ${achievements.map(a => `
-          <div class="achievement-card" title="${a.description}">
+          <div class="achievement-card ${a.className || ''}" title="${a.description}">
             <span class="achievement-icon">${a.icon}</span>
             <span class="achievement-name">${a.name}</span>
           </div>`).join('')}

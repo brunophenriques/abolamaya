@@ -168,9 +168,10 @@ const ACHIEVEMENTS = [
   },
   ...Array.from({ length: 10 }, (_, i) => ({
     type: `group_stage_rank_${i + 1}`,
-    name: `#${i + 1} da Fase de Grupos`,
+    name: `#${i + 1} - Fase de grupos`,
     icon: `#${i + 1}`,
-    description: `Terminaste a fase de grupos na posicao #${i + 1} do ranking global.`,
+    description: `Após a fase de grupos acabaste em ${i + 1}ª.`,
+    className: i < 3 ? `achievement-rank-${i + 1}` : 'achievement-rank-group',
     check: () => false, // event-driven only
   })),
 ];
