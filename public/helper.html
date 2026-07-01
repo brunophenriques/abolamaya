@@ -70,6 +70,14 @@
 <script>
 let user, allMatches = [], groupMatches = {};
 
+function isKnockout(m) {
+  return m && m.group_id === 'KO';
+}
+
+function matchLabel(m) {
+  return isKnockout(m) ? 'Eliminatórias' : GROUP_LABELS[m.group_id];
+}
+
 (async () => {
   user = await requireAuth();
   if (!user) return;
@@ -152,6 +160,9 @@ function renderActualStandings(g) {
 function renderHelperMatch(m) {
   const hv    = m.home_score !== null && m.home_score !== undefined ? m.home_score : '';
   const av    = m.away_score !== null && m.away_score !== undefined ? m.away_score : '';
+  const ko    = isKnockout(m);
+  const winner = m.winner_team || '';
+  const showWinner = ko && hv !== '' && av !== '' && Number(hv) === Number(av);
   const badge = m.status === 'finished'
     ? '<span class="badge badge-green">Concluído</span>'
     : '<span class="badge badge-muted">Agendado</span>';
@@ -161,9 +172,9 @@ function renderHelperMatch(m) {
       <div class="match-row" style="grid-template-columns:1fr auto 1fr auto;gap:8px">
         <div class="team-home"><span class="team-name-text">${m.home_team}</span><span class="team-flag">${m.home_flag}</span></div>
         <div class="score-box">
-          <input type="number" min="0" max="20" id="hh-${m.id}" class="score-input" value="${hv}" placeholder="—">
+          <input type="number" min="0" max="20" id="hh-${m.id}" class="score-input" oninput="syncHelperWinnerRow(${m.id})" value="${hv}" placeholder="—">
           <span class="score-sep">:</span>
-          <input type="number" min="0" max="20" id="ha-${m.id}" class="score-input" value="${av}" placeholder="—">
+          <input type="number" min="0" max="20" id="ha-${m.id}" class="score-input" oninput="syncHelperWinnerRow(${m.id})" value="${av}" placeholder="—">
         </div>
         <div class="team-away"><span class="team-flag">${m.away_flag}</span><span class="team-name-text">${m.away_team}</span></div>
         <div class="flex gap-8" style="flex-shrink:0">
@@ -171,18 +182,37 @@ function renderHelperMatch(m) {
           <button class="btn btn-primary btn-sm" onclick="saveResult(${m.id})">Guardar</button>
         </div>
       </div>
-      <div class="match-meta">${GROUP_LABELS[m.group_id]} · ${m.match_time} (PT) · ${m.venue}</div>
+      ${ko ? `
+        <div id="helper-winner-row-${m.id}" class="admin-ko-winner-row" style="display:${showWinner ? 'flex' : 'none'}">
+          <span>Quem passou:</span>
+          <select id="hwinner-${m.id}" class="input admin-ko-winner-select">
+            <option value="">Escolher vencedor</option>
+            <option value="${m.home_team}" ${winner === m.home_team ? 'selected' : ''}>${m.home_team}</option>
+            <option value="${m.away_team}" ${winner === m.away_team ? 'selected' : ''}>${m.away_team}</option>
+          </select>
+        </div>` : ''}
+      <div class="match-meta">${matchLabel(m)} &middot; ${m.match_time} (PT) &middot; ${m.venue}</div>
     </div>`;
+}
+
+function syncHelperWinnerRow(id) {
+  const h = parseInt(document.getElementById(`hh-${id}`)?.value);
+  const a = parseInt(document.getElementById(`ha-${id}`)?.value);
+  const row = document.getElementById(`helper-winner-row-${id}`);
+  if (row) row.style.display = (!isNaN(h) && !isNaN(a) && h === a) ? 'flex' : 'none';
 }
 
 async function saveResult(id) {
   const h = parseInt(document.getElementById(`hh-${id}`)?.value);
   const a = parseInt(document.getElementById(`ha-${id}`)?.value);
-  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador inválido.', 'error'); return; }
+  const m = allMatches.find(x => x.id === id);
+  const winner = document.getElementById(`hwinner-${id}`)?.value || null;
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) { showToast('Marcador invalido.', 'error'); return; }
+  if (m && isKnockout(m) && h === a && !winner) { showToast('Escolhe quem passa quando o resultado aos 120 e empate.', 'error'); return; }
   try {
-    await API.post('/admin/result', { match_id: id, home_score: h, away_score: a });
+    const r = await API.post('/admin/result', { match_id: id, home_score: h, away_score: a, winner_team: winner });
     const idx = allMatches.findIndex(m => m.id === id);
-    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].status = 'finished'; }
+    if (idx >= 0) { allMatches[idx].home_score = h; allMatches[idx].away_score = a; allMatches[idx].winner_team = r.winner_team; allMatches[idx].status = 'finished'; }
     const gid = allMatches[idx]?.group_id;
     if (gid) { const gi = groupMatches[gid].findIndex(m => m.id === id); if (gi >= 0) groupMatches[gid][gi] = allMatches[idx]; }
     renderPanel();
