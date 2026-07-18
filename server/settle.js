@@ -3,7 +3,7 @@
 // scoreline; the admin must choose who advanced.
 
 const { checkAchievements } = require('./middleware/achievements');
-const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('./knockout');
+const { isKnockoutMatch, knockoutWinnerFromScore, advanceKnockoutTeams, scorePrediction } = require('./knockout');
 
 function norm(s) {
   return (s || '').toLowerCase()
@@ -14,15 +14,6 @@ function norm(s) {
 function teamsMatch(dbTeam, scrapedTeam) {
   const a = norm(dbTeam), b = norm(scrapedTeam);
   return a === b || a.includes(b) || b.includes(a);
-}
-
-function advanceKnockoutWinner(db, match, winnerTeam) {
-  if (!match.next_match_id || !match.next_slot) return;
-  const slotColumn = match.next_slot === 'away' ? 'away_team' : 'home_team';
-  const flagColumn = match.next_slot === 'away' ? 'away_flag' : 'home_flag';
-  const winnerFlag = winnerTeam === match.home_team ? match.home_flag : match.away_flag;
-  db.prepare(`UPDATE matches SET ${slotColumn}=?, ${flagColumn}=? WHERE id=?`)
-    .run(winnerTeam, winnerFlag, match.next_match_id);
 }
 
 function scoreKnockoutPredictions(db, match, found, winnerTeam) {
@@ -102,7 +93,7 @@ function autoSettleFromScrape(db) {
       ? scoreKnockoutPredictions(db, match, found, winnerTeam)
       : scoreGroupPredictions(db, match, found);
 
-    if (isKnockoutMatch(match)) advanceKnockoutWinner(db, match, winnerTeam);
+    if (isKnockoutMatch(match)) advanceKnockoutTeams(db, match, winnerTeam);
 
     db.prepare(`
       INSERT INTO settlement_log (match_id, settled_by, home_score, away_score, winner_team, predictions_scored)

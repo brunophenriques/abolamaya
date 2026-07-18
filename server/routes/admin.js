@@ -5,7 +5,7 @@ const { autoSettleFromScrape } = require('../settle');
 const { logEvent } = require('../logs');
 const { checkAchievements, awardGroupStageTop10Achievements } = require('../middleware/achievements');
 const { calcStandings } = require('../standings');
-const { isKnockoutMatch, knockoutWinnerFromScore, scorePrediction } = require('../knockout');
+const { isKnockoutMatch, knockoutWinnerFromScore, advanceKnockoutTeams, scorePrediction } = require('../knockout');
 
 // GET /api/admin/stats — dashboard overview
 router.get('/stats', auth, requireAdmin, (req, res) => {
@@ -146,12 +146,8 @@ router.post('/result', auth, requireHelper, (req, res) => {
     VALUES (?, 'admin', ?, ?, ?, ?)
   `).run(match_id, home_score, away_score, actualWinner, scoredCount);
 
-  if (isKnockoutMatch(matchRow) && actualWinner && matchRow.next_match_id && matchRow.next_slot) {
-    const slotColumn = matchRow.next_slot === 'away' ? 'away_team' : 'home_team';
-    const flagColumn = matchRow.next_slot === 'away' ? 'away_flag' : 'home_flag';
-    const winnerFlag = actualWinner === matchRow.home_team ? matchRow.home_flag : matchRow.away_flag;
-    db.prepare(`UPDATE matches SET ${slotColumn}=?, ${flagColumn}=? WHERE id=?`)
-      .run(actualWinner, winnerFlag, matchRow.next_match_id);
+  if (isKnockoutMatch(matchRow) && actualWinner) {
+    advanceKnockoutTeams(db, matchRow, actualWinner);
   }
 
   logEvent({

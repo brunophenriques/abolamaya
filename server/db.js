@@ -246,7 +246,7 @@ const knockoutFixtures = [
   [100, 'W95', 'W96', '⬜', '⬜', '2026-07-12', '02:00', 'Quarter-final', 'QF-4', 102, 'away'],
   [101, 'W97', 'W98', '⬜', '⬜', '2026-07-14', '20:00', 'Semi-final', 'SF-1', 104, 'home'],
   [102, 'W99', 'W100', '⬜', '⬜', '2026-07-15', '20:00', 'Semi-final', 'SF-2', 104, 'away'],
-  [103, 'RU101', 'RU102', '⬜', '⬜', '2026-07-18', '22:00', 'Play-off for third place', 'THIRD', null, null],
+  [103, 'England', 'France', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', '🇫🇷', '2026-07-18', '22:00', 'Play-off for third place', 'THIRD', null, null],
   [104, 'W101', 'W102', '⬜', '⬜', '2026-07-19', '20:00', 'Final', 'FINAL', null, null],
 ];
 
@@ -256,6 +256,15 @@ const insertKnockout = db.prepare(`
   VALUES (?, 'KO', ?, ?, ?, ?, ?, ?, ?, 'round32', ?, ?, ?)
 `);
 db.transaction(() => knockoutFixtures.forEach(f => insertKnockout.run(...f)))();
+
+// Existing databases retain inserted fixtures because the seed uses OR IGNORE.
+// Replace only the old placeholders, preserving any teams already derived from results.
+db.prepare(`
+  UPDATE matches
+  SET home_team='England', away_team='France',
+      home_flag='🏴󠁧󠁢󠁥󠁮󠁧󠁿', away_flag='🇫🇷'
+  WHERE id=103 AND home_team='RU101' AND away_team='RU102'
+`).run();
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_oauth (
